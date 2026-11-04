@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ميسر للتطوير العقاري | عقارات فاخرة في الرياض وجدة برخصة فال المعتمدة</title>
+  <meta name="description"
+    content="منصة ميسر للتطوير العقاري - بوابتك الموثوقة لتملك أرقى الفلل والشقق في الرياض وجدة بضمانات كود البناء السعودي وتأمين العيوب الخفية وتوثيق البورصة العقارية.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            },
+            sand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            }
+          },
+          fontFamily: {
+            sans: ['Tajawal', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            heading: ['Readex Pro', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ملف الأنماط المخصصة -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-800 selection:text-white">
+  <aside aria-label="الشريط التنظيمي المعتمد"
+    class="bg-emerald-950 text-emerald-100 text-[11px] sm:text-xs py-2 border-b border-emerald-900/60 font-medium">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 text-emerald-300">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+          منصة معتمدة من الهيئة العامة للعقار
+        </span>
+        <span class="hidden md:inline text-emerald-800">|</span>
+        <span class="hidden md:inline text-emerald-300">رخصة فال للوساطة والتسويق: <strong
+            class="font-mono text-white">1200034918</strong></span>
+        <span class="hidden lg:inline text-emerald-800">|</span>
+        <span class="hidden lg:inline text-emerald-300">ترخيص الإعلان: <strong
+            class="font-mono text-white">7200194821</strong></span>
+      </div>
+      <div class="flex items-center gap-4 text-emerald-200">
+        <span class="inline-flex items-center gap-1.5 text-emerald-300">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>خدمة العملاء: طوال أيام الأسبوع</span>
+        </span>
+        <span class="text-emerald-800">|</span>
+        <span class="hidden sm:inline">الرياض وجدة، المملكة العربية السعودية</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+
+        <!-- شعار المنصة -->
+        <div class="flex items-center gap-8">
+          <a href="#" class="flex items-center gap-3 group">
+            <div
+              class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-900 to-emerald-700 flex items-center justify-center text-white shadow-md shadow-emerald-900/10 group-hover:scale-105 transition-transform">
+              <i data-lucide="building-2" class="w-6 h-6 text-sand-200"></i>
+            </div>
+            <div>
+              <div
+                class="text-xl font-black font-heading tracking-tight text-slate-900 group-hover:text-emerald-900 transition-colors">
+                مُيَسَّر <span class="text-emerald-700 font-light">للتطوير العقاري</span>
+              </div>
+              <div class="text-[10px] text-slate-500 font-medium tracking-wide">
+                MUYASSAR REAL ESTATE • RIYADH & JEDDAH
+              </div>
+            </div>
+          </a>
+
+          <!-- روابط التصفح الرئيسية -->
+          <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+            <a href="#properties-section" class="hover:text-emerald-800 transition-colors flex items-center gap-1 py-2">
+              عقارات للبيع
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            </a>
+            <a href="#properties-section" onclick="setFilterPurpose('للإيجار')"
+              class="hover:text-emerald-800 transition-colors py-2">
+              عقارات للإيجار
+            </a>
+            <a href="#properties-section" onclick="setFilterPurpose('استثمار تجاري')"
+              class="hover:text-emerald-800 transition-colors py-2">
+              مخططات واستثمار
+            </a>
+            <a href="#lead-capture-section" class="hover:text-emerald-800 transition-colors py-2">
+              طلب عقار خاص
+            </a>
+          </nav>
+        </div>
+
+        <!-- الإجراءات السريعة وتغيير اللغة -->
+        <div class="flex items-center gap-3">
+
+          <!-- زر المحفوظات / المفضلة -->
+          <a href="#properties-section" title="العقارات المحفوظة"
+            class="relative p-2.5 rounded-xl text-slate-600 hover:text-rose-600 hover:bg-slate-100 transition-colors">
+            <i data-lucide="heart" class="w-5 h-5"></i>
+            <span id="favorites-badge"
+              class="hidden absolute top-1 right-1 w-4 h-4 bg-rose-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
+          </a>
+
+          <!-- محول اللغة (اللغة الحالية: العربية) -->
+          <div
+            class="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-emerald-800"></i>
+            <span>العربية (SAR)</span>
+          </div>
+
+          <!-- زر إضافة العقار CTA -->
+          <button type="button"
+            class="open-add-property-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-sm font-bold shadow-md shadow-emerald-950/10 hover:shadow-lg transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-300"></i>
+            <span>أضف عقارك</span>
+          </button>
+
+          <!-- زر القائمة للجوال -->
+          <button type="button" id="mobile-menu-btn" aria-label="فتح القائمة الرئيسية"
+            class="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100" onclick="toggleMobileMenu()">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- قائمة الجوال المنسدلة -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2">
+      <a href="#properties-section" onclick="toggleMobileMenu()"
+        class="block px-3 py-2 rounded-lg font-semibold text-slate-800 hover:bg-slate-100">عقارات للبيع</a>
+      <a href="#properties-section" onclick="setFilterPurpose('للإيجار'); toggleMobileMenu();"
+        class="block px-3 py-2 rounded-lg font-semibold text-slate-800 hover:bg-slate-100">عقارات للإيجار</a>
+      <a href="#properties-section" onclick="setFilterPurpose('استثمار تجاري'); toggleMobileMenu();"
+        class="block px-3 py-2 rounded-lg font-semibold text-slate-800 hover:bg-slate-100">مخططات الأراضي والاستثمار</a>
+      <a href="#lead-capture-section" onclick="toggleMobileMenu()"
+        class="block px-3 py-2 rounded-lg font-semibold text-slate-800 hover:bg-slate-100">طلب عقار خاص</a>
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500">رخصة فال: 1200034918</span>
+        <button class="open-add-property-btn text-xs font-bold text-emerald-800">تسجيل وسيط معلن</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Hero Section with Advanced Property Search -->
+  <section class="relative bg-slate-950 text-white overflow-hidden py-16 sm:py-24">
+    <!-- خلفية معمارية حديثة مع طبقة تعتيم فاخرة -->
+    <div class="absolute inset-0 z-0">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80"
+        alt="عمارة فاخرة بالرياض" class="w-full h-full object-cover object-center opacity-25 scale-105" />
+      <div class="absolute inset-0 hero-gradient-overlay"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- شارة الاعتماد والتوثيق -->
+      <div class="flex items-center justify-center mb-6">
+        <div
+          class="inline-flex items-center gap-2 bg-emerald-900/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-emerald-500/30 text-emerald-200 text-xs sm:text-sm font-semibold shadow-inner">
+          <i data-lucide="badge-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>منصة معتمدة من الهيئة العامة للعقار برخصة فال وتوثيق إلكتروني</span>
+        </div>
+      </div>
+
+      <!-- العناوين الرئيسية -->
+      <div class="text-center max-w-4xl mx-auto mb-10 sm:mb-12">
+        <h1
+          class="text-3xl sm:text-5xl lg:text-6xl font-black font-heading leading-tight sm:leading-tight mb-4 tracking-tight">
+          عقارك القادم في أرقى أحياء المملكة <br class="hidden sm:inline">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-emerald-100 to-sand-200">
+            بضمانات موثقة وصكوك إلكترونية
+          </span>
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+          نقدم نخبة الفلل والقصور والشقق الفندقية في الرياض وجدة، مطابقة لكود البناء السعودي مع تأمين العيوب الخفية
+          وإفراغ فوري عبر البورصة العقارية.
+        </p>
+      </div>
+
+      <!-- محرك البحث العقاري المتقدم (Advanced Filter Card) -->
+      <div class="max-w-5xl mx-auto bg-white text-slate-900 rounded-3xl p-5 sm:p-7 shadow-2xl border border-slate-200">
+
+        <!-- ألسنة نوع الصفقة (للبيع / للإيجار / استثمار تجاري) -->
+        <div class="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+          <button type="button" data-purpose="للبيع"
+            class="filter-purpose-tab active px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-emerald-800 text-white shadow-sm">
+            عقارات للبيع
+          </button>
+          <button type="button" data-purpose="للإيجار"
+            class="filter-purpose-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+            عقارات للإيجار
+          </button>
+          <button type="button" data-purpose="استثمار تجاري"
+            class="filter-purpose-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+            استثمار ومشاريع تجارية
+          </button>
+        </div>
+
+        <!-- حقول الفلاتر الرئيسية -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+
+          <!-- المدينة -->
+          <div>
+            <label for="filter-city" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-700"></i>
+              المدينة
+            </label>
+            <div class="relative">
+              <select id="filter-city"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-3 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none appearance-none cursor-pointer">
+                <option value="الرياض">الرياض (العاصمة)</option>
+                <option value="جدة">جدة (عروس البحر الأحمر)</option>
+                <option value="الخبر">الخبر (المنطقة الشرقية)</option>
+                <option value="مكة المكرمة">مكة المكرمة</option>
+              </select>
+              <i data-lucide="chevron-down"
+                class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- الحي -->
+          <div>
+            <label for="filter-neighborhood"
+              class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <i data-lucide="navigation" class="w-3.5 h-3.5 text-emerald-700"></i>
+              الحي
+            </label>
+            <div class="relative">
+              <select id="filter-neighborhood"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-3 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none appearance-none cursor-pointer">
+                <option value="الكل">كافة الأحياء</option>
+              </select>
+              <i data-lucide="chevron-down"
+                class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- نوع العقار -->
+          <div>
+            <label for="filter-type" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <i data-lucide="home" class="w-3.5 h-3.5 text-emerald-700"></i>
+              نوع العقار
+            </label>
+            <div class="relative">
+              <select id="filter-type"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-3 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none appearance-none cursor-pointer">
+                <option value="الكل">كافة الأنواع</option>
+                <option value="فيلا مودرن">فيلا مودرن</option>
+                <option value="شقة تمليك">شقة تمليك فاخرة</option>
+                <option value="تاون هاوس">تاون هاوس ذكي</option>
+                <option value="أرض سكنية">أرض سكنية</option>
+                <option value="استثمار تجاري">مبنى / استثمار تجاري</option>
+              </select>
+              <i data-lucide="chevron-down"
+                class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- السعر الأقصى -->
+          <div>
+            <label for="filter-price" class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <i data-lucide="coins" class="w-3.5 h-3.5 text-emerald-700"></i>
+              السعر الأقصى (ر.س)
+            </label>
+            <div class="relative">
+              <select id="filter-price"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-3 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none appearance-none cursor-pointer">
+                <option value="100000000">أي سعر</option>
+                <option value="1500000">حتى 1,500,000 ر.س</option>
+                <option value="2500000">حتى 2,500,000 ر.س</option>
+                <option value="4000000">حتى 4,000,000 ر.س</option>
+                <option value="7000000">حتى 7,000,000 ر.س</option>
+                <option value="20000000">أكثر من 7,000,000 ر.س</option>
+              </select>
+              <i data-lucide="chevron-down"
+                class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- خيارات التدقيق السريعة والزر الرئيسي -->
+        <div class="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+
+          <!-- خانات الاختيار للتوثيق والتمويل -->
+          <div class="flex flex-wrap items-center gap-3 sm:gap-6 text-xs font-semibold text-slate-700">
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="toggle-fal" checked
+                class="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700 accent-emerald-800 cursor-pointer">
+              <span>معتمد برخصة فال</span>
+            </label>
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="toggle-sakani"
+                class="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700 accent-emerald-800 cursor-pointer">
+              <span>يقبل التمويل العقاري (سكني)</span>
+            </label>
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="toggle-building-code"
+                class="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700 accent-emerald-800 cursor-pointer">
+              <span>كود البناء وتأمين ملاذ 10 سنوات</span>
+            </label>
+          </div>
+
+          <!-- زر استعراض العقارات المتاحة (CTA) -->
+          <button type="button" id="hero-search-btn"
+            class="w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all">
+            <i data-lucide="search" class="w-4 h-4 text-emerald-300"></i>
+            <span>استعراض العقارات المتاحة</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. أركان الموثوقية والامتثال للأنظمة السعودية -->
+  <section class="bg-white border-b border-slate-200 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center sm:text-right">
+
+        <div class="flex flex-col sm:flex-row items-center gap-3.5">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">ترخيص رسمي معتمد</div>
+            <div class="text-xs text-slate-500">رخصة فال للوساطة والتسويق برقم موثق</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3.5">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
+            <i data-lucide="file-badge" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">صكوك إلكترونية موثقة</div>
+            <div class="text-xs text-slate-500">إفراغ فوري عبر منصة البورصة العقارية</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3.5">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
+            <i data-lucide="hard-hat" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">كود البناء وتأمين 10 سنوات</div>
+            <div class="text-xs text-slate-500">وثيقة تأمين ملاذ ضد العيوب الخفية</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3.5">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
+            <i data-lucide="badge-percent" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">متوافق مع التمويل المدعوم</div>
+            <div class="text-xs text-slate-500">حلول مصرفية معتمدة من ساما وسكني</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Featured Properties Grid -->
+  <section id="properties-section" class="py-16 sm:py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- ترويسة القسم والتحكم في النتائج -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div>
+          <div
+            class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-100/70 px-3 py-1 rounded-full mb-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            عقارات مميزة في الرياض وجدة
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">
+            قائمة العقارات المختارة بعناية
+          </h2>
+          <p class="text-slate-500 text-sm mt-1">
+            كافة العقارات المعروضة مفحوصة إنشائياً وموثقة الصكوك عبر منصة البورصة العقارية.
+          </p>
+        </div>
+
+        <!-- عداد النتائج وزر إعادة الضبط -->
+        <div class="flex items-center gap-3">
+          <span id="results-count"
+            class="text-xs font-bold bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg shadow-sm">
+            جارٍ تحميل العقارات...
+          </span>
+          <button onclick="resetFilters()"
+            class="text-xs text-slate-500 hover:text-emerald-800 underline transition-colors cursor-pointer">
+            إعادة تعيين الفلاتر
+          </button>
+        </div>
+      </div>
+
+      <!-- شبكة العقارات المعتمدة (Properties Grid) -->
+      <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+        <!-- يتم رسم كروت العقارات برخصة فال وسعر المتر وأزرار المعاينة والواتساب عبر JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. أدلة الأحياء الاستثمارية الأبرز (الرياض وجدة) -->
+  <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h3 class="text-xl sm:text-2xl font-black font-heading text-slate-900 mb-2">
+          مؤشرات الأحياء الأكثر طلباً بالمملكة
+        </h3>
+        <p class="text-slate-500 text-xs sm:text-sm">
+          تحليل استثماري محدث لمتوسط أسعار المتر ومعدلات النمو السنوية
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- حي الملقا -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+          <span class="text-xs text-slate-400 block mb-1">شمال الرياض</span>
+          <h4 class="font-bold text-slate-900 text-base mb-1">حي الملقا</h4>
+          <div class="text-emerald-800 font-black text-lg">7,500 - 10,500 <span
+              class="text-xs font-normal">ر.س/م²</span></div>
+          <span class="inline-block mt-2 text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">عائد
+            استثماري واعد</span>
+        </div>
+
+        <!-- حي النرجس -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+          <span class="text-xs text-slate-400 block mb-1">شمال الرياض</span>
+          <h4 class="font-bold text-slate-900 text-base mb-1">حي النرجس</h4>
+          <div class="text-emerald-800 font-black text-lg">5,200 - 8,800 <span class="text-xs font-normal">ر.س/م²</span>
+          </div>
+          <span class="inline-block mt-2 text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">قريب
+            من طريق الملك سلمان</span>
+        </div>
+
+        <!-- حي حطين -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+          <span class="text-xs text-slate-400 block mb-1">شمال الرياض</span>
+          <h4 class="font-bold text-slate-900 text-base mb-1">حي حطين</h4>
+          <div class="text-emerald-800 font-black text-lg">11,000 - 16,000 <span
+              class="text-xs font-normal">ر.س/م²</span></div>
+          <span class="inline-block mt-2 text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded">قصور وفلل
+            نيوكلاسيك</span>
+        </div>
+
+        <!-- حي الشاطئ جدة -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+          <span class="text-xs text-slate-400 block mb-1">كورنيش جدة</span>
+          <h4 class="font-bold text-slate-900 text-base mb-1">حي الشاطئ</h4>
+          <div class="text-emerald-800 font-black text-lg">9,000 - 14,500 <span
+              class="text-xs font-normal">ر.س/م²</span></div>
+          <span class="inline-block mt-2 text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">إطلالات
+            بحرية مباشرة</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. CRM Quick Lead Capture (طلب عقار خاص) -->
+  <section id="lead-capture-section" class="py-16 sm:py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div
+        class="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 sm:p-12 shadow-2xl border border-slate-800 relative overflow-hidden">
+
+        <!-- خلفية زخرفية ناعمة -->
+        <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none">
+        </div>
+        <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-sand-600/10 blur-3xl pointer-events-none">
+        </div>
+
+        <div class="relative z-10">
+
+          <!-- مقدمة النموذج -->
+          <div class="text-center max-w-2xl mx-auto mb-10">
+            <div
+              class="inline-flex items-center gap-2 bg-emerald-900/60 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-700/50 mb-3">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
+              خدمة البحث العقاري الخاص (VIP Concierge)
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black font-heading text-white mb-2">
+              لم تجد العقار المناسب؟ سجل طلبك العقاري
+            </h2>
+            <p class="text-slate-300 text-xs sm:text-sm">
+              سيتولى مستشارك العقاري المعتمد مراجعة متطلباتك والتواصل معك خلال 24 ساعة بعروض حصرية قبل طرحها في السوق
+              العام.
+            </p>
+          </div>
+
+          <!-- استمارة الطلب العقاري المعتمدة -->
+          <form id="lead-capture-form" class="space-y-4">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- الاسم -->
+              <div>
+                <label for="lead-name" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  الاسم الكريم *
+                </label>
+                <div class="relative">
+                  <input type="text" id="lead-name" required placeholder="اكتب الاسم الكريم"
+                    class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                  <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                </div>
+              </div>
+
+              <!-- رقم الجوال السعودي -->
+              <div>
+                <label for="lead-phone" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  رقم الجوال السعودي *
+                </label>
+                <div class="relative">
+                  <input type="tel" id="lead-phone" required placeholder="05X XXX XXXX" dir="ltr"
+                    class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-right" />
+                  <span
+                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-emerald-400 font-bold">+966</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- المدينة والحي المفضل -->
+              <div>
+                <label for="lead-neighborhood" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  المدينة والحي المفضل
+                </label>
+                <input type="text" id="lead-neighborhood" placeholder="مثال: شمال الرياض - الملقا"
+                  class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+              </div>
+
+              <!-- نوع العقار -->
+              <div>
+                <label for="lead-type" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  نوع العقار المطلوب
+                </label>
+                <select id="lead-type"
+                  class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer">
+                  <option value="فيلا مودرن">فيلا مودرن مستقلة</option>
+                  <option value="شقة تمليك">شقة فاخرة / بنتهاوس</option>
+                  <option value="تاون هاوس">تاون هاوس ذكي</option>
+                  <option value="أرض سكنية">أرض سكنية</option>
+                  <option value="استثمار تجاري">عقار استثماري وتجاري</option>
+                </select>
+              </div>
+
+              <!-- الميزانية المتوقعة -->
+              <div>
+                <label for="lead-budget" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  الميزانية التقديرية
+                </label>
+                <input type="text" id="lead-budget" placeholder="مثال: 2,500,000 ر.س"
+                  class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- ملاحظات إضافية ومواصفات خاصة -->
+            <div>
+              <label for="lead-notes" class="block text-xs font-bold text-slate-300 mb-1.5">
+                مواصفات إضافية مرغوبة (المسبح، المصعد، واجهة الشارع، التمويل المدعوم...)
+              </label>
+              <textarea id="lead-notes" rows="2" placeholder="اذكر أي تفضيلات معمارية أو متطلبات خاصة للعائلة..."
+                class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <!-- زر الإرسال والحماية -->
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                بياناتك مشفرة ومحمية وفق نظام حماية البيانات الشخصية السعودي (SDAIA).
+              </span>
+              <button type="submit"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-black text-sm shadow-lg hover:shadow-xl transition-all">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>تسجيل الطلب العقاري</span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 8. تذييل الصفحة الرسمي والشامل (Footer) -->
+  <footer class="bg-slate-950 text-slate-400 text-xs border-t border-slate-800 pt-16 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+
+        <!-- عن الشركة والترخيص -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-800 flex items-center justify-center text-white font-bold">
+              <i data-lucide="building-2" class="w-5 h-5 text-sand-200"></i>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-white font-heading">مُيَسَّر للتطوير العقاري</div>
+              <div class="text-[10px] text-slate-500">شركة وساطة وتطوير عقاري مصرحة وموثقة</div>
+            </div>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
+            نعمل وفق أعلى معايير الجودة والشفافية المعتمدة من الهيئة العامة للعقار بالمملكة العربية السعودية، لنضمن
+            لعملائنا صفقات عقارية آمنة واستثمارات مستدامة تلبي تطلعات رؤية السعودية 2030.
+          </p>
+          <div class="space-y-1 text-[11px] text-slate-300">
+            <div>رخصة فال للوساطة والتسويق: <span class="text-emerald-400 font-mono">1200034918</span></div>
+            <div>ترخيص الإعلانات العقارية: <span class="text-emerald-400 font-mono">7200194821</span></div>
+            <div>التوثيق النظامي: <span class="text-white">منشأة معتمدة لدى الهيئة العامة للعقار</span></div>
+            <div>منصة الإفراغ: <span class="text-white">موثق بالبورصة العقارية لوزارة العدل</span></div>
+          </div>
+        </div>
+
+        <!-- روابط سريعة: عقارات الرياض -->
+        <div>
+          <h4 class="text-sm font-bold text-white mb-3">عقارات الرياض</h4>
+          <ul class="space-y-2">
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">فلل حي النرجس مودرن</a>
+            </li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">شقق تمليك حي الملقا</a>
+            </li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">تاون هاوس حي الياسمين</a>
+            </li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">قصور وفلل حي حطين</a>
+            </li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">أراضي شمال الرياض
+                المعتمدة</a></li>
+          </ul>
+        </div>
+
+        <!-- روابط سريعة: عقارات جدة -->
+        <div>
+          <h4 class="text-sm font-bold text-white mb-3">عقارات جدة</h4>
+          <ul class="space-y-2">
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">شقق كورنيش حي الشاطئ</a>
+            </li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">فلل أبحر الشمالية
+                الحديثة</a></li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">عقارات حي الروضة</a></li>
+            <li><a href="#properties-section" class="hover:text-emerald-400 transition-colors">شقق روف وبنتهاوس بحري</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- التواصل والاستفسارات الرسمية -->
+        <div>
+          <h4 class="text-sm font-bold text-white mb-3">التواصل والاستفسارات</h4>
+          <ul class="space-y-2.5">
+            <li class="flex items-start gap-2">
+              <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+              <span>المملكة العربية السعودية - الرياض وجدة</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+              <span>أوقات العمل: من 9 صباحاً حتى 9 مساءً</span>
+            </li>
+            <li class="pt-2">
+              <a href="https://api.whatsapp.com/send?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%20%D9%85%D9%86%D8%B5%D8%A9%20%D9%85%D9%8A%D8%B3%D8%B1%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A%D8%A9"
+                target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-900 text-emerald-200 hover:text-white text-xs font-bold transition-colors">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+                خدمة الاستفسارات عبر واتساب
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- السطر القانوني وحقوق النشر -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px]">
+        <div>
+          جميع الحقوق محفوظة © 2026 شركة ميسر للتطوير العقاري بالمملكة العربية السعودية.
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#" class="hover:text-slate-300">سياسة الخصوصية وحماية البيانات</a>
+          <span>•</span>
+          <a href="#" class="hover:text-slate-300">شروط استخدام الوساطة العقارية</a>
+          <span>•</span>
+          <a href="#" class="hover:text-slate-300">لوائح الهيئة العامة للعقار</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- نافذة المعاينة التفاعلية للعقار (Property Modal) -->
+  <div id="property-modal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div id="property-modal-body"
+      class="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden modal-content-box">
+      <!-- يتم حقن التفاصيل والصور والمواصفات ورخص فال وملاذ والوسيط عبر JS -->
+    </div>
+  </div>
+
+  <!-- نافذة إضافة عقار كمعلن / وسيط (Add Property Modal) -->
+  <div id="add-property-modal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div
+      class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto modal-scroll p-6 sm:p-8 shadow-2xl border border-slate-100 relative modal-content-box">
+      <button type="button" onclick="closeAddPropertyModal()"
+        class="absolute top-5 left-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="mb-6">
+        <div
+          class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full mb-2">
+          <i data-lucide="badge-check" class="w-3.5 h-3.5"></i>
+          خدمة الإعلان العقاري المرخص
+        </div>
+        <h3 class="text-xl font-black font-heading text-slate-900">أضف عقارك للتسويق المعتمد</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          سيتولى فريقنا التحقق من الصك الإلكتروني وإصدار ترخيص الإعلان العقاري وفق نظام الوساطة العقارية للهيئة العامة
+          للعقار.
+        </p>
+      </div>
+
+      <form id="add-property-form" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">صفتك في العقار *</label>
+            <select required
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+              <option value="مالك العقار">مالك العقار (أصيل)</option>
+              <option value="وسيط عقاري مرخص">وسيط عقاري مرخص (حامل رخصة فال)</option>
+              <option value="وكيل شرعي">وكيل شرعي بموجب وكالة إلكترونية</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم رخصة فال (إن وُجد)</label>
+            <input type="text" placeholder="12000XXXXX"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المدينة والحي *</label>
+            <input type="text" required placeholder="مثال: الرياض - حي الملقا"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">نوع العقار *</label>
+            <select required
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+              <option value="فيلا">فيلا مودرن</option>
+              <option value="شقة">شقة تمليك</option>
+              <option value="تاون هاوس">تاون هاوس</option>
+              <option value="أرض">أرض سكنية أو تجارية</option>
+              <option value="عمارة">عمارة استثمارية</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">السعر المطلوب (ر.س) *</label>
+            <input type="text" required placeholder="مثال: 3,500,000"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الجوال للتواصل *</label>
+            <input type="tel" required placeholder="05XXXXXXXX" dir="ltr"
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-700 focus:outline-none text-right">
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeAddPropertyModal()"
+            class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50">
+            إلغاء
+          </button>
+          <button type="submit"
+            class="px-6 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold shadow-md">
+            إرسال طلب التسويق
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- حاوية إشعارات التوست (Toast Container) -->
+  <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full">
+  </div>
+
+  <!-- دوال تحكم مساعدة سريعة للقوائم -->
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function setFilterPurpose(purpose) {
+      const purposeTabs = document.querySelectorAll('.filter-purpose-tab');
+      purposeTabs.forEach(t => {
+        if (t.dataset.purpose === purpose) {
+          t.click();
+        }
+      });
+      const section = document.getElementById('properties-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+
+  <!-- سكربتات التطبيق -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+
+</html>

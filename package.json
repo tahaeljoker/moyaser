@@ -1,0 +1,23 @@
+{
+  "name": "muyassar-real-estate",
+  "version": "1.0.0",
+  "description": "منصة ميسر للتطوير العقاري - النموذج الأولي المعتمد",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve ."
+  },
+  "keywords": [
+    "real-estate",
+    "saudi-arabia",
+    "riyadh",
+    "jeddah",
+    "fal-license",
+    "muyassar"
+  ],
+  "author": "Muyassar Real Estate",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

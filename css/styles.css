@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+:root {
+  --font-tajawal: 'Tajawal', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-readex: 'Readex Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+  --emerald-deep: #064e3b;
+  --emerald-mid: #047857;
+  --emerald-light: #ecfdf5;
+  --gold-warm: #d97706;
+  --navy-slate: #0f172a;
+}
+
+html {
+  scroll-behavior: smooth;
+  direction: rtl;
+  font-family: var(--font-tajawal);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* عناوين متميزة بخط ريديكس برو */
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-readex);
+  letter-spacing: -0.02em;
+}
+
+/* تنسيق شريط التمرير العام */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* شريط تمرير هادئ وخفيف لنافذة المعاينة */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 9999px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* تنسيق أشرطة التمرير الرقمية (Range Sliders) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  outline: none;
+  transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #047857;
+  cursor: pointer;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #064e3b;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #047857;
+  cursor: pointer;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* تدرج هيرو فخم وهادئ متوافق مع الهوية العقارية الرسمية */
+.hero-gradient-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(6, 78, 59, 0.85) 0%,
+    rgba(15, 23, 42, 0.92) 100%
+  );
+}
+
+/* بطاقات العقارات بظلال ناعمة وتأطير دقيق */
+.property-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+}
+
+/* تأثير التحديد للعلامات التفاعلية */
+.filter-purpose-tab.active {
+  background-color: #064e3b;
+  color: #ffffff;
+}
+
+/* وسوم رخصة فال والتوثيق */
+.fal-stamp-badge {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* تصميم المودال الهادئ المتوازن */
+.modal-backdrop {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modal-content-box {
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
