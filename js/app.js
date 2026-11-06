@@ -125,17 +125,13 @@ function buildNavbar() {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
 
-        <a href="#" class="flex items-center gap-3 group">
-          <img src="${DATA.brand.logo}" alt="${DATA.brand.developer}" class="h-10 md:h-12 w-auto object-contain transition group-hover:opacity-90" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
-          <div class="hidden w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-950 flex items-center justify-center text-amber-400 shadow-md group-hover:scale-105 transition">
-            ${icon.building}
-          </div>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-lg font-black text-slate-900 font-heading tracking-tight">${developer}</span>
-              <span class="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">${developerType}</span>
+        <a href="#" class="flex items-center group py-1" title="${developer}">
+          <img src="${DATA.brand.logo}" alt="${developer}" class="h-11 sm:h-12 md:h-14 w-auto object-contain transition group-hover:opacity-90" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
+          <div class="hidden flex items-center gap-2">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-950 flex items-center justify-center text-amber-400 shadow-md">
+              ${icon.building}
             </div>
-            <div class="text-xs text-slate-500 font-semibold">${project}</div>
+            <span class="text-base font-black text-slate-900 font-heading">${developer}</span>
           </div>
         </a>
 
@@ -1355,14 +1351,13 @@ function buildFooter() {
 
         <!-- Brand -->
         <div class="lg:col-span-5 space-y-4">
-          <div class="flex items-center gap-3">
-            <img src="${DATA.brand.logo}" alt="${DATA.brand.developer}" class="h-10 md:h-12 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
-            <div class="hidden w-10 h-10 rounded-xl bg-emerald-900 text-amber-400 flex items-center justify-center">
-              ${icon.building}
-            </div>
-            <div>
+          <div class="flex items-center">
+            <img src="${DATA.brand.logo}" alt="${developer}" class="h-11 sm:h-12 md:h-14 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
+            <div class="hidden flex items-center gap-2">
+              <div class="w-10 h-10 rounded-xl bg-emerald-900 text-amber-400 flex items-center justify-center">
+                ${icon.building}
+              </div>
               <span class="text-base font-black font-heading text-white">${developer}</span>
-              <span class="text-[11px] text-slate-400 block">${project} — ${city}</span>
             </div>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed max-w-sm">شركة تطوير عقاري سعودية متخصصة في ابتكار مشاريع سكنية نوعية ومجتمعات تاون هاوس راقية تحقق الاستقلالية وجودة الحياة العائلية.</p>
