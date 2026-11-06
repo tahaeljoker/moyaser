@@ -475,49 +475,82 @@ window.notifyUnit = function(id) {
 };
 
 /* ═══════════════════════════════════════════════════
-   3. MODELS SHOWCASE & MEDIA GALLERY
+   3. MODELS SHOWCASE & 6-MODEL SELECTOR GRID
    ═══════════════════════════════════════════════════ */
 
 function buildModelsShowcase() {
   const el = document.getElementById("models-section");
   if (!el) return;
 
-  const tabs = DATA.models.map((m, i) => `
-    <button class="model-tab${i === 0 ? " active" : ""} px-4 py-2.5 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 transition flex items-center gap-2 whitespace-nowrap" data-model="${m.code}">
-      <span class="w-5 h-5 rounded-md ${i === 0 ? "bg-emerald-900 text-amber-400" : "bg-slate-900 text-white"} flex items-center justify-center font-heading text-[11px]">${m.code}</span>
-      <span>نموذج ${m.code} — ${m.name}</span>
-    </button>`).join("");
+  const selectorCards = DATA.models.map(m => {
+    const isActive = m.code === STATE.activeModel;
+    return `
+      <button type="button"
+              data-model="${m.code}"
+              onclick="selectShowcaseModel('${m.code}')"
+              class="model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/70 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/50 hover:shadow-sm'}">
+        <div class="flex items-center justify-between w-full">
+          <span class="model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
+            ${m.code}
+          </span>
+          <span class="model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition ${isActive ? 'bg-emerald-100/90 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
+            ${Math.round(m.totalArea)} م²
+          </span>
+        </div>
+        <div>
+          <span class="text-[10px] font-semibold text-slate-400 block mb-0.5">نموذج ${m.code}</span>
+          <h4 class="text-xs sm:text-[13px] font-bold text-slate-900 font-heading leading-tight line-clamp-1 group-hover:text-emerald-900 transition">
+            ${m.name}
+          </h4>
+        </div>
+      </button>`;
+  }).join("");
 
   el.innerHTML = `
-    <div class="bg-slate-100/70 border-y border-slate-200/80 py-16">
+    <div class="bg-slate-100/70 border-y border-slate-200/80 py-16 sm:py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-10">
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/60 mb-2">تنوع هندسي يلبي كافة تطلعات العائلة</div>
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">النماذج المعمارية — تاون هاوس الشامخة</h2>
-          <p class="text-xs text-slate-600 mt-2">6 نماذج مدروسة من الدوبلكس الأرضي ذي الحوش الرحب حتى البنتهاوس ذي التراس الفندقي.</p>
+          <p class="text-xs sm:text-sm text-slate-600 mt-2">6 نماذج مدروسة بدقة، من الدوبلكس الأرضي ذي الحوش الرحب حتى البنتهاوس ذي التراس الفندقي.</p>
         </div>
-        <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8">${tabs}</div>
+
+        <!-- 6-Model Selector Grid (100% visible on screen, zero horizontal cut-off) -->
+        <div id="models-selector-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          ${selectorCards}
+        </div>
+
+        <!-- Detailed Showcase Box -->
         <div id="model-detail-container" class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm"></div>
       </div>
     </div>`;
 
   renderActiveModel();
-
-  document.querySelectorAll(".model-tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".model-tab").forEach(t => {
-        t.classList.remove("active");
-        const b = t.querySelector("span:first-child");
-        if (b) b.className = "w-5 h-5 rounded-md bg-slate-900 text-white flex items-center justify-center font-heading text-[11px]";
-      });
-      tab.classList.add("active");
-      const activeB = tab.querySelector("span:first-child");
-      if (activeB) activeB.className = "w-5 h-5 rounded-md bg-emerald-900 text-amber-400 flex items-center justify-center font-heading text-[11px]";
-      STATE.activeModel = tab.dataset.model;
-      renderActiveModel();
-    });
-  });
 }
+
+/** تحديد النموذج النشط وتحديث كروت الشبكة والعارض السفلي */
+window.selectShowcaseModel = function(code) {
+  STATE.activeModel = code;
+
+  // تحديث حالات كروت الشبكة الستة فورياً
+  document.querySelectorAll(".model-select-card").forEach(card => {
+    const isTarget = card.dataset.model === code;
+    const badge = card.querySelector(".model-code-badge");
+    const areaTag = card.querySelector(".model-area-tag");
+
+    if (isTarget) {
+      card.className = "model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/70 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
+      if (badge) badge.className = "model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-emerald-900 text-amber-300";
+      if (areaTag) areaTag.className = "model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition bg-emerald-100/90 text-emerald-900";
+    } else {
+      card.className = "model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/50 hover:shadow-sm";
+      if (badge) badge.className = "model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-slate-900 text-white group-hover:bg-emerald-950";
+      if (areaTag) areaTag.className = "model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
+    }
+  });
+
+  renderActiveModel();
+};
 
 function renderActiveModel() {
   const container = document.getElementById("model-detail-container");
