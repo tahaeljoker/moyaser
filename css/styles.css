@@ -191,7 +191,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .model-select-card.active {
-  background-color: rgba(236, 253, 245, 0.75) !important;
+  background-color: rgba(236, 253, 245, 0.4) !important;
   border-color: #047857 !important;
   box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2), 0 4px 12px rgba(6, 78, 59, 0.08) !important;
 }

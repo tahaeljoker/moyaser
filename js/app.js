@@ -488,18 +488,18 @@ function buildModelsShowcase() {
       <button type="button"
               data-model="${m.code}"
               onclick="selectShowcaseModel('${m.code}')"
-              class="model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/70 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/50 hover:shadow-sm'}">
+              class="model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/40 hover:shadow-sm'}">
         <div class="flex items-center justify-between w-full">
-          <span class="model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
+          <span class="model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
             ${m.code}
           </span>
-          <span class="model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition ${isActive ? 'bg-emerald-100/90 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
+          <span class="model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition ${isActive ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
             ${Math.round(m.totalArea)} م²
           </span>
         </div>
-        <div>
-          <span class="text-[10px] font-semibold text-slate-400 block mb-0.5">نموذج ${m.code}</span>
-          <h4 class="text-xs sm:text-[13px] font-bold text-slate-900 font-heading leading-tight line-clamp-1 group-hover:text-emerald-900 transition">
+        <div class="pt-1">
+          <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">نموذج ${m.code}</span>
+          <h4 class="text-xs sm:text-sm font-bold text-slate-900 font-heading leading-snug group-hover:text-emerald-900 transition">
             ${m.name}
           </h4>
         </div>
@@ -515,8 +515,8 @@ function buildModelsShowcase() {
           <p class="text-xs sm:text-sm text-slate-600 mt-2">6 نماذج مدروسة بدقة، من الدوبلكس الأرضي ذي الحوش الرحب حتى البنتهاوس ذي التراس الفندقي.</p>
         </div>
 
-        <!-- 6-Model Selector Grid (100% visible on screen, zero horizontal cut-off) -->
-        <div id="models-selector-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        <!-- 6-Model Selector Grid (Spacious 2-row layout, max-w-5xl, zero title truncation) -->
+        <div id="models-selector-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto mb-10">
           ${selectorCards}
         </div>
 
@@ -539,13 +539,13 @@ window.selectShowcaseModel = function(code) {
     const areaTag = card.querySelector(".model-area-tag");
 
     if (isTarget) {
-      card.className = "model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/70 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
-      if (badge) badge.className = "model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-emerald-900 text-amber-300";
-      if (areaTag) areaTag.className = "model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition bg-emerald-100/90 text-emerald-900";
+      card.className = "model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
+      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-emerald-900 text-amber-300";
+      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition bg-emerald-100 text-emerald-900";
     } else {
-      card.className = "model-select-card text-right p-3.5 sm:p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/50 hover:shadow-sm";
-      if (badge) badge.className = "model-code-badge w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-slate-900 text-white group-hover:bg-emerald-950";
-      if (areaTag) areaTag.className = "model-area-tag text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md transition bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
+      card.className = "model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/40 hover:shadow-sm";
+      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-slate-900 text-white group-hover:bg-emerald-950";
+      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
     }
   });
 
@@ -643,19 +643,19 @@ function renderActiveModel() {
 
       <!-- Details -->
       <div class="lg:col-span-6 space-y-5">
-        <!-- Area chips -->
+        <!-- Unified Key Stats Cards (Built Area / Total Area / Starting Price) -->
         <div class="grid grid-cols-3 gap-3">
-          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
-            <span class="text-[11px] text-slate-500 block mb-1">مسطح البناء</span>
-            <span class="text-base font-bold text-slate-900 font-heading">${m.builtArea} م²</span>
+          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
+            <span class="text-[11px] font-semibold text-slate-500 block mb-1">مسطح البناء</span>
+            <span class="text-base sm:text-lg font-black text-slate-900 font-heading">${m.builtArea} م²</span>
           </div>
-          <div class="p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-100 text-center">
-            <span class="text-[11px] text-emerald-800 block mb-1">المساحة الإجمالية</span>
-            <span class="text-base font-bold text-emerald-950 font-heading">${m.totalArea} م²</span>
+          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
+            <span class="text-[11px] font-semibold text-slate-500 block mb-1">المساحة الإجمالية</span>
+            <span class="text-base sm:text-lg font-black text-slate-900 font-heading">${m.totalArea} م²</span>
           </div>
-          <div class="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-100 text-center">
-            <span class="text-[11px] text-amber-800 block mb-1">السعر يبدأ من</span>
-            <span class="text-sm font-bold text-amber-950 font-heading">${m.priceFrom}</span>
+          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
+            <span class="text-[11px] font-semibold text-slate-500 block mb-1">السعر يبدأ من</span>
+            <span class="text-base sm:text-lg font-black text-emerald-900 font-heading">${m.priceFrom}</span>
           </div>
         </div>
 
