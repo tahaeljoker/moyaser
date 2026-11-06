@@ -488,18 +488,18 @@ function buildModelsShowcase() {
       <button type="button"
               data-model="${m.code}"
               onclick="selectShowcaseModel('${m.code}')"
-              class="model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/40 hover:shadow-sm'}">
+              class="model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/40 hover:-translate-y-0.5 hover:shadow-md'}">
         <div class="flex items-center justify-between w-full">
-          <span class="model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
+          <span class="model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
             ${m.code}
           </span>
-          <span class="model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition ${isActive ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
+          <span class="model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out ${isActive ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
             ${Math.round(m.totalArea)} م²
           </span>
         </div>
         <div class="pt-1">
           <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">نموذج ${m.code}</span>
-          <h4 class="text-xs sm:text-sm font-bold text-slate-900 font-heading leading-snug group-hover:text-emerald-900 transition">
+          <h4 class="text-xs sm:text-sm font-bold text-slate-900 font-heading leading-snug group-hover:text-emerald-900 transition-colors duration-200">
             ${m.name}
           </h4>
         </div>
@@ -532,20 +532,20 @@ function buildModelsShowcase() {
 window.selectShowcaseModel = function(code) {
   STATE.activeModel = code;
 
-  // تحديث حالات كروت الشبكة الستة فورياً
+  // تحديث حالات كروت الشبكة الستة فورياً مع انتقال ناعم
   document.querySelectorAll(".model-select-card").forEach(card => {
     const isTarget = card.dataset.model === code;
     const badge = card.querySelector(".model-code-badge");
     const areaTag = card.querySelector(".model-area-tag");
 
     if (isTarget) {
-      card.className = "model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
-      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-emerald-900 text-amber-300";
-      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition bg-emerald-100 text-emerald-900";
+      card.className = "model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
+      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out bg-emerald-900 text-amber-300";
+      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out bg-emerald-100 text-emerald-900";
     } else {
-      card.className = "model-select-card text-right p-4 rounded-2xl border transition duration-200 flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/40 hover:shadow-sm";
-      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition bg-slate-900 text-white group-hover:bg-emerald-950";
-      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
+      card.className = "model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/40 hover:-translate-y-0.5 hover:shadow-md";
+      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out bg-slate-900 text-white group-hover:bg-emerald-950";
+      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
     }
   });
 
@@ -580,7 +580,7 @@ function renderActiveModel() {
     </li>`).join("");
 
   container.innerHTML = `
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="model-fade-in grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- Media Gallery & Actions -->
       <div class="lg:col-span-6 space-y-3">
@@ -1531,6 +1531,9 @@ function initApp() {
     }
   }
 
+  // كشف تدريجي هادئ للأقسام الرئيسية مع التمرير
+  initScrollReveal();
+
   // إغلاق النوافذ عند النقر خارج الصندوق أو الضغط على Escape
   ["inspection-modal", "video-tour-modal", "floorplan-modal", "booking-modal"].forEach(id => {
     const el = document.getElementById(id);
@@ -1558,6 +1561,48 @@ function initApp() {
       }
     });
   }
+}
+
+/** كشف تدريجي هادئ للأقسام الرئيسية مع التمرير (IntersectionObserver) */
+function initScrollReveal() {
+  if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+  if (window._scrollRevealInit) return;
+  window._scrollRevealInit = true;
+
+  const targetSelectors = [
+    "#matrix-section",
+    "#models-section",
+    "#about-section",
+    "#location-section",
+    "#booking-section",
+  ];
+
+  const targets = document.querySelectorAll(targetSelectors.join(", "));
+  if (!targets.length) return;
+
+  targets.forEach(el => {
+    if (!el.classList.contains("reveal-on-scroll")) {
+      el.classList.add("reveal-on-scroll");
+    }
+  });
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          obs.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      root: null,
+      rootMargin: "0px 0px -50px 0px",
+      threshold: 0.08,
+    }
+  );
+
+  targets.forEach(el => observer.observe(el));
 }
 
 // تشغيل فوري إذا كانت الصفحة جاهزة بالفعل، أو الاستماع للحدث
