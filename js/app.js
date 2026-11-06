@@ -41,6 +41,11 @@ const icon = {
   menu:     `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>`,
   close:    `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`,
   checkCircle: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  video:    `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M4 5a2 2 0 00-2 2v10a2 2 0 002 2h11a2 2 0 002-2v-2.586l4.293 2.146A1 1 0 0023 15.67V8.33a1 1 0 00-1.707-.894L17 9.586V7a2 2 0 00-2-2H4zm1 2h9a1 1 0 011 1v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1z"/></svg>`,
+  play:     `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`,
+  print:    `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>`,
+  clock:    `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  bed:      `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v11m0-4h18m0-7v11M7 11h10M7 8a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4z"/></svg>`,
 };
 
 /** إشعار توست */
@@ -65,6 +70,13 @@ function toast(msg, type = "info") {
 const STATE = {
   unitStatusFilter: "all",
   activeModel: "A",
+  activePhotoIndices: {},
+  inspectionState: {
+    preferredDay: "غداً",
+    preferredTime: "عصراً (4:00 - 6:30 م)",
+    modelCode: null,
+    unitId: null,
+  },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -454,23 +466,9 @@ function attachMatrixFilters() {
   document.getElementById("matrix-model-select")?.addEventListener("change", renderMatrix);
 }
 
-/** يستخدمه زر "طلب حجز الوحدة" */
+/** يستخدمه زر "طلب حجز الوحدة" من مصفوفة الوحدات */
 window.selectUnit = function(id) {
-  const unit = DATA.units.find(u => u.id === id);
-  if (!unit) return;
-  const model = DATA.models.find(m => m.code === unit.model);
-
-  const sel  = document.getElementById("booking-unit-select");
-  const form = document.getElementById("booking-section");
-
-  if (sel) {
-    // ابحث عن option بالـ id
-    for (const opt of sel.options) {
-      if (opt.value === String(unit.id)) { sel.value = String(unit.id); break; }
-    }
-  }
-  form?.scrollIntoView({ behavior: "smooth" });
-  toast(`تم تحديد الوحدة (${unit.id}) نموذج ${unit.model}. أكمل بياناتك لتأكيد الحجز.`, "success");
+  openInspectionModal({ unitId: id });
 };
 
 /** زر "إشعار عند الإتاحة" */
@@ -481,7 +479,7 @@ window.notifyUnit = function(id) {
 };
 
 /* ═══════════════════════════════════════════════════
-   3. MODELS SHOWCASE
+   3. MODELS SHOWCASE & MEDIA GALLERY
    ═══════════════════════════════════════════════════ */
 
 function buildModelsShowcase() {
@@ -531,9 +529,18 @@ function renderActiveModel() {
   const m = DATA.models.find(m => m.code === STATE.activeModel);
   if (!m) return;
 
-  const floorRows = m.floorPlan.map(f => `
-    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-      <span class="font-bold text-emerald-900 font-heading block mb-1">${f.floor}</span>
+  const activeIdx = (STATE.activePhotoIndices && STATE.activePhotoIndices[m.code]) || 0;
+  const gallery = (m.gallery && m.gallery.length) ? m.gallery : [{ title: m.name, url: m.image }];
+  const currentPhoto = gallery[activeIdx] || gallery[0];
+
+  const floorRows = m.floorPlan.map((f, i) => `
+    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="font-bold text-emerald-900 font-heading flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-700"></span>${f.floor}
+        </span>
+        ${f.area ? `<span class="text-[11px] font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs">${f.area}</span>` : ''}
+      </div>
       <p class="text-slate-600 leading-relaxed">${f.spaces}</p>
     </div>`).join("");
 
@@ -545,19 +552,55 @@ function renderActiveModel() {
 
   container.innerHTML = `
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- Image & Actions -->
-      <div class="lg:col-span-6 space-y-4">
-        <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-md group">
-          <img src="${m.image}" alt="${m.name}" class="w-full h-80 sm:h-96 object-cover transition duration-500 group-hover:scale-105">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20"></div>
-          <div class="absolute top-4 right-4 bg-emerald-900/90 backdrop-blur-md text-amber-300 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg">${m.badge}</div>
-          <div class="absolute bottom-4 right-4 left-4 text-white">
-            <span class="text-xs text-emerald-300 font-semibold mb-1 block">${DATA.brand.developer}</span>
-            <h3 class="text-xl font-bold font-heading">نموذج ${m.code} — ${m.name}</h3>
-            <p class="text-xs text-slate-200 mt-1">${m.subtitle}</p>
+      
+      <!-- Media Gallery & Actions -->
+      <div class="lg:col-span-6 space-y-3">
+        <!-- Main Photo Box -->
+        <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-md group bg-slate-950">
+          <img id="model-main-img-${m.code}" src="${currentPhoto.url}" alt="${currentPhoto.title}"
+               class="w-full h-80 sm:h-96 object-cover transition-opacity duration-300">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-black/30 pointer-events-none"></div>
+          
+          <!-- Top Right Badge -->
+          <div class="absolute top-4 right-4 bg-emerald-900/90 backdrop-blur-md text-amber-300 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg">
+            ${m.badge}
+          </div>
+
+          <!-- Top Left Video Tour CTA -->
+          <button type="button" onclick="openVideoTourModal('${m.code}')"
+                  class="absolute top-4 left-4 bg-slate-950/85 hover:bg-emerald-900 text-white backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg border border-white/10 hover:scale-105 active:scale-95">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            ${icon.video}
+            <span>مشاهدة جولة الفيديو (Video Tour)</span>
+          </button>
+
+          <!-- Bottom Info on Photo -->
+          <div class="absolute bottom-4 right-4 left-4 text-white flex items-end justify-between gap-3 pointer-events-none">
+            <div>
+              <span class="text-xs text-emerald-300 font-semibold mb-0.5 block">${DATA.brand.developer}</span>
+              <h3 class="text-lg sm:text-xl font-bold font-heading">نموذج ${m.code} — ${m.name}</h3>
+              <p class="text-xs text-slate-200 mt-0.5 line-clamp-1">${currentPhoto.title || m.subtitle}</p>
+            </div>
+            <span id="photo-counter-${m.code}" class="text-[11px] font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-sm border border-white/10 text-slate-200 flex-shrink-0">
+              ${activeIdx + 1} / ${gallery.length}
+            </span>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3">
+
+        <!-- Thumbnails Strip -->
+        <div class="grid grid-cols-4 gap-2">
+          ${gallery.map((img, idx) => `
+            <button type="button" onclick="switchModelPhoto('${m.code}', ${idx})"
+                    class="gallery-thumb group/thumb relative rounded-xl overflow-hidden border-2 ${idx === activeIdx ? 'active border-emerald-800 ring-2 ring-emerald-800/40' : 'border-slate-200 opacity-70'} aspect-[4/3] bg-slate-100">
+              <img src="${img.url}" alt="${img.title}" class="w-full h-full object-cover transition group-hover/thumb:scale-110">
+              <div class="absolute inset-0 bg-slate-950/30 group-hover/thumb:bg-transparent transition"></div>
+              <span class="absolute bottom-1 right-1 left-1 text-[9px] text-white font-bold bg-slate-950/80 rounded px-1 py-0.5 truncate text-center hidden sm:block">${img.title.split(' ')[0]}</span>
+            </button>
+          `).join("")}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-3 pt-2">
           <button onclick="requestModelInspection('${m.code}')"
                   class="py-3 px-4 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
             ${icon.calendar}<span>طلب معاينة ميدانية</span>
@@ -589,9 +632,14 @@ function renderActiveModel() {
 
         <!-- Floor plan -->
         <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <h4 class="text-sm font-bold text-slate-900 font-heading mb-3 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-700"></span>توزيع الأدوار والمساحات
-          </h4>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-slate-900 font-heading flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-700"></span>توزيع الأدوار والمساحات
+            </h4>
+            <button onclick="downloadBrochure('${m.code}')" class="text-xs font-bold text-emerald-800 hover:text-emerald-900 flex items-center gap-1 transition">
+              <span>عرض المخطط الهندسي</span>${icon.arrow}
+            </button>
+          </div>
           <div class="space-y-3">${floorRows}</div>
         </div>
 
@@ -606,15 +654,438 @@ function renderActiveModel() {
     </div>`;
 }
 
-window.requestModelInspection = function(code) {
-  const sel = document.getElementById("booking-section");
-  sel?.scrollIntoView({ behavior: "smooth" });
-  toast(`تم تحديد نموذج ${code}. يرجى إكمال بياناتك لتنسيق المعاينة.`, "info");
+/** تبديل صورة المعرض للنموذج */
+window.switchModelPhoto = function(modelCode, photoIndex) {
+  if (!STATE.activePhotoIndices) STATE.activePhotoIndices = {};
+  STATE.activePhotoIndices[modelCode] = photoIndex;
+  const m = DATA.models.find(x => x.code === modelCode);
+  if (!m || !m.gallery || !m.gallery[photoIndex]) return;
+
+  const imgEl = document.getElementById(`model-main-img-${modelCode}`);
+  const counterEl = document.getElementById(`photo-counter-${modelCode}`);
+  if (imgEl) {
+    imgEl.style.opacity = "0.3";
+    setTimeout(() => {
+      imgEl.src = m.gallery[photoIndex].url;
+      imgEl.alt = m.gallery[photoIndex].title;
+      imgEl.style.opacity = "1";
+    }, 120);
+  }
+  if (counterEl) {
+    counterEl.textContent = `${photoIndex + 1} / ${m.gallery.length}`;
+  }
+
+  // تحديث التحديد على المصغرات
+  document.querySelectorAll(".gallery-thumb").forEach((thumb, idx) => {
+    if (idx === photoIndex) {
+      thumb.classList.add("active", "border-emerald-800", "ring-2", "ring-emerald-800/40");
+      thumb.classList.remove("border-slate-200", "opacity-70");
+    } else {
+      thumb.classList.remove("active", "border-emerald-800", "ring-2", "ring-emerald-800/40");
+      thumb.classList.add("border-slate-200", "opacity-70");
+    }
+  });
 };
 
+/** فتح نافذة جولة الفيديو الافتراضية */
+window.openVideoTourModal = function(code) {
+  const m = DATA.models.find(x => x.code === code) || DATA.models[0];
+  const modal = document.getElementById("video-tour-modal");
+  if (!modal) return;
+  const v = m.videoTour || {
+    title: `جولة فيديو افتراضية — نموذج ${m.code}`,
+    url: "https://assets.mixkit.co/videos/preview/mixkit-modern-interior-of-a-contemporary-home-41542-large.mp4",
+    duration: "1:30 دقيقة"
+  };
+
+  modal.innerHTML = `
+    <div class="modal-content-box bg-slate-950 border border-slate-800 rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl relative text-white">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-900/80 text-amber-400 flex items-center justify-center font-black">
+            ${m.code}
+          </div>
+          <div>
+            <span class="text-xs text-amber-400 font-bold block">مشاهدة جولة الفيديو (Video Tour)</span>
+            <h3 class="text-base sm:text-lg font-bold font-heading">${v.title}</h3>
+          </div>
+        </div>
+        <button onclick="closeVideoTourModal()" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition flex items-center justify-center">
+          ${icon.close}
+        </button>
+      </div>
+
+      <div class="relative rounded-2xl overflow-hidden bg-black aspect-video shadow-inner mb-4">
+        <video id="video-tour-player" controls autoplay playsinline class="w-full h-full object-cover">
+          <source src="${v.url}" type="video/mp4">
+          متصفحك لا يدعم تشغيل الفيديو مباشرة.
+        </video>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>مدة الجولة: <strong class="text-slate-200">${v.duration}</strong></span>
+          <span class="text-slate-600">|</span>
+          <span>المساحة: <strong class="text-slate-200">${m.totalArea} م²</strong></span>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="closeVideoTourModal(); openInspectionModal({ modelCode: '${m.code}' });"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+            ${icon.calendar}<span>حجز موعد معاينة ميدانية</span>
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  modal.classList.remove("hidden");
+};
+
+window.closeVideoTourModal = function() {
+  const modal = document.getElementById("video-tour-modal");
+  const player = document.getElementById("video-tour-player");
+  if (player) {
+    try { player.pause(); } catch(e) {}
+  }
+  if (modal) modal.classList.add("hidden");
+};
+
+/** طلب معاينة ميدانية من كروت النماذج */
+window.requestModelInspection = function(code) {
+  openInspectionModal({ modelCode: code });
+};
+
+/** فتح المخطط المعماري الهندسي والطباعة */
 window.downloadBrochure = function(code) {
-  const m = DATA.models.find(m => m.code === code);
-  window.open(waLink(`السلام عليكم ورحمة الله، أود الحصول على المخطط المعماري (PDF) لنموذج ${code} — ${m?.name || ""} في مشروع تاون هاوس الشامخة.`), "_blank");
+  openFloorPlanModal(code);
+};
+
+/** نافذة المخطط المعماري الهندسي المعتمد (#floorplan-modal) */
+window.openFloorPlanModal = function(code) {
+  const m = DATA.models.find(x => x.code === code) || DATA.models[0];
+  const modal = document.getElementById("floorplan-modal");
+  if (!modal) return;
+
+  const floorCards = m.floorPlan.map((f, i) => `
+    <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm relative overflow-hidden">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-emerald-900 text-amber-400 text-xs font-black flex items-center justify-center font-heading">${i + 1}</span>
+          <h4 class="text-sm font-bold text-slate-900 font-heading">${f.floor}</h4>
+        </div>
+        ${f.area ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">${f.area}</span>` : ''}
+      </div>
+      <p class="text-xs text-slate-700 leading-relaxed">${f.spaces}</p>
+    </div>
+  `).join("");
+
+  modal.innerHTML = `
+    <div class="modal-content-box bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative text-slate-900 my-8">
+      
+      <!-- Close button (no-print) -->
+      <button onclick="closeFloorPlanModal()" class="no-print absolute top-5 left-5 text-slate-400 hover:text-slate-700 transition w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+        ${icon.close}
+      </button>
+
+      <!-- Technical Blueprint Header -->
+      <div class="blueprint-paper p-5 rounded-2xl border border-slate-200 mb-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+          <div>
+            <span class="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+              مخطط هندسي وتوزيع معماري معتمد
+            </span>
+            <h3 class="text-xl sm:text-2xl font-black font-heading text-slate-900 mt-1">
+              المخطط المعماري — نموذج ${m.code} (${m.name})
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">مشروع تاون هاوس الشامخة | ${DATA.brand.district} — ${DATA.brand.city}</p>
+          </div>
+          <div class="text-left flex-shrink-0">
+            <span class="text-[11px] text-slate-400 block">المطور المباشر</span>
+            <span class="text-xs font-bold text-slate-800 font-heading">${DATA.brand.developer}</span>
+          </div>
+        </div>
+
+        <!-- Technical Specs Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+          <div class="bg-white/90 p-2.5 rounded-xl border border-slate-200/80 text-center">
+            <span class="text-[10px] text-slate-500 block mb-0.5">مسطح البناء</span>
+            <span class="text-xs font-bold text-slate-900 font-heading">${m.builtArea} م²</span>
+          </div>
+          <div class="bg-white/90 p-2.5 rounded-xl border border-slate-200/80 text-center">
+            <span class="text-[10px] text-slate-500 block mb-0.5">المساحة الإجمالية</span>
+            <span class="text-xs font-bold text-emerald-950 font-heading">${m.totalArea} م²</span>
+          </div>
+          <div class="bg-white/90 p-2.5 rounded-xl border border-slate-200/80 text-center">
+            <span class="text-[10px] text-slate-500 block mb-0.5">توزيع الأدوار</span>
+            <span class="text-xs font-bold text-slate-900 font-heading">${m.floors.split('+')[0]}</span>
+          </div>
+          <div class="bg-white/90 p-2.5 rounded-xl border border-slate-200/80 text-center">
+            <span class="text-[10px] text-slate-500 block mb-0.5">دورات المياه</span>
+            <span class="text-xs font-bold text-slate-900 font-heading">${m.baths} دورات</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floors Layout -->
+      <div class="space-y-3 mb-6">
+        <h4 class="text-xs font-bold text-slate-600 font-heading flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-800"></span>
+          <span>توزيع وتفاصيل الأدوار والمساحات:</span>
+        </h4>
+        ${floorCards}
+      </div>
+
+      <!-- Engineering Highlights -->
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6 text-xs text-slate-600">
+        <span class="font-bold text-slate-800 block mb-1.5">المعايير والمواصفات الإنشائية للنموذج:</span>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+          ${m.highlights.map(h => `<li class="flex items-center gap-1.5"><span class="text-emerald-700">${icon.check}</span><span>${h}</span></li>`).join("")}
+        </ul>
+      </div>
+
+      <!-- Actions (no-print) -->
+      <div class="no-print flex flex-col sm:flex-row items-center gap-3">
+        <button onclick="window.print()"
+                class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+          ${icon.print}<span>طباعة / حفظ المخطط (PDF)</span>
+        </button>
+        <button onclick="requestPdfViaWhatsApp('${m.code}')"
+                class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+          ${icon.whatsapp}<span>طلب الكروكي عالي الدقة</span>
+        </button>
+        <button onclick="closeFloorPlanModal()"
+                class="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+          إغلاق
+        </button>
+      </div>
+
+    </div>`;
+
+  modal.classList.remove("hidden");
+};
+
+window.closeFloorPlanModal = function() {
+  document.getElementById("floorplan-modal")?.classList.add("hidden");
+};
+
+window.requestPdfViaWhatsApp = function(code) {
+  const m = DATA.models.find(x => x.code === code);
+  window.open(waLink(`السلام عليكم ورحمة الله، أود الحصول على ملف المخطط المعماري الكامل والكروكي التنفيذي (PDF) لنموذج ${code} — ${m?.name || ""} بمشروع تاون هاوس الشامخة بالدمام.`), "_blank");
+};
+
+/** نافذة المعاينة الميدانية والحجز السريع الفاخرة (#inspection-modal) */
+window.openInspectionModal = function({ modelCode, unitId }) {
+  const modal = document.getElementById("inspection-modal");
+  if (!modal) return;
+
+  const unit = unitId ? DATA.units.find(u => u.id === Number(unitId)) : null;
+  const targetCode = unit ? unit.model : (modelCode || STATE.activeModel || "A");
+  const m = DATA.models.find(x => x.code === targetCode) || DATA.models[0];
+
+  STATE.inspectionState = {
+    modelCode: m.code,
+    unitId: unit ? unit.id : null,
+    preferredDay: STATE.inspectionState?.preferredDay || "غداً",
+    preferredTime: STATE.inspectionState?.preferredTime || "عصراً (4:00 - 6:30 م)",
+  };
+
+  modal.innerHTML = `
+    <div class="modal-content-box bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 shadow-2xl relative text-slate-900 my-8">
+      <button onclick="closeInspectionModal()" class="absolute top-5 left-5 text-slate-400 hover:text-slate-700 transition w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+        ${icon.close}
+      </button>
+
+      <div class="mb-5 pb-4 border-b border-slate-100">
+        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80 mb-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          حجز موعد معاينة ميدانية رسمية
+        </div>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black font-heading text-slate-900">
+              نموذج ${m.code} — ${m.name}
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">${m.subtitle}</p>
+          </div>
+          ${unit ? `
+            <div class="text-left flex-shrink-0 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-center">
+              <span class="text-[10px] text-slate-400 block">الوحدة المحددة</span>
+              <span class="text-sm font-black text-amber-400 font-heading">#${unit.id}</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-4">
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            <span class="text-[10px] text-slate-500 block">المساحة</span>
+            <span class="text-xs font-bold text-slate-900 font-heading">${unit ? unit.area : m.totalArea + ' م²'}</span>
+          </div>
+          <div class="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-emerald-800 block">السعر</span>
+            <span class="text-xs font-bold text-emerald-950 font-heading">${fmt(unit ? unit.price : m.priceFrom)} ر.س</span>
+          </div>
+          <div class="bg-amber-50/70 p-2.5 rounded-xl border border-amber-100 col-span-2 sm:col-span-1">
+            <span class="text-[10px] text-amber-800 block">الأدوار</span>
+            <span class="text-xs font-bold text-amber-950 font-heading truncate">${m.floors.split('+')[0]}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 mb-5 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+        <div class="flex items-center gap-1.5">
+          <span class="text-emerald-700">${icon.check}</span>
+          <span class="font-medium">${m.rooms.split('+')[0].trim()}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-emerald-700">${icon.check}</span>
+          <span class="font-medium">مجلس رجال مستقل</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-emerald-700">${icon.check}</span>
+          <span class="font-medium">${m.extraArea > 0 ? 'حوش وارتداد خاص ' + m.extraArea + 'م²' : 'سطح وتراس خاص'}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-emerald-700">${icon.check}</span>
+          <span class="font-medium">مدخل وكراج سيارة مستقل</span>
+        </div>
+      </div>
+
+      <form id="quick-inspection-form" onsubmit="handleInspectionSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            ${icon.calendar}
+            <span>اليوم المفضل للمعاينة الميدانية:</span>
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            ${["اليوم", "غداً", "نهاية الأسبوع"].map(d => `
+              <button type="button" onclick="selectInspectionDay('${d}')"
+                      class="scheduler-chip day-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center ${STATE.inspectionState.preferredDay === d ? 'active bg-emerald-900 text-white border-emerald-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}" data-day="${d}">
+                ${d}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            ${icon.clock}
+            <span>الفترة الزمنية المناسبة:</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            ${["عصراً (4:00 - 6:30 م)", "مساءً (6:30 - 9:00 م)"].map(t => `
+              <button type="button" onclick="selectInspectionTime('${t}')"
+                      class="scheduler-chip time-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center ${STATE.inspectionState.preferredTime === t ? 'active bg-emerald-900 text-white border-emerald-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}" data-time="${t}">
+                ${t}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label for="insp-name" class="block text-xs font-bold text-slate-700 mb-1">الاسم الكريم *</label>
+            <input type="text" id="insp-name" required placeholder="مثال: محمد بن سعد"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-800 bg-slate-50/50">
+          </div>
+          <div>
+            <label for="insp-phone" class="block text-xs font-bold text-slate-700 mb-1">رقم الجوال (+966) *</label>
+            <input type="tel" id="insp-phone" required placeholder="05xxxxxxxx" dir="ltr"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-right focus:outline-none focus:ring-2 focus:ring-emerald-800 bg-slate-50/50">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit"
+                  class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 hover:from-emerald-800 hover:to-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+            ${icon.whatsapp}
+            <span>تأكيد موعد المعاينة عبر واتساب المبيعات</span>
+          </button>
+          <p class="text-[11px] text-slate-400 text-center mt-2">
+            سيتم فتح محادثة فورية مباشرة مع مسؤول المبيعات بتفاصيل طلبك ورقم التذكرة.
+          </p>
+        </div>
+      </form>
+    </div>`;
+
+  modal.classList.remove("hidden");
+};
+
+window.closeInspectionModal = function() {
+  document.getElementById("inspection-modal")?.classList.add("hidden");
+};
+
+window.selectInspectionDay = function(day) {
+  STATE.inspectionState.preferredDay = day;
+  document.querySelectorAll(".day-chip").forEach(btn => {
+    if (btn.dataset.day === day) {
+      btn.className = "scheduler-chip day-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center active bg-emerald-900 text-white border-emerald-900";
+    } else {
+      btn.className = "scheduler-chip day-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+    }
+  });
+};
+
+window.selectInspectionTime = function(time) {
+  STATE.inspectionState.preferredTime = time;
+  document.querySelectorAll(".time-chip").forEach(btn => {
+    if (btn.dataset.time === time) {
+      btn.className = "scheduler-chip time-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center active bg-emerald-900 text-white border-emerald-900";
+    } else {
+      btn.className = "scheduler-chip time-chip px-3 py-2 rounded-xl text-xs font-bold border transition text-center bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+    }
+  });
+};
+
+window.handleInspectionSubmit = function(e) {
+  e.preventDefault();
+  const name = document.getElementById("insp-name")?.value.trim();
+  const phone = document.getElementById("insp-phone")?.value.trim();
+
+  if (!name || name.length < 3) {
+    toast("يرجى إدخال الاسم الكريم بشكل صحيح.", "error");
+    return;
+  }
+  if (!phone || !/^0?5[0-9]{8}$/.test(phone.replace(/[\s-]/g, ""))) {
+    toast("يرجى إدخال رقم جوال سعودي صالح (مثال: 0500550223).", "error");
+    return;
+  }
+
+  const ticket = `#MS-${Math.floor(1000 + Math.random() * 9000)}`;
+  const m = DATA.models.find(x => x.code === STATE.inspectionState.modelCode) || DATA.models[0];
+  const unit = STATE.inspectionState.unitId ? DATA.units.find(u => u.id === Number(STATE.inspectionState.unitId)) : null;
+  const unitStr = unit ? `الوحدة رقم (${unit.id}) — مساحة ${unit.area}` : "حسب التوفر بالنموذج";
+
+  // حفظ في localStorage
+  const leads = JSON.parse(localStorage.getItem("ms_leads") || "[]");
+  leads.push({
+    ticket,
+    name,
+    phone,
+    model: m.code,
+    unitId: unit ? unit.id : null,
+    preferredDay: STATE.inspectionState.preferredDay,
+    preferredTime: STATE.inspectionState.preferredTime,
+    ts: new Date().toISOString()
+  });
+  localStorage.setItem("ms_leads", JSON.stringify(leads));
+
+  const msg = `السلام عليكم ورحمة الله وبركاته،
+أود حجز موعد معاينة ميدانية لمشروع تاون هاوس الشامخة بالدمام (حي حديقة الأثير):
+──────────────────────
+📌 النموذج: نموذج ${m.code} — ${m.name}
+🔢 الوحدة: ${unitStr}
+📐 مساحة النموذج: ${unit ? unit.area : m.totalArea + ' م²'}
+📅 اليوم المفضل: ${STATE.inspectionState.preferredDay}
+⏰ التوقيت المفضل: ${STATE.inspectionState.preferredTime}
+👤 الاسم: ${name}
+📱 رقم الجوال: ${phone}
+🎫 رقم التذكرة: ${ticket}
+──────────────────────
+يرجى تأكيد الاستقبال والموعد.`;
+
+  toast(`تم تسجيل طلب المعاينة بنجاح (${ticket}). جاري التحويل للواتساب...`, "success");
+  closeInspectionModal();
+  window.open(waLink(msg), "_blank");
 };
 
 /* ═══════════════════════════════════════════════════
@@ -961,6 +1432,34 @@ function initApp() {
     } catch (err) {
       console.error(`Error rendering ${name}:`, err);
     }
+  }
+
+  // إغلاق النوافذ عند النقر خارج الصندوق أو الضغط على Escape
+  ["inspection-modal", "video-tour-modal", "floorplan-modal", "booking-modal"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && typeof el.addEventListener === "function" && !el._backdropBound) {
+      el._backdropBound = true;
+      el.addEventListener("click", (e) => {
+        if (e.target === el) {
+          if (id === "video-tour-modal") closeVideoTourModal();
+          else if (id === "inspection-modal") closeInspectionModal();
+          else if (id === "floorplan-modal") closeFloorPlanModal();
+          else if (id === "booking-modal") closeModal();
+        }
+      });
+    }
+  });
+
+  if (!window._escBound && typeof document !== "undefined" && typeof document.addEventListener === "function") {
+    window._escBound = true;
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeVideoTourModal();
+        closeInspectionModal();
+        closeFloorPlanModal();
+        closeModal();
+      }
+    });
   }
 }
 
