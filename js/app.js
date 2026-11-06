@@ -114,7 +114,8 @@ function buildNavbar() {
       <div class="flex items-center justify-between h-20">
 
         <a href="#" class="flex items-center gap-3 group">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-950 flex items-center justify-center text-amber-400 shadow-md group-hover:scale-105 transition">
+          <img src="${DATA.brand.logo}" alt="${DATA.brand.developer}" class="h-10 md:h-12 w-auto object-contain transition group-hover:opacity-90" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
+          <div class="hidden w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-950 flex items-center justify-center text-amber-400 shadow-md group-hover:scale-105 transition">
             ${icon.building}
           </div>
           <div>
@@ -510,8 +511,14 @@ function buildModelsShowcase() {
 
   document.querySelectorAll(".model-tab").forEach(tab => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".model-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".model-tab").forEach(t => {
+        t.classList.remove("active");
+        const b = t.querySelector("span:first-child");
+        if (b) b.className = "w-5 h-5 rounded-md bg-slate-900 text-white flex items-center justify-center font-heading text-[11px]";
+      });
       tab.classList.add("active");
+      const activeB = tab.querySelector("span:first-child");
+      if (activeB) activeB.className = "w-5 h-5 rounded-md bg-emerald-900 text-amber-400 flex items-center justify-center font-heading text-[11px]";
       STATE.activeModel = tab.dataset.model;
       renderActiveModel();
     });
@@ -611,7 +618,7 @@ window.downloadBrochure = function(code) {
 };
 
 /* ═══════════════════════════════════════════════════
-   4. ABOUT + LOCATION SECTION
+   4. ABOUT & ARCHITECTURAL VISION
    ═══════════════════════════════════════════════════ */
 
 function buildAboutSection() {
@@ -619,50 +626,66 @@ function buildAboutSection() {
   if (!el) return;
 
   const perks = DATA.locationPerks.map(p => `
-    <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-start gap-3">
-      <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0">${icon[p.icon] || icon.shield}</div>
+    <div class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-4">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0">${icon[p.icon] || icon.shield}</div>
       <div>
-        <h4 class="text-xs font-bold text-slate-900 font-heading mb-1">${p.title}</h4>
-        <p class="text-[11px] text-slate-600 leading-normal">${p.desc}</p>
+        <h4 class="text-sm font-bold text-slate-900 font-heading mb-1">${p.title}</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">${p.desc}</p>
       </div>
-    </div>`).join("");
-
-  const distances = DATA.locationDistances.map(d => `
-    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-      <span class="font-medium text-slate-700">${d.place}</span>
-      <span class="font-bold text-emerald-900 font-heading">${d.duration}</span>
     </div>`).join("");
 
   el.innerHTML = `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200/60 mb-2">عن مشروع تاون هاوس الشامخة</div>
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 font-heading leading-tight">رؤية معمارية ترتقي بمفهوم السكن العائلي المستقل في قلب الدمام</h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3">
+          يُعد مشروع <strong class="text-slate-900">تاون هاوس الشامخة</strong> أحد أبرز المشاريع السكنية النوعية لشركة <strong class="text-emerald-900">${DATA.brand.developer}</strong>، يجمع بين استقلالية الفيلا الخاصة ووظيفة التاون هاوس العصري، في <strong class="text-slate-900">${DATA.brand.district} بـ${DATA.brand.city}</strong>.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">${perks}</div>
+    </div>`;
+}
 
-        <!-- Description & Perks -->
-        <div class="lg:col-span-7 space-y-6">
-          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200/60">عن مشروع تاون هاوس الشامخة</div>
-          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 font-heading leading-tight">رؤية معمارية ترتقي بمفهوم السكن العائلي المستقل في قلب الدمام</h2>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            يُعد مشروع <strong class="text-slate-900">تاون هاوس الشامخة</strong> أحد أبرز المشاريع السكنية النوعية لشركة <strong class="text-emerald-900">${DATA.brand.developer}</strong>، يجمع بين استقلالية الفيلا الخاصة ووظيفة التاون هاوس العصري، في <strong class="text-slate-900">${DATA.brand.district} بـ${DATA.brand.city}</strong>.
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${perks}</div>
+/* ═══════════════════════════════════════════════════
+   5. LOCATION & DISTANCES SECTION (#location-section)
+   ═══════════════════════════════════════════════════ */
+
+function buildLocationSection() {
+  const el = document.getElementById("location-section");
+  if (!el) return;
+
+  const landmarks = DATA.locationDistances.map(d => `
+    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center flex-shrink-0">
+          ${icon.map}
         </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/60 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${d.duration}
+        </span>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-slate-900 font-heading leading-snug">${d.place}</h4>
+        <p class="text-[11px] text-slate-500 mt-1">وصول سريع وسلس عبر الشرايين الرئيسية</p>
+      </div>
+    </div>`).join("");
 
-        <!-- Location -->
-        <div id="location-section" class="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-bold text-slate-900 font-heading flex items-center gap-2">
-              ${icon.map}<span>الموقع: ${DATA.brand.district} — ${DATA.brand.city}</span>
-            </h3>
-            <span class="text-[11px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded font-bold">موقع استراتيجي</span>
+  el.innerHTML = `
+    <div class="bg-slate-100/70 border-t border-slate-200/80 py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/60 mb-2">الموقع الاستراتيجي والمسافات الحيوية</div>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">في قلب الدمام — ${DATA.brand.district}</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 max-w-2xl">موقع نوعي هادئ ومتميز يضعك على مقربة من أهم المعالم الثقافية، المستشفيات، الكورنيش ومطار الملك فهد الدولي.</p>
           </div>
-          <p class="text-xs text-slate-600 leading-relaxed mb-4">منطقة سكنية حيوية وهادئة، محاطة بكافة المراكز التجارية والمدارس والحدائق العامة.</p>
-          <div id="location-grid" class="space-y-2 mb-6">${distances}</div>
           <a href="${DATA.brand.mapQuery}" target="_blank" rel="noopener noreferrer"
-             class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2">
-            ${icon.external}<span>فتح الموقع على خرائط Google</span>
+             class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-sm flex-shrink-0">
+            ${icon.external}<span>فتح الموقع في خرائط Google</span>
           </a>
         </div>
-
+        <div id="location-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">${landmarks}</div>
       </div>
     </div>`;
 }
@@ -862,7 +885,10 @@ function buildFooter() {
         <!-- Brand -->
         <div class="lg:col-span-5 space-y-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-900 text-amber-400 flex items-center justify-center">${icon.building}</div>
+            <img src="${DATA.brand.logo}" alt="${DATA.brand.developer}" class="h-10 md:h-12 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')">
+            <div class="hidden w-10 h-10 rounded-xl bg-emerald-900 text-amber-400 flex items-center justify-center">
+              ${icon.building}
+            </div>
             <div>
               <span class="text-base font-black font-heading text-white">${developer}</span>
               <span class="text-[11px] text-slate-400 block">${project} — ${city}</span>
@@ -923,6 +949,7 @@ function initApp() {
     ["matrix-section", buildUnitMatrix],
     ["models-section", buildModelsShowcase],
     ["about-section", buildAboutSection],
+    ["location-section", buildLocationSection],
     ["booking-section", buildBookingForm],
     ["booking-modal", buildModal],
     ["main-footer", buildFooter],
