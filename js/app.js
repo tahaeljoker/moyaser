@@ -46,6 +46,7 @@ const icon = {
   print:    `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>`,
   clock:    `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
   bed:      `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v11m0-4h18m0-7v11M7 11h10M7 8a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4z"/></svg>`,
+  bath:     `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16a1 1 0 011 1v2a6 6 0 01-6 6H9a6 6 0 01-6-6v-2a1 1 0 011-1zM6 12V6a2 2 0 012-2h1a2 2 0 012 2v6m-4-4h4"/></svg>`,
 };
 
 /** إشعار توست */
@@ -69,11 +70,13 @@ function toast(msg, type = "info") {
 /* ─── State ───────────────────────────────────────── */
 const STATE = {
   unitStatusFilter: "all",
+  activePropertyCategory: "all",
   activeModel: "A",
   activePhotoIndices: {},
   inspectionState: {
     preferredDay: "غداً",
     preferredTime: "عصراً (4:00 - 6:30 م)",
+    propertyId: null,
     modelCode: null,
     unitId: null,
   },
@@ -475,213 +478,207 @@ window.notifyUnit = function(id) {
 };
 
 /* ═══════════════════════════════════════════════════
-   3. MODELS SHOWCASE & 6-MODEL SELECTOR GRID
+   3. PROPERTIES CATALOG & REAL ESTATE INVENTORY
    ═══════════════════════════════════════════════════ */
 
-function buildModelsShowcase() {
+function buildPropertiesCatalog() {
   const el = document.getElementById("models-section");
   if (!el) return;
 
-  const selectorCards = DATA.models.map(m => {
-    const isActive = m.code === STATE.activeModel;
+  const categories = [
+    { id: "all", label: "الكل" },
+    { id: "فلل مستقلة", label: "فلل مستقلة" },
+    { id: "تاون هاوس", label: "تاون هاوس" },
+    { id: "شقق تمليك فاخرة", label: "شقق تمليك فاخرة" },
+    { id: "أدوار سكنية", label: "أدوار سكنية" },
+  ];
+
+  const filterButtons = categories.map(c => {
+    const isActive = STATE.activePropertyCategory === c.id;
     return `
       <button type="button"
-              data-model="${m.code}"
-              onclick="selectShowcaseModel('${m.code}')"
-              class="model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group ${isActive ? 'active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm' : 'bg-white border-slate-200/90 hover:border-emerald-600/40 hover:-translate-y-0.5 hover:shadow-md'}">
-        <div class="flex items-center justify-between w-full">
-          <span class="model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out ${isActive ? 'bg-emerald-900 text-amber-300' : 'bg-slate-900 text-white group-hover:bg-emerald-950'}">
-            ${m.code}
-          </span>
-          <span class="model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out ${isActive ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'}">
-            ${Math.round(m.totalArea)} م²
-          </span>
-        </div>
-        <div class="pt-1">
-          <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">نموذج ${m.code}</span>
-          <h4 class="text-xs sm:text-sm font-bold text-slate-900 font-heading leading-snug group-hover:text-emerald-900 transition-colors duration-200">
-            ${m.name}
-          </h4>
-        </div>
+              data-category="${c.id}"
+              onclick="filterProperties('${c.id}')"
+              class="prop-filter-btn px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-300 ease-out cursor-pointer flex items-center gap-2 ${isActive ? 'active bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-900/20' : 'bg-white text-slate-700 border-slate-200/90 hover:border-emerald-600/40 hover:bg-slate-50 hover:text-emerald-900'}">
+        <span>${c.label}</span>
       </button>`;
   }).join("");
 
   el.innerHTML = `
-    <div class="bg-slate-100/70 border-y border-slate-200/80 py-16 sm:py-20">
+    <div class="bg-slate-100/70 border-y border-slate-200/80 py-16 sm:py-20 lg:py-24">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
         <div class="text-center max-w-2xl mx-auto mb-10">
-          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/60 mb-2">تنوع هندسي يلبي كافة تطلعات العائلة</div>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">النماذج المعمارية — تاون هاوس الشامخة</h2>
-          <p class="text-xs sm:text-sm text-slate-600 mt-2">6 نماذج مدروسة بدقة، من الدوبلكس الأرضي ذي الحوش الرحب حتى البنتهاوس ذي التراس الفندقي.</p>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200/80 mb-2.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            <span>العقارات والمشاريع المتاحة</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 font-heading">
+            العقارات والوحدات المتاحة
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 mt-2.5 leading-relaxed">
+            مجموعة مختارة من الفلل المستقلة، التاون هاوس، وشقق التمليك الفاخرة المتاحة للبيع الفوري.
+          </p>
         </div>
 
-        <!-- 6-Model Selector Grid (Spacious 2-row layout, max-w-5xl, zero title truncation) -->
-        <div id="models-selector-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto mb-10">
-          ${selectorCards}
+        <!-- Category Filters -->
+        <div id="property-filters-bar" class="flex items-center justify-center flex-wrap gap-2 sm:gap-3 max-w-4xl mx-auto mb-10">
+          ${filterButtons}
         </div>
 
-        <!-- Detailed Showcase Box -->
-        <div id="model-detail-container" class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm"></div>
+        <!-- Properties Grid Container -->
+        <div id="properties-grid-container"></div>
+
       </div>
     </div>`;
 
-  renderActiveModel();
+  renderPropertyCards();
 }
 
-/** تحديد النموذج النشط وتحديث كروت الشبكة والعارض السفلي */
-window.selectShowcaseModel = function(code) {
-  STATE.activeModel = code;
+/** تصفية العقارات حسب التصنيف وإعادة العرض */
+window.filterProperties = function(category) {
+  STATE.activePropertyCategory = category;
 
-  // تحديث حالات كروت الشبكة الستة فورياً مع انتقال ناعم
-  document.querySelectorAll(".model-select-card").forEach(card => {
-    const isTarget = card.dataset.model === code;
-    const badge = card.querySelector(".model-code-badge");
-    const areaTag = card.querySelector(".model-area-tag");
-
+  document.querySelectorAll(".prop-filter-btn").forEach(btn => {
+    const isTarget = btn.dataset.category === category;
     if (isTarget) {
-      card.className = "model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group active bg-emerald-50/40 border-emerald-700 ring-2 ring-emerald-700/20 shadow-sm";
-      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out bg-emerald-900 text-amber-300";
-      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out bg-emerald-100 text-emerald-900";
+      btn.className = "prop-filter-btn px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-300 ease-out cursor-pointer flex items-center gap-2 active bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-900/20";
     } else {
-      card.className = "model-select-card text-right p-4 rounded-2xl border transition-all duration-300 ease-out flex flex-col justify-between gap-3 cursor-pointer group bg-white border-slate-200/90 hover:border-emerald-600/40 hover:-translate-y-0.5 hover:shadow-md";
-      if (badge) badge.className = "model-code-badge w-8 h-8 rounded-xl flex items-center justify-center font-heading font-black text-xs sm:text-sm transition-all duration-300 ease-out bg-slate-900 text-white group-hover:bg-emerald-950";
-      if (areaTag) areaTag.className = "model-area-tag text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-300 ease-out bg-slate-100 text-slate-600 group-hover:bg-slate-200/80";
+      btn.className = "prop-filter-btn px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-300 ease-out cursor-pointer flex items-center gap-2 bg-white text-slate-700 border-slate-200/90 hover:border-emerald-600/40 hover:bg-slate-50 hover:text-emerald-900";
     }
   });
 
-  renderActiveModel();
+  renderPropertyCards();
 };
 
-function renderActiveModel() {
-  const container = document.getElementById("model-detail-container");
+/** عرض كروت العقارات المتوافقة مع الفلتر النشط */
+function renderPropertyCards() {
+  const container = document.getElementById("properties-grid-container");
   if (!container) return;
-  const m = DATA.models.find(m => m.code === STATE.activeModel);
-  if (!m) return;
 
-  const activeIdx = (STATE.activePhotoIndices && STATE.activePhotoIndices[m.code]) || 0;
-  const gallery = (m.gallery && m.gallery.length) ? m.gallery : [{ title: m.name, url: m.image }];
-  const currentPhoto = gallery[activeIdx] || gallery[0];
+  const activeCategory = STATE.activePropertyCategory || "all";
+  const properties = (DATA.properties && DATA.properties.length) ? DATA.properties : [];
+  
+  const filtered = properties.filter(p => {
+    if (activeCategory === "all" || activeCategory === "الكل") return true;
+    return p.category === activeCategory;
+  });
 
-  const floorRows = m.floorPlan.map((f, i) => `
-    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="font-bold text-emerald-900 font-heading flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-700"></span>${f.floor}
-        </span>
-        ${f.area ? `<span class="text-[11px] font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs">${f.area}</span>` : ''}
-      </div>
-      <p class="text-slate-600 leading-relaxed">${f.spaces}</p>
-    </div>`).join("");
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+          ${icon.home}
+        </div>
+        <p class="text-sm font-bold text-slate-800 font-heading">لا توجد عقارات متاحة حالياً في هذا التصنيف</p>
+        <p class="text-xs text-slate-500 mt-1">يمكنك اختيار تصنيف آخر أو التواصل مع المستشار لحجز طلبك المخصص.</p>
+        <button type="button" onclick="filterProperties('all')" class="mt-4 px-4 py-2 bg-emerald-900 text-white rounded-xl text-xs font-bold transition hover:bg-emerald-800">
+          عرض جميع العقارات
+        </button>
+      </div>`;
+    return;
+  }
 
-  const highlights = m.highlights.map(h => `
-    <li class="flex items-start gap-2">
-      <span class="text-emerald-600 mt-0.5">${icon.check}</span>
-      <span>${h}</span>
-    </li>`).join("");
+  const cardsHtml = filtered.map(p => propertyCard(p)).join("");
 
   container.innerHTML = `
-    <div class="model-fade-in grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="model-fade-in grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+      ${cardsHtml}
+    </div>`;
+}
+
+/** بطاقة العقار الفاخرة المعتمدة على البيانات الحقيقية */
+function propertyCard(p) {
+  const waPropertyMsg = `السلام عليكم ورحمة الله، أود الاستفسار وحجز موعد معاينة لعقار: ${p.title} (${p.cityDistrict}) — مساحة ${p.area} بسعر ${fmt(p.price)} ر.س.`;
+
+  return `
+    <div class="property-card bg-white rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between overflow-hidden group">
       
-      <!-- Media Gallery & Actions -->
-      <div class="lg:col-span-6 space-y-3">
-        <!-- Main Photo Box -->
-        <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-md group bg-slate-950">
-          <img id="model-main-img-${m.code}" src="${currentPhoto.url}" alt="${currentPhoto.title}"
-               class="w-full h-80 sm:h-96 object-cover transition-opacity duration-300">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-black/30 pointer-events-none"></div>
-          
-          <!-- Top Right Badge -->
-          <div class="absolute top-4 right-4 bg-emerald-900/90 backdrop-blur-md text-amber-300 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg">
-            ${m.badge}
-          </div>
-
-          <!-- Top Left Video Tour CTA -->
-          <button type="button" onclick="openVideoTourModal('${m.code}')"
-                  class="absolute top-4 left-4 bg-slate-950/85 hover:bg-emerald-900 text-white backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg border border-white/10 hover:scale-105 active:scale-95">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-            ${icon.video}
-            <span>مشاهدة جولة الفيديو (Video Tour)</span>
-          </button>
-
-          <!-- Bottom Info on Photo -->
-          <div class="absolute bottom-4 right-4 left-4 text-white flex items-end justify-between gap-3 pointer-events-none">
-            <div>
-              <span class="text-xs text-emerald-300 font-semibold mb-0.5 block">${DATA.brand.developer}</span>
-              <h3 class="text-lg sm:text-xl font-bold font-heading">نموذج ${m.code} — ${m.name}</h3>
-              <p class="text-xs text-slate-200 mt-0.5 line-clamp-1">${currentPhoto.title || m.subtitle}</p>
-            </div>
-            <span id="photo-counter-${m.code}" class="text-[11px] font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur-sm border border-white/10 text-slate-200 flex-shrink-0">
-              ${activeIdx + 1} / ${gallery.length}
-            </span>
-          </div>
+      <!-- Property Image & Badges -->
+      <div class="relative h-60 sm:h-64 overflow-hidden bg-slate-950">
+        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
+        
+        <!-- Category Pill (Top Right) -->
+        <div class="absolute top-3.5 right-3.5 bg-slate-900/85 backdrop-blur-md text-amber-300 text-xs px-3 py-1 rounded-xl font-bold border border-white/10 shadow-sm">
+          ${p.category}
         </div>
 
-        <!-- Thumbnails Strip -->
-        <div class="grid grid-cols-4 gap-2">
-          ${gallery.map((img, idx) => `
-            <button type="button" onclick="switchModelPhoto('${m.code}', ${idx})"
-                    class="gallery-thumb group/thumb relative rounded-xl overflow-hidden border-2 ${idx === activeIdx ? 'active border-emerald-800 ring-2 ring-emerald-800/40' : 'border-slate-200 opacity-70'} aspect-[4/3] bg-slate-100">
-              <img src="${img.url}" alt="${img.title}" class="w-full h-full object-cover transition group-hover/thumb:scale-110">
-              <div class="absolute inset-0 bg-slate-950/30 group-hover/thumb:bg-transparent transition"></div>
-              <span class="absolute bottom-1 right-1 left-1 text-[9px] text-white font-bold bg-slate-950/80 rounded px-1 py-0.5 truncate text-center hidden sm:block">${img.title.split(' ')[0]}</span>
-            </button>
-          `).join("")}
+        <!-- Status Pill (Top Left) -->
+        <div class="absolute top-3.5 left-3.5 bg-emerald-900/90 backdrop-blur-md text-emerald-100 text-[11px] px-2.5 py-1 rounded-xl font-bold border border-emerald-500/20 shadow-sm flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>${p.badge || p.status}</span>
+        </div>
+
+        <!-- District & City (Bottom of image) -->
+        <div class="absolute bottom-3 right-3 left-3 text-white flex items-center gap-1.5 text-xs">
+          <span class="text-amber-400 flex-shrink-0">${icon.map}</span>
+          <span class="font-semibold drop-shadow-sm truncate">${p.cityDistrict}</span>
+        </div>
+      </div>
+
+      <!-- Property Details -->
+      <div class="p-5 sm:p-6 flex flex-col justify-between flex-1 gap-4">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold font-heading text-slate-900 group-hover:text-emerald-900 transition-colors leading-snug mb-2">
+            ${p.title}
+          </h3>
+          <p class="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4">
+            ${p.description}
+          </p>
+
+          <!-- Price Row -->
+          <div class="py-3 px-3.5 rounded-2xl bg-slate-50 border border-slate-100/90 flex items-center justify-between mb-3.5">
+            <span class="text-xs font-semibold text-slate-500">السعر المطلوب:</span>
+            <div class="text-left flex items-baseline gap-1">
+              <span class="text-lg sm:text-xl font-black text-emerald-950 font-heading">${fmt(p.price)}</span>
+              <span class="text-xs font-bold text-emerald-800">ر.س</span>
+            </div>
+          </div>
+
+          <!-- Specs Strip (Area, Beds, Baths) -->
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+              <span class="text-[10px] text-slate-400 block mb-0.5">المساحة</span>
+              <span class="text-xs font-bold text-slate-800 font-heading">${p.area}</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+              <span class="text-[10px] text-slate-400 block mb-0.5">غرف النوم</span>
+              <span class="text-xs font-bold text-slate-800 font-heading">${p.beds} غرف</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+              <span class="text-[10px] text-slate-400 block mb-0.5">دورات المياه</span>
+              <span class="text-xs font-bold text-slate-800 font-heading">${p.baths} دورات</span>
+            </div>
+          </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="grid grid-cols-2 gap-3 pt-2">
-          <button onclick="requestModelInspection('${m.code}')"
-                  class="py-3 px-4 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
-            ${icon.calendar}<span>طلب معاينة ميدانية</span>
+        <div class="grid grid-cols-2 gap-2.5 pt-2">
+          <button type="button" onclick="requestPropertyInspection('${p.id}')"
+                  class="py-2.5 px-3 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+            ${icon.calendar}<span>طلب معاينة</span>
           </button>
-          <button onclick="downloadBrochure('${m.code}')"
-                  class="py-3 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
-            ${icon.download}<span>تحميل المخطط المعماري</span>
-          </button>
+          <a href="${waLink(waPropertyMsg)}" target="_blank" rel="noopener noreferrer"
+             class="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-emerald-900 text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95">
+            ${icon.whatsapp}<span>تواصل واتساب</span>
+          </a>
         </div>
+
       </div>
 
-      <!-- Details -->
-      <div class="lg:col-span-6 space-y-5">
-        <!-- Unified Key Stats Cards (Built Area / Total Area / Starting Price) -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
-            <span class="text-[11px] font-semibold text-slate-500 block mb-1">مسطح البناء</span>
-            <span class="text-base sm:text-lg font-black text-slate-900 font-heading">${m.builtArea} م²</span>
-          </div>
-          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
-            <span class="text-[11px] font-semibold text-slate-500 block mb-1">المساحة الإجمالية</span>
-            <span class="text-base sm:text-lg font-black text-slate-900 font-heading">${m.totalArea} م²</span>
-          </div>
-          <div class="p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200/80 text-center shadow-2xs">
-            <span class="text-[11px] font-semibold text-slate-500 block mb-1">السعر يبدأ من</span>
-            <span class="text-base sm:text-lg font-black text-emerald-900 font-heading">${m.priceFrom}</span>
-          </div>
-        </div>
-
-        <!-- Floor plan -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-sm font-bold text-slate-900 font-heading flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-700"></span>توزيع الأدوار والمساحات
-            </h4>
-            <button onclick="downloadBrochure('${m.code}')" class="text-xs font-bold text-emerald-800 hover:text-emerald-900 flex items-center gap-1 transition">
-              <span>عرض المخطط الهندسي</span>${icon.arrow}
-            </button>
-          </div>
-          <div class="space-y-3">${floorRows}</div>
-        </div>
-
-        <!-- Highlights -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-          <h4 class="text-sm font-bold text-slate-900 font-heading mb-3 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>أبرز مزايا نموذج ${m.code}
-          </h4>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">${highlights}</ul>
-        </div>
-      </div>
     </div>`;
 }
+
+/** زر طلب معاينة العقار */
+window.requestPropertyInspection = function(propertyId) {
+  openInspectionModal({ propertyId });
+};
+
+/** للتوافق مع استدعاءات النماذج القديمة */
+const buildModelsShowcase = buildPropertiesCatalog;
+window.buildModelsShowcase = buildPropertiesCatalog;
 
 /** تبديل صورة المعرض للنموذج */
 window.switchModelPhoto = function(modelCode, photoIndex) {
@@ -903,20 +900,28 @@ window.requestPdfViaWhatsApp = function(code) {
 };
 
 /** نافذة المعاينة الميدانية والحجز السريع الفاخرة (#inspection-modal) */
-window.openInspectionModal = function({ modelCode, unitId }) {
+window.openInspectionModal = function({ propertyId, modelCode, unitId } = {}) {
   const modal = document.getElementById("inspection-modal");
   if (!modal) return;
 
-  const unit = unitId ? DATA.units.find(u => u.id === Number(unitId)) : null;
+  const prop = propertyId ? DATA.properties?.find(p => p.id === propertyId) : null;
+  const unit = unitId ? DATA.units?.find(u => u.id === Number(unitId)) : null;
   const targetCode = unit ? unit.model : (modelCode || STATE.activeModel || "A");
-  const m = DATA.models.find(x => x.code === targetCode) || DATA.models[0];
+  const m = DATA.models?.find(x => x.code === targetCode) || DATA.models?.[0];
 
   STATE.inspectionState = {
-    modelCode: m.code,
+    propertyId: prop ? prop.id : null,
+    modelCode: prop ? null : m?.code,
     unitId: unit ? unit.id : null,
     preferredDay: STATE.inspectionState?.preferredDay || "غداً",
     preferredTime: STATE.inspectionState?.preferredTime || "عصراً (4:00 - 6:30 م)",
   };
+
+  const title = prop ? prop.title : (m ? `نموذج ${m.code} — ${m.name}` : "طلب معاينة عقار");
+  const subtitle = prop ? prop.cityDistrict : (m ? m.subtitle : DATA.brand.project);
+  const areaDisplay = prop ? prop.area : (unit ? unit.area : (m ? m.totalArea + ' م²' : ''));
+  const priceDisplay = prop ? `${fmt(prop.price)} ر.س` : (unit ? `${fmt(unit.price)} ر.س` : (m ? m.priceFrom : ''));
+  const typeDisplay = prop ? prop.category : (m ? m.floors.split('+')[0] : 'سكن فاخر');
 
   modal.innerHTML = `
     <div class="modal-content-box bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 shadow-2xl relative text-slate-900 my-8">
@@ -932,50 +937,56 @@ window.openInspectionModal = function({ modelCode, unitId }) {
         <div class="flex items-start justify-between gap-3">
           <div>
             <h3 class="text-xl sm:text-2xl font-black font-heading text-slate-900">
-              نموذج ${m.code} — ${m.name}
+              ${title}
             </h3>
-            <p class="text-xs text-slate-500 mt-0.5">${m.subtitle}</p>
+            <p class="text-xs text-slate-500 mt-0.5">${subtitle}</p>
           </div>
           ${unit ? `
             <div class="text-left flex-shrink-0 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-center">
               <span class="text-[10px] text-slate-400 block">الوحدة المحددة</span>
               <span class="text-sm font-black text-amber-400 font-heading">#${unit.id}</span>
             </div>
-          ` : ''}
+          ` : (prop ? `
+            <div class="text-left flex-shrink-0 bg-emerald-900 text-white px-3 py-1.5 rounded-xl text-center">
+              <span class="text-[10px] text-emerald-300 block">التصنيف</span>
+              <span class="text-xs font-bold text-white font-heading">${prop.category}</span>
+            </div>
+          ` : '')}
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-4">
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
             <span class="text-[10px] text-slate-500 block">المساحة</span>
-            <span class="text-xs font-bold text-slate-900 font-heading">${unit ? unit.area : m.totalArea + ' م²'}</span>
+            <span class="text-xs font-bold text-slate-900 font-heading">${areaDisplay}</span>
           </div>
           <div class="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100">
             <span class="text-[10px] text-emerald-800 block">السعر</span>
-            <span class="text-xs font-bold text-emerald-950 font-heading">${fmt(unit ? unit.price : m.priceFrom)} ر.س</span>
+            <span class="text-xs font-bold text-emerald-950 font-heading">${priceDisplay}</span>
           </div>
           <div class="bg-amber-50/70 p-2.5 rounded-xl border border-amber-100 col-span-2 sm:col-span-1">
-            <span class="text-[10px] text-amber-800 block">الأدوار</span>
-            <span class="text-xs font-bold text-amber-950 font-heading truncate">${m.floors.split('+')[0]}</span>
+            <span class="text-[10px] text-amber-800 block">التصنيف / النوع</span>
+            <span class="text-xs font-bold text-amber-950 font-heading truncate">${typeDisplay}</span>
           </div>
         </div>
       </div>
 
+      <!-- Quick Highlights -->
       <div class="grid grid-cols-2 gap-2 text-xs text-slate-700 mb-5 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
         <div class="flex items-center gap-1.5">
           <span class="text-emerald-700">${icon.check}</span>
-          <span class="font-medium">${m.rooms.split('+')[0].trim()}</span>
+          <span class="font-medium">${prop ? prop.beds + ' غرف نوم' : (m ? m.rooms.split('+')[0].trim() : 'غرف نوم ماستر')}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-emerald-700">${icon.check}</span>
-          <span class="font-medium">مجلس رجال مستقل</span>
+          <span class="font-medium">${prop ? prop.baths + ' دورات مياه' : 'مجلس ضيوف مستقل'}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-emerald-700">${icon.check}</span>
-          <span class="font-medium">${m.extraArea > 0 ? 'حوش وارتداد خاص ' + m.extraArea + 'م²' : 'سطح وتراس خاص'}</span>
+          <span class="font-medium">${prop ? (prop.parking || 'موقف خاص') : (m?.extraArea > 0 ? 'حوش وارتداد خاص ' + m.extraArea + 'م²' : 'سطح وتراس خاص')}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-emerald-700">${icon.check}</span>
-          <span class="font-medium">مدخل وكراج سيارة مستقل</span>
+          <span class="font-medium">استقلالية كاملة للمرافق 100%</span>
         </div>
       </div>
 
@@ -1080,9 +1091,9 @@ window.handleInspectionSubmit = function(e) {
   }
 
   const ticket = `#MS-${Math.floor(1000 + Math.random() * 9000)}`;
-  const m = DATA.models.find(x => x.code === STATE.inspectionState.modelCode) || DATA.models[0];
-  const unit = STATE.inspectionState.unitId ? DATA.units.find(u => u.id === Number(STATE.inspectionState.unitId)) : null;
-  const unitStr = unit ? `الوحدة رقم (${unit.id}) — مساحة ${unit.area}` : "حسب التوفر بالنموذج";
+  const prop = STATE.inspectionState.propertyId ? DATA.properties?.find(p => p.id === STATE.inspectionState.propertyId) : null;
+  const m = (!prop && STATE.inspectionState.modelCode) ? DATA.models?.find(x => x.code === STATE.inspectionState.modelCode) : null;
+  const unit = STATE.inspectionState.unitId ? DATA.units?.find(u => u.id === Number(STATE.inspectionState.unitId)) : null;
 
   // حفظ في localStorage
   const leads = JSON.parse(localStorage.getItem("ms_leads") || "[]");
@@ -1090,7 +1101,9 @@ window.handleInspectionSubmit = function(e) {
     ticket,
     name,
     phone,
-    model: m.code,
+    propertyId: prop?.id || null,
+    propertyTitle: prop?.title || null,
+    model: m?.code || null,
     unitId: unit ? unit.id : null,
     preferredDay: STATE.inspectionState.preferredDay,
     preferredTime: STATE.inspectionState.preferredTime,
@@ -1098,12 +1111,29 @@ window.handleInspectionSubmit = function(e) {
   });
   localStorage.setItem("ms_leads", JSON.stringify(leads));
 
+  let itemInfo = "";
+  if (prop) {
+    itemInfo = `🏠 العقار المطلوب: ${prop.title}
+📍 الموقع: ${prop.cityDistrict}
+📐 المساحة: ${prop.area}
+💰 السعر: ${fmt(prop.price)} ر.س`;
+  } else if (unit) {
+    itemInfo = `📌 المشروع: تاون هاوس الشامخة
+🔢 الوحدة: وحدة رقم (${unit.id}) — نموذج ${unit.model}
+📐 المساحة: ${unit.area}
+💰 السعر: ${fmt(unit.price)} ر.س`;
+  } else if (m) {
+    itemInfo = `📌 المشروع: تاون هاوس الشامخة
+🏠 النموذج: نموذج ${m.code} — ${m.name}
+📐 مساحة النموذج: ${m.totalArea} م²`;
+  } else {
+    itemInfo = `📌 المشروع: تاون هاوس الشامخة بالدمام`;
+  }
+
   const msg = `السلام عليكم ورحمة الله وبركاته،
-أود حجز موعد معاينة ميدانية لمشروع تاون هاوس الشامخة بالدمام (حي حديقة الأثير):
+أود حجز موعد معاينة ميدانية عبر موقع شركة ${DATA.brand.developer}:
 ──────────────────────
-📌 النموذج: نموذج ${m.code} — ${m.name}
-🔢 الوحدة: ${unitStr}
-📐 مساحة النموذج: ${unit ? unit.area : m.totalArea + ' م²'}
+${itemInfo}
 📅 اليوم المفضل: ${STATE.inspectionState.preferredDay}
 ⏰ التوقيت المفضل: ${STATE.inspectionState.preferredTime}
 👤 الاسم: ${name}
@@ -1267,15 +1297,8 @@ function buildBookingForm() {
   const el = document.getElementById("booking-section");
   if (!el) return;
 
-  const availableUnits = DATA.units.filter(u => u.status === "available");
-  const unitOptions = `<option value="">— اختر الوحدة أو اترك للمستشار —</option>` +
-    availableUnits.map(u => {
-      const model = DATA.models.find(m => m.code === u.model);
-      return `<option value="${u.id}">وحدة ${u.id} — نموذج ${u.model} (${model?.name || ""}) — ${u.area} — ${fmt(u.price)} ر.س</option>`;
-    }).join("");
-
-  const modelOptions = DATA.models.map(m =>
-    `<option value="${m.code}">نموذج ${m.code} — ${m.name} (${m.totalArea} م²)</option>`
+  const propertyOptions = (DATA.properties || []).map(p =>
+    `<option value="${p.id}">${p.title} — ${p.cityDistrict} (${p.area}) — ${fmt(p.price)} ر.س</option>`
   ).join("");
 
   el.innerHTML = `
@@ -1283,8 +1306,8 @@ function buildBookingForm() {
       <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-lg">
         <div class="text-center max-w-xl mx-auto mb-8">
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200/60 mb-2">حجز ومعاينة رسمية مباشرة</div>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">سجّل اهتمامك واحجز وحدتك</h2>
-          <p class="text-xs text-slate-600 mt-2">سيصدر لك رقم تذكرة رسمي ويُربطك مباشرة بمدير المبيعات عبر الواتساب لتنسيق المعاينة.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">سجّل اهتمامك واحجز موعدك</h2>
+          <p class="text-xs text-slate-600 mt-2">سيصدر لك رقم تذكرة رسمي ويُربطك مباشرة بمدير المبيعات عبر الواتساب لتنسيق المعاينة الميدانية.</p>
         </div>
         <form id="booking-lead-form" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1298,16 +1321,11 @@ function buildBookingForm() {
               <input type="tel" id="b-phone" required placeholder="05xxxxxxxx" dir="ltr"
                      class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-right focus:outline-none focus:ring-2 focus:ring-emerald-800">
             </div>
-            <div>
-              <label for="booking-unit-select" class="block text-xs font-bold text-slate-700 mb-1.5">الوحدة المتاحة المرغوبة</label>
-              <select id="booking-unit-select" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-800">
-                ${unitOptions}
-              </select>
-            </div>
-            <div>
-              <label for="b-model" class="block text-xs font-bold text-slate-700 mb-1.5">النموذج المعماري المفضل</label>
-              <select id="b-model" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-800">
-                ${modelOptions}
+            <div class="sm:col-span-2">
+              <label for="booking-property-select" class="block text-xs font-bold text-slate-700 mb-1.5">العقار المطلوب *</label>
+              <select id="booking-property-select" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-800">
+                <option value="">— اختر العقار المطلوب للمعاينة أو الشراء —</option>
+                ${propertyOptions}
               </select>
             </div>
             <div class="sm:col-span-2">
@@ -1329,7 +1347,7 @@ function buildBookingForm() {
                     class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-slate-900 hover:from-emerald-800 hover:to-slate-800 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
               ${icon.checkCircle}<span>تأكيد تسجيل الاهتمام وتوليد تذكرة الحجز الرسمية</span>
             </button>
-            <p class="text-[11px] text-slate-400 text-center mt-2">بياناتك محمية ومخصصة حصرياً لـ ${DATA.brand.project}.</p>
+            <p class="text-[11px] text-slate-400 text-center mt-2">بياناتك محمية ومخصصة حصرياً لشركة ${DATA.brand.developer}.</p>
           </div>
         </form>
       </div>
@@ -1342,8 +1360,8 @@ function handleBookingSubmit(e) {
   e.preventDefault();
   const name    = document.getElementById("b-name")?.value.trim();
   const phone   = document.getElementById("b-phone")?.value.trim();
-  const unitId  = document.getElementById("booking-unit-select")?.value;
-  const model   = document.getElementById("b-model")?.value;
+  const propId  = document.getElementById("booking-property-select")?.value;
+  const prop    = DATA.properties?.find(p => p.id === propId);
   const payment = document.getElementById("b-payment")?.value;
   const notes   = document.getElementById("b-notes")?.value.trim() || "لا ملاحظات";
 
@@ -1353,13 +1371,14 @@ function handleBookingSubmit(e) {
   }
 
   const ticket = `#MS-${Math.floor(1000 + Math.random() * 9000)}`;
+  const propLabel = prop ? `${prop.title} — ${prop.cityDistrict} (${prop.area}) — ${fmt(prop.price)} ر.س` : "لم يتم تحديد عقار محدد";
 
   // حفظ في localStorage (محاكاة CRM)
   const leads = JSON.parse(localStorage.getItem("ms_leads") || "[]");
-  leads.push({ ticket, name, phone, unitId, model, payment, notes, ts: new Date().toISOString() });
+  leads.push({ ticket, name, phone, propertyId: prop?.id || null, property: propLabel, payment, notes, ts: new Date().toISOString() });
   localStorage.setItem("ms_leads", JSON.stringify(leads));
 
-  openConfirmationModal({ ticket, name, phone, unitId, model, payment, notes });
+  openConfirmationModal({ ticket, name, phone, property: propLabel, payment, notes });
   e.target.reset();
 }
 
@@ -1377,7 +1396,7 @@ function buildModal() {
       <div class="text-center mb-6">
         <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-3">${icon.checkCircle}</div>
         <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">تم إنشاء تذكرة الحجز بنجاح</span>
-        <h3 class="text-xl font-black font-heading text-slate-900 mt-3">شكراً لتسجيل اهتمامك في تاون هاوس الشامخة</h3>
+        <h3 class="text-xl font-black font-heading text-slate-900 mt-3">شكراً لتسجيل اهتمامك لدى شركة ${DATA.brand.developer}</h3>
       </div>
       <div id="modal-body" class="bg-slate-50 rounded-2xl border border-slate-200 p-4 mb-6 space-y-2 text-xs"></div>
       <div class="space-y-2">
@@ -1396,32 +1415,27 @@ function openConfirmationModal(d) {
   const waBtn = document.getElementById("modal-wa-btn");
   if (!modal) return;
 
-  const unit = DATA.units.find(u => u.id === Number(d.unitId));
-  const unitLabel = unit ? `وحدة ${unit.id} — نموذج ${unit.model} (${unit.area})` : "لم يتم تحديد وحدة";
-
   if (body) {
     const rows = [
       ["رقم التذكرة",   `<span class="font-black text-emerald-900 font-heading text-sm">${d.ticket}</span>`],
       ["الاسم",         d.name],
       ["الجوال",        d.phone],
-      ["النموذج",       `نموذج ${d.model}`],
-      ["الوحدة",        unitLabel],
+      ["العقار المطلوب", d.property || "حسب الاختيار"],
       ["طريقة السداد",  d.payment],
     ];
     body.innerHTML = rows.map(([k,v]) =>
-      `<div class="flex items-center justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span class="text-slate-500">${k}:</span><span class="font-bold text-slate-800">${v}</span></div>`
+      `<div class="flex items-center justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0"><span class="text-slate-500">${k}:</span><span class="font-bold text-slate-800 text-left">${v}</span></div>`
     ).join("");
   }
 
   if (waBtn) {
     const msg = `السلام عليكم ورحمة الله وبركاته،
-أود تأكيد الحجز في مشروع "${DATA.brand.project}" — ${DATA.brand.city}.
+أود تأكيد تسجيل اهتمامي وحجز موعد معاينة لدى شركة ${DATA.brand.developer}:
 ──────────────────────
 📌 رقم التذكرة: ${d.ticket}
 👤 الاسم: ${d.name}
 📱 الجوال: ${d.phone}
-🏠 النموذج: نموذج ${d.model}
-🔢 الوحدة: ${unitLabel}
+🏠 العقار المطلوب: ${d.property}
 💳 طريقة السداد: ${d.payment}
 📝 ملاحظات: ${d.notes}
 ──────────────────────
@@ -1515,7 +1529,7 @@ function initApp() {
     ["hero-section", buildHero],
     ["project-tabs", buildProjectTabs],
     ["matrix-section", buildUnitMatrix],
-    ["models-section", buildModelsShowcase],
+    ["models-section", buildPropertiesCatalog],
     ["about-section", buildAboutSection],
     ["location-section", buildLocationSection],
     ["booking-section", buildBookingForm],

@@ -244,6 +244,32 @@ input[type="range"]::-moz-range-thumb {
   border-color: #0f172a;
 }
 
+/* تبويبات وأزرار فلترة العقارات */
+.prop-filter-btn {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.prop-filter-btn:hover {
+  transform: translateY(-1px);
+}
+
+.prop-filter-btn.active {
+  background-color: #064e3b !important;
+  color: #ffffff !important;
+  border-color: #064e3b !important;
+  box-shadow: 0 4px 14px -2px rgba(6, 78, 59, 0.25) !important;
+}
+
+/* بطاقات العقارات الفاخرة */
+.property-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.1);
+}
+
 /* مصغرات معرض الصور */
 .gallery-thumb {
   transition: all 0.2s ease;
