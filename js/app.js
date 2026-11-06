@@ -1085,32 +1085,101 @@ window.handleInspectionSubmit = function(e) {
 };
 
 /* ═══════════════════════════════════════════════════
-   4. ABOUT & ARCHITECTURAL VISION
+   4. ABOUT & ARCHITECTURAL EDITORIAL
    ═══════════════════════════════════════════════════ */
 
 function buildAboutSection() {
   const el = document.getElementById("about-section");
   if (!el) return;
 
-  const perks = DATA.locationPerks.map(p => `
-    <div class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-4">
-      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0">${icon[p.icon] || icon.shield}</div>
-      <div>
-        <h4 class="text-sm font-bold text-slate-900 font-heading mb-1">${p.title}</h4>
-        <p class="text-xs text-slate-600 leading-relaxed">${p.desc}</p>
+  const ab = DATA.about || {
+    category: "فلسفة البناء والتطوير",
+    headline: "استقلالية الفيلا الخاصة، بمرونة التاون هاوس العصري.",
+    lead: `في قلب ${DATA.brand.district} بـ${DATA.brand.city}، يعيد مشروع تاون هاوس الشامخة صياغة مفهوم الخصوصية والاستقرار السكني. لم نكتفِ بتقديم مسكن، بل ابتكرنا نمط حياة متفرداً يمنح كل عائلة حرية الملكية التامة بلا قيود مجاورة مشتركة.`,
+    subtext: "مدخل سيارة خاص، عداد كهرباء منفصل، وخزانات مياه علوية وأرضية مستقلة بالكامل لكل وحدة دوبلكس؛ لتستمتع بكامل استقلالية الفيلا المنفصلة مع كفاءة التصميم الهندسي الحديث وجودة البناء المستدامة.",
+    stats: [
+      { num: "100%", label: "استقلالية المرافق والخزانات", sub: "عداد وكراج وخزان مستقل" },
+      { num: "6",    label: "نماذج معمارية متنوعة",       sub: "من نموذج A إلى F" },
+      { num: "24",   label: "وحدة دوبلكس متكاملة",        sub: "بحي حديقة الأثير" },
+    ],
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85",
+    imageCaption: "واجهات حجر وزجاج إستركمشر — تشطيبات تعزل الحرارة وتتحمل الأجواء الساحلية",
+    pills: [
+      { icon: "lift", title: "مصاعد إيطالية راكبة", desc: "جاهزة للتشغيل لوحدات الدوبلكس والروف لراحة العائلة." },
+      { icon: "bolt", title: "تأسيس سمارت هوم وألياف", desc: "بنية تحتية متطورة لأنظمة التكييف وكاميرات المراقبة." },
+    ]
+  };
+
+  const statsCols = ab.stats.map(s => `
+    <div>
+      <span class="block text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 font-heading tracking-tight text-emerald-950">${s.num}</span>
+      <span class="block text-xs sm:text-sm font-bold text-slate-700 mt-1">${s.label}</span>
+      ${s.sub ? `<span class="text-[11px] text-slate-400 block mt-0.5">${s.sub}</span>` : ''}
+    </div>
+  `).join("");
+
+  const featurePills = ab.pills.map(p => `
+    <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-3.5 hover:border-emerald-700/40 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center flex-shrink-0 border border-emerald-100">
+        ${icon[p.icon] || icon.shield}
       </div>
-    </div>`).join("");
+      <div>
+        <h4 class="text-xs sm:text-sm font-bold text-slate-900 font-heading">${p.title}</h4>
+        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${p.desc}</p>
+      </div>
+    </div>
+  `).join("");
 
   el.innerHTML = `
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200/60 mb-2">عن مشروع تاون هاوس الشامخة</div>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 font-heading leading-tight">رؤية معمارية ترتقي بمفهوم السكن العائلي المستقل في قلب الدمام</h2>
-        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3">
-          يُعد مشروع <strong class="text-slate-900">تاون هاوس الشامخة</strong> أحد أبرز المشاريع السكنية النوعية لشركة <strong class="text-emerald-900">${DATA.brand.developer}</strong>، يجمع بين استقلالية الفيلا الخاصة ووظيفة التاون هاوس العصري، في <strong class="text-slate-900">${DATA.brand.district} بـ${DATA.brand.city}</strong>.
-        </p>
+    <div class="bg-slate-50/70 border-y border-slate-200/80 py-16 sm:py-20 lg:py-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+          <!-- Right Column (Editorial Storytelling & Big Stats) -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 text-xs font-bold text-emerald-900 tracking-wide">
+              <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span>${ab.category}</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-4xl lg:text-[40px] font-black text-slate-900 font-heading leading-[1.25] tracking-tight">
+              ${ab.headline}
+            </h2>
+
+            <div class="space-y-3.5 text-slate-600 text-xs sm:text-sm leading-relaxed">
+              <p class="font-medium text-slate-700 leading-relaxed">${ab.lead}</p>
+              <p class="text-slate-500 leading-relaxed">${ab.subtext}</p>
+            </div>
+
+            <!-- Clean, borderless Big Numerical Stats divider -->
+            <div class="pt-6 border-t border-slate-200/90 grid grid-cols-3 gap-4 sm:gap-6">
+              ${statsCols}
+            </div>
+          </div>
+
+          <!-- Left Column (Architectural Visual & Integrated Features) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg group bg-slate-950">
+              <img src="${ab.image}"
+                   alt="واجهات تاون هاوس الشامخة المعمارية"
+                   class="w-full h-64 sm:h-80 lg:h-88 object-cover transition duration-700 group-hover:scale-105">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none"></div>
+              <div class="absolute bottom-4 right-4 left-4 text-white">
+                <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">الإتقان الهندسي والواجهات</span>
+                <p class="text-xs sm:text-sm font-medium text-slate-100 leading-snug">
+                  ${ab.imageCaption}
+                </p>
+              </div>
+            </div>
+
+            <!-- Two compact horizontal feature pills -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              ${featurePills}
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">${perks}</div>
     </div>`;
 }
 
