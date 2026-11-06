@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap');
 
 :root {
   --font-tajawal: 'Tajawal', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -7,6 +7,7 @@
   --emerald-mid: #047857;
   --emerald-light: #ecfdf5;
   --gold-warm: #d97706;
+  --gold-light: #fef3c7;
   --navy-slate: #0f172a;
 }
 
@@ -24,7 +25,7 @@ body {
   overflow-x: hidden;
 }
 
-/* عناوين متميزة بخط ريديكس برو */
+/* عناوين متميزة بخط ريديكس برو السعودي الفاخر */
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-readex);
   letter-spacing: -0.02em;
@@ -49,7 +50,7 @@ h1, h2, h3, h4, .font-heading {
   background: #94a3b8;
 }
 
-/* شريط تمرير هادئ وخفيف لنافذة المعاينة */
+/* شريط تمرير هادئ وخفيف للنوافذ */
 .modal-scroll::-webkit-scrollbar {
   width: 6px;
 }
@@ -67,7 +68,7 @@ h1, h2, h3, h4, .font-heading {
   background: #cbd5e1;
 }
 
-/* تنسيق أشرطة التمرير الرقمية (Range Sliders) */
+/* تنسيق أشرطة التمرير الرقمية للحاسبة (Range Sliders) */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -88,7 +89,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: #047857;
   cursor: pointer;
   border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
@@ -104,43 +105,51 @@ input[type="range"]::-moz-range-thumb {
   background: #047857;
   cursor: pointer;
   border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
-/* تدرج هيرو فخم وهادئ متوافق مع الهوية العقارية الرسمية */
+/* طبقة التدرج الفخمة لقسم الواجهة */
 .hero-gradient-overlay {
   background: linear-gradient(
     180deg,
-    rgba(6, 78, 59, 0.85) 0%,
-    rgba(15, 23, 42, 0.92) 100%
+    rgba(6, 78, 59, 0.88) 0%,
+    rgba(15, 23, 42, 0.94) 100%
   );
 }
 
-/* بطاقات العقارات بظلال ناعمة وتأطير دقيق */
-.property-card {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+/* بطاقات مصفوفة الوحدات (Unit Matrix Cards) */
+.unit-card {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.property-card:hover {
+.unit-card.unit-available:hover {
   transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.15), 0 8px 10px -6px rgba(6, 78, 59, 0.1);
 }
 
-/* تأثير التحديد للعلامات التفاعلية */
-.filter-purpose-tab.active {
-  background-color: #064e3b;
-  color: #ffffff;
+/* شارات حالات الوحدات */
+.badge-available {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
-/* وسوم رخصة فال والتوثيق */
-.fal-stamp-badge {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+.badge-reserved {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
-/* تصميم المودال الهادئ المتوازن */
+.badge-sold {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* تأثيرات المودال */
 .modal-backdrop {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal-content-box {
@@ -150,10 +159,30 @@ input[type="range"]::-moz-range-thumb {
 @keyframes modalScaleIn {
   from {
     opacity: 0;
-    transform: scale(0.97) translateY(8px);
+    transform: scale(0.96) translateY(10px);
   }
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* تأثير التحديد للتبويبات النشطة */
+.status-tab.active {
+  background-color: #064e3b;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
+}
+
+.model-tab.active {
+  background-color: #064e3b;
+  color: #ffffff;
+  border-color: #064e3b;
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.2);
+}
+
+.matrix-filter-btn.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
 }

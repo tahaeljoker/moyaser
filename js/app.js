@@ -1,944 +1,621 @@
 /**
- * تطبيق منصة ميسر للتطوير العقاري - Main Application Logic
- * تجربة مستخدم رقمية سعودية متكاملة
+ * app.js - المنطق التفاعلي لمنصة تاون هاوس الشامخة (الدمام)
+ * المطور العقاري: مُيسر للتطوير العقاري
  */
 
-// حالة التطبيق العامة
-const AppState = {
-  activePurpose: 'للبيع', // 'للبيع' | 'للإيجار' | 'استثمار تجاري'
-  selectedCity: 'الرياض',
-  selectedNeighborhood: 'الكل',
-  selectedType: 'الكل',
-  maxPrice: 100000000,
-  requireFalLicense: true,
-  requireSakani: false,
-  requireBuildingCode: false,
-  searchQuery: '',
-  favorites: JSON.parse(localStorage.getItem('muyassar_favorites') || '[]'),
-  currentModalProperty: null
-};
-
-// تهيئة التطبيق عند اكتمال تحميل المستند
 document.addEventListener('DOMContentLoaded', () => {
-  initLucideIcons();
-  initCityAndNeighborhoodSelectors();
-  initSearchFilters();
-  initPropertiesGrid();
-  initFavoritesSystem();
-  initLeadCaptureForm();
-  initAddPropertyModal();
-  initPropertyDetailsModal();
+  initProjectStatusTabs();
+  initUnitMatrix();
+  initModelsShowcase();
+  initFinancingCalculator();
+  initBookingForm();
 });
 
-// تهيئة أيقونات Lucide
-function initLucideIcons() {
-  if (window.lucide) {
-    window.lucide.createIcons();
-  }
-}
+/* ==========================================================================
+   1. تبويبات حالة المشاريع (جاهز للبيع / قيد التطوير)
+   ========================================================================== */
+function initProjectStatusTabs() {
+  const tabs = document.querySelectorAll('.status-tab');
+  const readySection = document.getElementById('ready-units-container');
+  const upcomingSection = document.getElementById('upcoming-projects-container');
 
-// تحديث الأحياء بناءً على المدينة المختارة
-function initCityAndNeighborhoodSelectors() {
-  const citySelect = document.getElementById('filter-city');
-  const neighborhoodSelect = document.getElementById('filter-neighborhood');
-
-  if (!citySelect || !neighborhoodSelect) return;
-
-  function populateNeighborhoods(city) {
-    neighborhoodSelect.innerHTML = '<option value="الكل">كافة الأحياء</option>';
-    const neighborhoods = (typeof saudiLocations !== 'undefined' ? saudiLocations[city] : []) || [];
-    neighborhoods.forEach(nh => {
-      const option = document.createElement('option');
-      option.value = nh;
-      option.textContent = nh;
-      neighborhoodSelect.appendChild(option);
-    });
-  }
-
-  // التعبئة الأولية لمدينة الرياض
-  populateNeighborhoods(AppState.selectedCity);
-
-  citySelect.addEventListener('change', (e) => {
-    AppState.selectedCity = e.target.value;
-    AppState.selectedNeighborhood = 'الكل';
-    populateNeighborhoods(AppState.selectedCity);
-    applyFilters();
-  });
-
-  neighborhoodSelect.addEventListener('change', (e) => {
-    AppState.selectedNeighborhood = e.target.value;
-    applyFilters();
-  });
-}
-
-// تهيئة فلاتر وألسنة البحث
-function initSearchFilters() {
-  // ألسنة الغرض: للبيع / للإيجار / استثمار تجاري
-  const purposeTabs = document.querySelectorAll('.filter-purpose-tab');
-  purposeTabs.forEach(tab => {
+  tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      purposeTabs.forEach(t => {
-        t.classList.remove('active', 'bg-emerald-800', 'text-white', 'shadow-sm');
-        t.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
-      });
-      tab.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
-      tab.classList.add('active', 'bg-emerald-800', 'text-white', 'shadow-sm');
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
 
-      AppState.activePurpose = tab.dataset.purpose;
-      applyFilters();
-    });
-  });
-
-  // نوع العقار
-  const typeSelect = document.getElementById('filter-type');
-  if (typeSelect) {
-    typeSelect.addEventListener('change', (e) => {
-      AppState.selectedType = e.target.value;
-      applyFilters();
-    });
-  }
-
-  // السعر الأقصى
-  const priceSelect = document.getElementById('filter-price');
-  if (priceSelect) {
-    priceSelect.addEventListener('change', (e) => {
-      AppState.maxPrice = parseInt(e.target.value, 10) || 100000000;
-      applyFilters();
-    });
-  }
-
-  // مربعات التحديد السريعة (رخصة فال، التمويل، كود البناء)
-  const toggleFal = document.getElementById('toggle-fal');
-  if (toggleFal) {
-    toggleFal.checked = AppState.requireFalLicense;
-    toggleFal.addEventListener('change', (e) => {
-      AppState.requireFalLicense = e.target.checked;
-      applyFilters();
-    });
-  }
-
-  const toggleSakani = document.getElementById('toggle-sakani');
-  if (toggleSakani) {
-    toggleSakani.addEventListener('change', (e) => {
-      AppState.requireSakani = e.target.checked;
-      applyFilters();
-    });
-  }
-
-  const toggleBuildingCode = document.getElementById('toggle-building-code');
-  if (toggleBuildingCode) {
-    toggleBuildingCode.addEventListener('change', (e) => {
-      AppState.requireBuildingCode = e.target.checked;
-      applyFilters();
-    });
-  }
-
-  // زر تطبيق البحث في الهيرو
-  const heroSearchBtn = document.getElementById('hero-search-btn');
-  if (heroSearchBtn) {
-    heroSearchBtn.addEventListener('click', () => {
-      applyFilters();
-      const gridSection = document.getElementById('properties-section');
-      if (gridSection) {
-        gridSection.scrollIntoView({ behavior: 'smooth' });
+      const target = tab.dataset.target;
+      if (target === 'ready') {
+        if (readySection) readySection.classList.remove('hidden');
+        if (upcomingSection) upcomingSection.classList.add('hidden');
+      } else {
+        if (readySection) readySection.classList.add('hidden');
+        if (upcomingSection) {
+          upcomingSection.classList.remove('hidden');
+          renderUpcomingProjects();
+        }
       }
     });
-  }
-
-  // حقل البحث النصي السريع إن وُجد
-  const keywordSearch = document.getElementById('filter-keyword');
-  if (keywordSearch) {
-    keywordSearch.addEventListener('input', (e) => {
-      AppState.searchQuery = e.target.value.trim().toLowerCase();
-      applyFilters();
-    });
-  }
-}
-
-// استخراج السعر الرقمي الصافي للعقار
-function getNumericPrice(prop) {
-  if (prop.numericPrice) return prop.numericPrice;
-  if (typeof prop.price === 'number') return prop.price;
-  const parsed = parseInt(String(prop.price).replace(/[^0-9]/g, ''), 10);
-  return isNaN(parsed) ? 0 : parsed;
-}
-
-// تصفية العقارات بناءً على الحالة الحالية
-function getFilteredProperties() {
-  const dataset = (typeof properties !== 'undefined' ? properties : propertiesData) || [];
-
-  return dataset.filter(prop => {
-    // التحقق من الغرض
-    if (AppState.activePurpose !== 'الكل' && prop.purpose && prop.purpose !== AppState.activePurpose) {
-      return false;
-    }
-
-    // المدينة
-    if (AppState.selectedCity !== 'الكل' && prop.city && prop.city !== AppState.selectedCity) {
-      return false;
-    }
-
-    // الحي
-    if (AppState.selectedNeighborhood !== 'الكل' && prop.neighborhood && prop.neighborhood !== AppState.selectedNeighborhood) {
-      return false;
-    }
-
-    // نوع العقار
-    if (AppState.selectedType !== 'الكل' && prop.type && prop.type !== AppState.selectedType) {
-      return false;
-    }
-
-    // السعر الأقصى
-    const numPrice = getNumericPrice(prop);
-    if (numPrice > AppState.maxPrice) {
-      return false;
-    }
-
-    // رخصة فال
-    if (AppState.requireFalLicense) {
-      const hasFalBadge = prop.badges && prop.badges.some(b => b.includes('فال'));
-      if (!prop.falLicense && !hasFalBadge) {
-        return false;
-      }
-    }
-
-    // التمويل العقاري المدعوم
-    if (AppState.requireSakani) {
-      const hasBankBadge = prop.badges && prop.badges.some(b => b.includes('بنوك') || b.includes('تمويل'));
-      if (!prop.isSakaniEligible && !hasBankBadge) {
-        return false;
-      }
-    }
-
-    // كود البناء السعودي وتأمين ملاذ
-    if (AppState.requireBuildingCode) {
-      const hasMalathBadge = prop.badges && prop.badges.some(b => b.includes('ملاذ') || b.includes('إتمام بناء') || b.includes('ضمان'));
-      if (!prop.hasBuildingCode && !hasMalathBadge) {
-        return false;
-      }
-    }
-
-    // البحث النصي بالكلمة
-    if (AppState.searchQuery) {
-      const hay = `${prop.title} ${prop.location || ''} ${prop.neighborhood || ''} ${prop.city || ''} ${prop.description || ''}`.toLowerCase();
-      if (!hay.includes(AppState.searchQuery)) {
-        return false;
-      }
-    }
-
-    return true;
   });
 }
 
-// تطبيق الفلاتر وإعادة رسم الشبكة
-function applyFilters() {
-  const filtered = getFilteredProperties();
-  renderPropertiesGrid(filtered);
+function renderUpcomingProjects() {
+  const container = document.getElementById('upcoming-projects-grid');
+  if (!container || container.innerHTML.trim() !== '') return;
 
-  // تحديث عداد العقارات المتاحة
-  const countEl = document.getElementById('results-count');
-  if (countEl) {
-    countEl.textContent = `${filtered.length} عقار متاح`;
-  }
-}
-
-// تهيئة ورسم شبكة العقارات
-function initPropertiesGrid() {
-  applyFilters();
-}
-
-// دالة إنشاء كرت العقار
-function createPropertyCard(prop) {
-  const propIdStr = String(prop.id);
-  const isFavorite = AppState.favorites.includes(propIdStr);
-  const numPrice = getNumericPrice(prop);
-  
-  // تنسيق السعر
-  const formattedPrice = typeof prop.price === 'string' && prop.price.includes('ر.س')
-    ? prop.price
-    : `${new Intl.NumberFormat('en-US').format(numPrice)} ر.س`;
-
-  // استخراج المواصفات من specs أو الخصائص المباشرة
-  const areaVal = prop.specs?.area || (prop.area ? `${prop.area} م²` : '—');
-  const bedsVal = prop.specs?.beds ?? prop.bedrooms ?? '—';
-  const bathsVal = prop.specs?.baths ?? prop.bathrooms ?? '—';
-  const extraFeature = prop.specs?.street || prop.specs?.parking || prop.specs?.extras || (prop.parking ? `موقف ${prop.parking} سيارات` : null);
-
-  // استخراج رخصة فال
-  let falLabel = prop.falLicense ? `رخصة فال: ${prop.falLicense}` : '';
-  if (!falLabel && prop.badges) {
-    const found = prop.badges.find(b => b.includes('فال'));
-    if (found) falLabel = found;
-  }
-  if (!falLabel) falLabel = 'رخصة فال معتمدة';
-
-  // رقم الواتساب للوسيط
-  const waText = encodeURIComponent(`السلام عليكم، أود الاستفسار عن العقار المعروض بمنصة ميسر: "${prop.title}" بـ ${prop.location || prop.neighborhood}، السعر: ${formattedPrice}. ${falLabel}`);
-  const waUrl = `https://api.whatsapp.com/send?text=${waText}`;
-
-  // حساب سعر المتر التقديري
-  const rawAreaNum = parseInt(String(areaVal).replace(/[^0-9]/g, ''), 10);
-  const perMeterStr = (rawAreaNum && numPrice) ? `${new Intl.NumberFormat('en-US').format(Math.round(numPrice / rawAreaNum))} ر.س/م²` : null;
-
-  return `
-    <article class="property-card bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
-      <!-- صورة العقار مع الشارات التوثيقية -->
-      <div class="relative w-full h-64 overflow-hidden bg-slate-100">
-        <img 
-          src="${prop.primaryImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'}" 
-          alt="${prop.title}" 
-          loading="lazy"
-          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'"
-        />
-
-        <!-- تدرج ظل سفلي لقراءة النص -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none"></div>
-
-        <!-- الشارات العلوية -->
-        <div class="absolute top-3.5 right-3.5 flex flex-wrap gap-1.5 items-center z-10">
-          <span class="inline-flex items-center gap-1 bg-emerald-900/90 backdrop-blur-md text-emerald-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-700/50">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-            ${falLabel}
-          </span>
-          ${prop.featured ? `
-            <span class="bg-amber-600/90 backdrop-blur-md text-amber-50 text-xs font-medium px-2 py-1 rounded-full">
-              مميز
-            </span>
-          ` : ''}
-        </div>
-
-        <!-- زر المفضلة -->
-        <button 
-          type="button" 
-          onclick="toggleFavorite('${propIdStr}')"
-          title="حفظ في المفضلة"
-          aria-label="حفظ في المفضلة"
-          class="favorite-btn absolute top-3.5 left-3.5 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white text-slate-700 hover:text-rose-600 flex items-center justify-center transition-colors shadow-sm z-10 ${isFavorite ? 'text-rose-600 !bg-rose-50' : ''}"
-        >
-          <i data-lucide="heart" class="w-4 h-4 ${isFavorite ? 'fill-current' : ''}"></i>
-        </button>
-
-        <!-- الشارة السفلية: الصك ونوع العقار -->
-        <div class="absolute bottom-3 right-3 left-3 flex justify-between items-end text-white text-xs z-10">
-          <span class="inline-flex items-center gap-1 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-md">
-            <i data-lucide="file-check-2" class="w-3.5 h-3.5 text-emerald-400"></i>
-            صك إلكتروني موثق
-          </span>
-          <span class="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-slate-100 font-medium">
-            ${prop.type || 'عقار سكني'}
-          </span>
+  container.innerHTML = upcomingProjects.map(p => `
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition hover:shadow-md">
+      <div class="relative h-56 overflow-hidden">
+        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover">
+        <div class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-amber-300 text-xs px-3 py-1.5 rounded-lg font-bold">
+          ${p.status}
         </div>
       </div>
-
-      <!-- محتوى الكرت -->
-      <div class="p-5 flex-1 flex flex-col justify-between">
+      <div class="p-6 flex flex-col flex-1 justify-between">
         <div>
-          <!-- الحي والمدينة -->
-          <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
-            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-700 shrink-0"></i>
-            <span class="font-medium text-slate-700">${prop.location || `${prop.neighborhood}، ${prop.city}`}</span>
-          </div>
-
-          <!-- عنوان العقار -->
-          <h3 class="text-base font-bold text-slate-900 leading-snug hover:text-emerald-800 transition-colors cursor-pointer mb-2.5" onclick="openPropertyModal('${propIdStr}')">
-            ${prop.title}
-          </h3>
-
-          <!-- المواصفات الأساسية (المساحة، الغرف، دورات المياه) -->
-          <div class="grid grid-cols-3 gap-2 py-2.5 my-2 border-y border-slate-100 text-slate-700 text-xs">
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="maximize" class="w-4 h-4 text-emerald-700"></i>
-              <div>
-                <span class="font-bold text-slate-900">${areaVal}</span>
-                <span class="text-[10px] text-slate-400 block">المساحة</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="bed" class="w-4 h-4 text-emerald-700"></i>
-              <div>
-                <span class="font-bold text-slate-900">${bedsVal}</span>
-                <span class="text-[10px] text-slate-400 block">غرف نوم</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="bath" class="w-4 h-4 text-emerald-700"></i>
-              <div>
-                <span class="font-bold text-slate-900">${bathsVal}</span>
-                <span class="text-[10px] text-slate-400 block">دورات مياه</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ميزة إضافية مخصصة (الشارع أو الموقف أو المسبح) -->
-          ${extraFeature ? `
-            <div class="text-[11px] text-slate-600 flex items-center gap-1.5 mb-2.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-700 shrink-0"></i>
-              <span class="font-medium text-slate-800">${extraFeature}</span>
-            </div>
-          ` : ''}
-
-          <!-- وسوم badges الواقعية المعتمدة -->
-          <div class="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-700 mb-4">
-            ${prop.badges && prop.badges.length > 0 ? prop.badges.map((badge, idx) => `
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium ${idx === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-700'}">
-                <i data-lucide="${idx === 0 ? 'shield-check' : 'check'}" class="w-3 h-3 ${idx === 0 ? 'text-emerald-600' : 'text-slate-500'}"></i>
-                ${badge}
-              </span>
-            `).join('') : `
-              <span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-slate-700">
-                <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>
-                صك إلكتروني موثق
-              </span>
-            `}
-          </div>
+          <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md inline-block mb-2">
+            موعد الطرح: ${p.launchDate}
+          </span>
+          <h3 class="text-lg font-bold text-slate-900 font-heading mb-2">${p.title}</h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">${p.desc}</p>
         </div>
-
-        <!-- السعر وأزرار التفاعل -->
-        <div class="pt-3 border-t border-slate-100">
-          <div class="flex items-baseline justify-between mb-3">
-            <div>
-              <span class="text-[11px] text-slate-500 block">السعر المطلوب</span>
-              <div class="flex items-baseline gap-1">
-                <span class="text-xl font-black text-emerald-900 tracking-tight">${formattedPrice}</span>
-              </div>
-            </div>
-            ${perMeterStr ? `
-              <div class="text-left">
-                <span class="text-[10px] text-slate-400 block">سعر المتر التقديري</span>
-                <span class="text-xs font-semibold text-slate-600">${perMeterStr}</span>
-              </div>
-            ` : ''}
-          </div>
-
-          <!-- أزرار الإجراءات: "معاينة العقار" و "تواصل عبر واتساب" -->
-          <div class="grid grid-cols-2 gap-2">
-            <button 
-              type="button" 
-              onclick="openPropertyModal('${propIdStr}')"
-              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-emerald-800 text-emerald-900 hover:bg-emerald-50 text-xs font-bold transition-colors"
-            >
-              <i data-lucide="eye" class="w-4 h-4"></i>
-              معاينة العقار
-            </button>
-            <a 
-              href="${waUrl}" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold transition-all shadow-sm"
-            >
-              <i data-lucide="message-circle" class="w-4 h-4"></i>
-              تواصل عبر واتساب
-            </a>
-          </div>
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-500 font-medium">${p.type}</span>
+          <a href="https://api.whatsapp.com/send?phone=966500550223&text=${encodeURIComponent('السلام عليكم، أود تسجيل اهتمامي بمشاريع مُيسر قيد التطوير: ' + p.title)}"
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950">
+            <span>سجّل اهتمامك المبكر</span>
+            <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
         </div>
       </div>
-    </article>
-  `;
+    </div>
+  `).join('');
 }
 
-// رسم شبكة العقارات في DOM
-function renderPropertiesGrid(props) {
-  const container = document.getElementById('properties-grid');
+/* ==========================================================================
+   2. مصفوفة الـ 24 وحدة السكنية التفاعلية (24-Unit Matrix)
+   ========================================================================== */
+let currentStatusFilter = 'all';
+let currentModelFilter = 'all';
+
+function initUnitMatrix() {
+  updateMatrixStats();
+  renderUnitMatrix();
+
+  // فلاتر الحالة (الكل / متاح / محجوز / مباع)
+  const statusButtons = document.querySelectorAll('.matrix-status-btn');
+  statusButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      statusButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStatusFilter = btn.dataset.status;
+      renderUnitMatrix();
+    });
+  });
+
+  // تصفية النماذج في المصفوفة (الكل / A..F)
+  const modelSelect = document.getElementById('matrix-model-select');
+  if (modelSelect) {
+    modelSelect.addEventListener('change', (e) => {
+      currentModelFilter = e.target.value;
+      renderUnitMatrix();
+    });
+  }
+}
+
+function updateMatrixStats() {
+  const total = unitsData.length;
+  const available = unitsData.filter(u => u.status === 'available').length;
+  const reserved = unitsData.filter(u => u.status === 'reserved').length;
+  const sold = unitsData.filter(u => u.status === 'sold').length;
+
+  const countTotalEl = document.getElementById('stat-total-units');
+  const countAvailEl = document.getElementById('stat-available-units');
+  const countResvEl = document.getElementById('stat-reserved-units');
+  const countSoldEl = document.getElementById('stat-sold-units');
+
+  if (countTotalEl) countTotalEl.textContent = total;
+  if (countAvailEl) countAvailEl.textContent = available;
+  if (countResvEl) countResvEl.textContent = reserved;
+  if (countSoldEl) countSoldEl.textContent = sold;
+}
+
+function renderUnitMatrix() {
+  const container = document.getElementById('units-matrix-grid');
   if (!container) return;
 
-  if (props.length === 0) {
+  const filtered = unitsData.filter(unit => {
+    const matchesStatus = (currentStatusFilter === 'all') || (unit.status === currentStatusFilter);
+    const matchesModel = (currentModelFilter === 'all') || (unit.model === currentModelFilter);
+    return matchesStatus && matchesModel;
+  });
+
+  if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="col-span-full py-16 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 p-8">
-        <div class="w-16 h-16 rounded-full bg-slate-200 text-slate-500 mx-auto flex items-center justify-center mb-4">
-          <i data-lucide="search-x" class="w-8 h-8"></i>
-        </div>
-        <h4 class="text-lg font-bold text-slate-800 mb-1">لا توجد عقارات تطابق معايير البحث الحالية</h4>
-        <p class="text-slate-500 text-sm max-w-md mx-auto mb-5">
-          يمكنك تعديل خيارات التصفية أو تسجيل طلبك العقاري الخاص وسيتولى فريقنا توفيره لك.
-        </p>
-        <button 
-          onclick="resetFilters()" 
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-800 text-white rounded-xl text-sm font-semibold hover:bg-emerald-900 transition-colors"
-        >
-          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-          إعادة ضبط الفلاتر
-        </button>
+      <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-slate-200">
+        <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <p class="text-sm font-bold text-slate-700 font-heading">لا توجد وحدات مطابقة لمعايير التصفية الحالية</p>
+        <p class="text-xs text-slate-500 mt-1">جرّب تغيير حالة الفلتر أو اختيار نموذج آخر</p>
       </div>
     `;
-    initLucideIcons();
     return;
   }
 
-  container.innerHTML = props.map(p => createPropertyCard(p)).join('');
-  initLucideIcons();
+  container.innerHTML = filtered.map(unit => {
+    let statusBadge = '';
+    let cardClass = '';
+    let actionBtn = '';
+
+    if (unit.status === 'available') {
+      statusBadge = `<span class="badge-available px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> متاح
+      </span>`;
+      cardClass = 'unit-available border-emerald-200/80 bg-white shadow-sm';
+      actionBtn = `
+        <button onclick="handleUnitSelect(${unit.id})" 
+                class="w-full mt-3 py-2 bg-emerald-900 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+          <span>طلب حجز الوحدة</span>
+          <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      `;
+    } else if (unit.status === 'reserved') {
+      statusBadge = `<span class="badge-reserved px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> محجوز
+      </span>`;
+      cardClass = 'border-amber-200/70 bg-amber-50/20';
+      actionBtn = `
+        <button onclick="handleNotifyUnit(${unit.id})" 
+                class="w-full mt-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          إشعار في حال الإلغاء
+        </button>
+      `;
+    } else {
+      statusBadge = `<span class="badge-sold px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+        مباع
+      </span>`;
+      cardClass = 'border-slate-200 bg-slate-50/60 opacity-80';
+      actionBtn = `
+        <div class="w-full mt-3 py-2 bg-slate-100 text-slate-400 rounded-xl text-xs font-medium text-center">
+          تم الإفراغ والتمليك
+        </div>
+      `;
+    }
+
+    return `
+      <div class="unit-card p-4 rounded-2xl border ${cardClass} flex flex-col justify-between">
+        <div>
+          <!-- رأس بطاقة الوحدة -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-lg bg-slate-900 text-amber-400 font-heading font-black text-xs flex items-center justify-center">
+                ${unit.unitNumber}
+              </span>
+              <span class="text-xs font-bold text-slate-900 font-heading">
+                نموذج ${unit.model}
+              </span>
+            </div>
+            ${statusBadge}
+          </div>
+
+          <!-- تفاصيل الوحدة -->
+          <div class="space-y-1.5 text-xs text-slate-600 mb-3">
+            <div class="font-medium text-slate-800 line-clamp-1">${unit.type}</div>
+            <div class="flex items-center justify-between text-slate-500 text-[11px]">
+              <span>المساحة:</span>
+              <span class="font-bold text-slate-700">${unit.area}</span>
+            </div>
+            <div class="flex items-center justify-between text-slate-500 text-[11px]">
+              <span>التوزيع:</span>
+              <span>${unit.beds} غرف | ${unit.baths} دورات مياه</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- السعر التقديري للوحدة -->
+          <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
+            <span class="text-[10px] text-slate-400">السعر التقديري</span>
+            <span class="text-xs font-bold text-emerald-900 font-heading">${unit.price}</span>
+          </div>
+
+          ${actionBtn}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
-// إعادة ضبط الفلاتر
-window.resetFilters = function() {
-  AppState.selectedCity = 'الرياض';
-  AppState.selectedNeighborhood = 'الكل';
-  AppState.selectedType = 'الكل';
-  AppState.maxPrice = 100000000;
-  AppState.activePurpose = 'للبيع';
-  AppState.requireFalLicense = true;
-  AppState.requireSakani = false;
-  AppState.requireBuildingCode = false;
-  AppState.searchQuery = '';
+// اختيار وحدة متاحة للحجز
+window.handleUnitSelect = function(unitId) {
+  const unit = unitsData.find(u => u.id === unitId);
+  if (!unit) return;
 
-  const citySelect = document.getElementById('filter-city');
-  if (citySelect) citySelect.value = 'الرياض';
+  // تعبئة البيانات تلقائياً في فورم الحجز
+  const unitInput = document.getElementById('booking-unit');
+  const modelSelect = document.getElementById('booking-model');
+  const bookingSection = document.getElementById('booking-section');
 
-  const typeSelect = document.getElementById('filter-type');
-  if (typeSelect) typeSelect.value = 'الكل';
-
-  const priceSelect = document.getElementById('filter-price');
-  if (priceSelect) priceSelect.value = '100000000';
-
-  const toggleFal = document.getElementById('toggle-fal');
-  if (toggleFal) toggleFal.checked = true;
-
-  const toggleSakani = document.getElementById('toggle-sakani');
-  if (toggleSakani) toggleSakani.checked = false;
-
-  const toggleBuildingCode = document.getElementById('toggle-building-code');
-  if (toggleBuildingCode) toggleBuildingCode.checked = false;
-
-  initCityAndNeighborhoodSelectors();
-  applyFilters();
-};
-
-// نظام المفضلة
-function initFavoritesSystem() {
-  updateFavoritesBadge();
-}
-
-window.toggleFavorite = function(propertyId) {
-  const idStr = String(propertyId);
-  const idx = AppState.favorites.indexOf(idStr);
-  if (idx > -1) {
-    AppState.favorites.splice(idx, 1);
-    showToast('تمت إزالة العقار من قائمة المحفوظات', 'info');
-  } else {
-    AppState.favorites.push(idStr);
-    showToast('تم حفظ العقار في قائمة مفضلاتك', 'success');
+  if (unitInput) {
+    unitInput.value = `الوحدة رقم (${unit.unitNumber}) — نموذج ${unit.model} (${unit.type})`;
+  }
+  if (modelSelect) {
+    modelSelect.value = unit.model;
   }
 
-  localStorage.setItem('muyassar_favorites', JSON.stringify(AppState.favorites));
-  updateFavoritesBadge();
-  applyFilters();
+  // تمرير سلس لفورم الحجز
+  if (bookingSection) {
+    bookingSection.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  showToast(`تم تحديد الوحدة (${unit.unitNumber}) بنجاح! أكمل بياناتك لتأكيد الحجز.`, 'success');
 };
 
-function updateFavoritesBadge() {
-  const badge = document.getElementById('favorites-badge');
-  if (badge) {
-    badge.textContent = AppState.favorites.length;
-    badge.classList.toggle('hidden', AppState.favorites.length === 0);
-  }
+// طلب إشعار في حال إلغاء حجز وحدة
+window.handleNotifyUnit = function(unitId) {
+  const unit = unitsData.find(u => u.id === unitId);
+  if (!unit) return;
+  const msg = `السلام عليكم، أرغب في تسجيلي بقائمة الانتظار للوحدة رقم (${unit.unitNumber}) نموذج ${unit.model} في حال تم إلغاء حجزها في مشروع تاون هاوس الشامخة.`;
+  const url = `https://api.whatsapp.com/send?phone=966500550223&text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+};
+
+/* ==========================================================================
+   3. معرض النماذج الستة (Models Showcase A - F)
+   ========================================================================== */
+let activeModelCode = 'A';
+
+function initModelsShowcase() {
+  const modelTabs = document.querySelectorAll('.model-tab');
+  modelTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      modelTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeModelCode = tab.dataset.model;
+      renderActiveModel();
+    });
+  });
+
+  renderActiveModel();
 }
 
-// فتح نافذة المعاينة التفاعلية للعقار
-// فتح نافذة المعاينة التفاعلية للعقار بتصميم هادئ ومقاسات مدروسة ومتوازنة
-window.openPropertyModal = function(propertyId) {
-  const dataset = (typeof properties !== 'undefined' ? properties : propertiesData) || [];
-  const prop = dataset.find(p => String(p.id) === String(propertyId));
-  if (!prop) return;
+function renderActiveModel() {
+  const model = modelsData[activeModelCode];
+  if (!model) return;
 
-  AppState.currentModalProperty = prop;
-  const modal = document.getElementById('property-modal');
-  const modalBody = document.getElementById('property-modal-body');
+  const container = document.getElementById('model-detail-container');
+  if (!container) return;
 
-  if (!modal || !modalBody) return;
-
-  const numPrice = getNumericPrice(prop);
-  const formattedPrice = typeof prop.price === 'string' && prop.price.includes('ر.س')
-    ? prop.price
-    : new Intl.NumberFormat('en-US').format(numPrice) + ' ر.س';
-
-  const waText = encodeURIComponent(`السلام عليكم، أود الاستفسار وحجز موعد لمعاينة العقار المعروض بمنصة ميسر: "${prop.title}" بـ ${prop.location || prop.neighborhood}، السعر: ${formattedPrice}. ${falLabel}`);
-  const waUrl = `https://api.whatsapp.com/send?text=${waText}`;
-
-  const areaVal = prop.specs?.area || (prop.area ? (prop.area + ' م²') : '—');
-  const bedsVal = prop.specs?.beds ?? prop.bedrooms ?? '—';
-  const bathsVal = prop.specs?.baths ?? prop.bathrooms ?? '—';
-  const extraFeature = prop.specs?.street || prop.specs?.parking || prop.specs?.extras || (prop.parking ? ('موقف ' + prop.parking + ' سيارات') : 'مكتمل المرافق');
-
-  // حساب سعر المتر التقديري
-  const rawAreaNum = parseInt(String(areaVal).replace(/[^0-9]/g, ''), 10);
-  const perMeterStr = (rawAreaNum && numPrice) ? (new Intl.NumberFormat('en-US').format(Math.round(numPrice / rawAreaNum)) + ' ر.س/م²') : null;
-
-  modalBody.innerHTML = `
-    <!-- 1. شريط علوي هادئ وأنيق -->
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-      <div class="flex items-center gap-2 text-xs text-slate-500">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-bold">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
-          ${falLabel}
-        </span>
-        <span class="text-slate-300">•</span>
-        <span class="font-medium text-slate-600">${prop.location || (prop.neighborhood + '، ' + prop.city)}</span>
-      </div>
-
-      <!-- زر إغلاق ناعم -->
-      <button 
-        type="button" 
-        onclick="closePropertyModal()" 
-        aria-label="إغلاق النافذة"
-        class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
-      >
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
-    </div>
-
-    <!-- 2. محتوى النافذة القابل للتمرير بسلاسة وهدوء وبأبعاد مريحة -->
-    <div class="overflow-y-auto modal-scroll p-5 sm:p-7 space-y-6 flex-1 bg-white">
-      
-      <!-- معرض الصور الرئيسي -->
-      <div class="space-y-2.5">
-        <div class="relative w-full h-56 sm:h-72 rounded-2xl overflow-hidden bg-slate-900 shadow-sm border border-slate-100">
-          <img 
-            id="modal-main-image" 
-            src="${prop.primaryImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'}" 
-            alt="${prop.title}" 
-            class="w-full h-full object-cover transition-all duration-300"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-          
-          <!-- شارات أسفل الصورة -->
-          <div class="absolute bottom-3 right-3 left-3 flex items-center justify-between text-white text-xs z-10">
-            <span class="inline-flex items-center gap-1.5 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-mono border border-white/10">
-              <i data-lucide="file-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-              صك إلكتروني: ${prop.deedNumber || 'موثق بالبورصة العقارية'}
-            </span>
-            <span class="bg-emerald-900/90 text-emerald-200 border border-emerald-700/50 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-semibold">
-              ${prop.type || 'عقار فاخر'}
-            </span>
+  container.innerHTML = `
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- عمود الصورة والمخطط الهندسي -->
+      <div class="lg:col-span-6 space-y-4">
+        <div class="relative rounded-3xl overflow-hidden border border-slate-200 shadow-md group">
+          <img src="${model.image}" alt="${model.title}" class="w-full h-80 sm:h-96 object-cover transition duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20"></div>
+          <div class="absolute top-4 right-4 bg-emerald-900/90 backdrop-blur-md text-amber-300 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg">
+            ${model.badge}
+          </div>
+          <div class="absolute bottom-4 right-4 left-4 text-white">
+            <span class="text-xs text-emerald-300 font-semibold mb-1 block">مُيسر للتطوير العقاري</span>
+            <h3 class="text-xl font-bold font-heading">${model.title}</h3>
+            <p class="text-xs text-slate-200 mt-1">${model.subtitle}</p>
           </div>
         </div>
 
-        <!-- شريط مصغرات الصور إن وُجدت -->
-        ${prop.gallery && prop.gallery.length > 1 ? `
-          <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5">
-            ${prop.gallery.map((img, i) => `
-              <button 
-                type="button"
-                onclick="document.getElementById('modal-main-image').src='${img}'"
-                class="w-16 h-12 rounded-xl overflow-hidden shrink-0 border-2 border-transparent hover:border-emerald-600 focus:border-emerald-600 transition-all opacity-80 hover:opacity-100"
-              >
-                <img src="${img}" alt="معاينة ${i+1}" class="w-full h-full object-cover" />
-              </button>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-
-      <!-- العنوان والسعر المطلوب -->
-      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-100 pb-5">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold font-heading text-slate-900 leading-snug">
-            ${prop.title}
-          </h2>
-          <div class="flex items-center gap-1.5 text-xs text-slate-500 mt-1.5">
-            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-700"></i>
-            <span>${prop.location || (prop.neighborhood + '، ' + prop.city)}</span>
-            ${prop.locationDetail ? ('<span class="text-slate-300">•</span><span class="text-slate-500">' + prop.locationDetail + '</span>') : ''}
-          </div>
-        </div>
-
-        <!-- بطاقة السعر المهدئة -->
-        <div class="sm:text-left bg-emerald-50/70 border border-emerald-200/80 px-4 py-2.5 rounded-2xl shrink-0">
-          <span class="text-[11px] text-slate-500 block">السعر المطلوب</span>
-          <div class="text-2xl font-black text-emerald-900 font-heading">
-            ${formattedPrice}
-          </div>
-          ${perMeterStr ? ('<span class="text-[10px] text-emerald-700/80 block font-semibold mt-0.5">' + perMeterStr + '</span>') : ''}
+        <!-- أزرار تفاعلية للمخطط والمعاينة -->
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="handleModelInspection('${model.code}')" 
+                  class="py-3 px-4 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>طلب معاينة ميدانية</span>
+          </button>
+          <button onclick="handleDownloadPlan('${model.code}')" 
+                  class="py-3 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span>تحميل المخطط المعماري</span>
+          </button>
         </div>
       </div>
 
-      <!-- شارات التوثيق والضمانات الرسمية -->
-      ${prop.badges && prop.badges.length > 0 ? `
-        <div class="flex flex-wrap items-center gap-2">
-          ${prop.badges.map((b, idx) => `
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${idx === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200/60'}">
-              <i data-lucide="${idx === 0 ? 'shield-check' : 'check'}" class="w-3.5 h-3.5 ${idx === 0 ? 'text-emerald-700' : 'text-slate-500'}"></i>
-              ${b}
-            </span>
-          `).join('')}
-        </div>
-      ` : ''}
-
-      <!-- المواصفات الأساسية المنسقة بأبعاد متوازنة -->
-      <div>
-        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-emerald-700"></i>
-          المواصفات الفنية المعتمدة
-        </h4>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-slate-700 text-sm">
-          <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-150/80 flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-white text-emerald-800 flex items-center justify-center shrink-0 border border-slate-100 shadow-2xs">
-              <i data-lucide="maximize" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <span class="text-[11px] text-slate-400 block">المساحة</span>
-              <strong class="text-slate-900 font-bold text-sm">${areaVal}</strong>
-            </div>
+      <!-- عمود البيانات والمواصفات وتوزيع الأدوار -->
+      <div class="lg:col-span-6 space-y-6">
+        <!-- بطاقات المساحات السريعة -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
+            <span class="text-[11px] text-slate-500 block mb-1">مسطح البناء</span>
+            <span class="text-base font-bold text-slate-900 font-heading">${model.builtArea} م²</span>
           </div>
-
-          <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-150/80 flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-white text-emerald-800 flex items-center justify-center shrink-0 border border-slate-100 shadow-2xs">
-              <i data-lucide="bed" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <span class="text-[11px] text-slate-400 block">غرف النوم</span>
-              <strong class="text-slate-900 font-bold text-sm">${bedsVal} غرف</strong>
-            </div>
+          <div class="p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-100 text-center">
+            <span class="text-[11px] text-emerald-800 block mb-1">المساحة الإجمالية</span>
+            <span class="text-base font-bold text-emerald-950 font-heading">${model.totalArea} م²</span>
           </div>
-
-          <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-150/80 flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-white text-emerald-800 flex items-center justify-center shrink-0 border border-slate-100 shadow-2xs">
-              <i data-lucide="bath" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <span class="text-[11px] text-slate-400 block">دورات المياه</span>
-              <strong class="text-slate-900 font-bold text-sm">${bathsVal} دورات</strong>
-            </div>
-          </div>
-
-          <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-150/80 flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-white text-emerald-800 flex items-center justify-center shrink-0 border border-slate-100 shadow-2xs">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-            </div>
-            <div class="truncate">
-              <span class="text-[11px] text-slate-400 block">الميزة الإضافية</span>
-              <strong class="text-slate-900 font-bold text-xs truncate block" title="${extraFeature}">${extraFeature}</strong>
-            </div>
+          <div class="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-100 text-center">
+            <span class="text-[11px] text-amber-800 block mb-1">السعر التقديري</span>
+            <span class="text-base font-bold text-amber-950 font-heading">${model.priceEstimate}</span>
           </div>
         </div>
-      </div>
 
-      <!-- نبذة عن العقار -->
-      <div class="bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
-        <h4 class="text-xs font-bold text-slate-700 mb-1.5">الوصف العقاري</h4>
-        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
-          ${prop.description || 'عقار سكني متميز بموقع استراتيجي هادئ مكتمل البنية التحتية، تم فحصه والتأكد من سلامته الإنشائية ومطابقته لكود البناء السعودي مع صك إلكتروني جاهز للإفراغ المباشر عبر البورصة العقارية.'}
-        </p>
-      </div>
-
-      <!-- المزايا التفصيلية والضمانات -->
-      ${prop.features && prop.features.length > 0 ? `
-        <div>
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-            <i data-lucide="badge-check" class="w-3.5 h-3.5 text-emerald-700"></i>
-            المزايا والضمانات المشمولة
+        <!-- توزيع الأدوار والمساحات -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h4 class="text-sm font-bold text-slate-900 font-heading mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-700"></span>
+            توزيع الأدوار والمساحات الداخلية
           </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
-            ${prop.features.map(f => `
-              <div class="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-700 shrink-0"></i>
-                <span class="font-medium text-slate-800">${f}</span>
+          <div class="space-y-3">
+            ${model.roomDistribution.map(r => `
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                <span class="font-bold text-emerald-900 block mb-1 font-heading">${r.floor}</span>
+                <p class="text-slate-600 leading-relaxed">${r.spaces}</p>
               </div>
             `).join('')}
           </div>
         </div>
-      ` : ''}
 
-      <!-- الامتثال والتراخيص النظامية -->
-      <div class="p-3.5 rounded-2xl bg-slate-100/80 text-xs text-slate-600 border border-slate-200/70">
-        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px]">
-          <span>رخصة فال للتسويق: <strong class="text-slate-800 font-mono">${prop.falLicense || '1200034918'}</strong></span>
-          <span>ترخيص الإعلان: <strong class="text-slate-800 font-mono">${prop.adLicense || '7200194821'}</strong></span>
-          <span>الصك الإلكتروني: <strong class="text-slate-800 font-mono">${prop.deedNumber || 'موثق'}</strong></span>
+        <!-- مزايا وتجهيزات النموذج -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h4 class="text-sm font-bold text-slate-900 font-heading mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            أبرز مزايا وتجهيزات ${model.title}
+          </h4>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+            ${model.highlights.map(h => `
+              <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>${h}</span>
+              </li>
+            `).join('')}
+          </ul>
         </div>
       </div>
-
-    </div>
-
-    <!-- 3. شريط إجراءات ثابت في الأسفل (Sticky Footer) -->
-    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-      
-      <!-- معلومات الاستشارة والوساطة المعتمدة -->
-      <div class="flex items-center gap-3 w-full sm:w-auto">
-        <div class="w-10 h-10 rounded-xl bg-emerald-800 text-white flex items-center justify-center shrink-0 shadow-sm">
-          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i>
-        </div>
-        <div>
-          <div class="font-bold text-slate-900 text-xs sm:text-sm">المستشار العقاري المختص</div>
-          <div class="text-[11px] text-slate-500">وساطة وتسويق معتمد • رخصة فال</div>
-        </div>
-      </div>
-
-      <!-- أزرار الإجراءات الرسمية -->
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-        <button 
-          type="button"
-          onclick="closePropertyModal(); document.getElementById('lead-capture-section').scrollIntoView({behavior:'smooth'});"
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors shadow-2xs"
-        >
-          <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-slate-600"></i>
-          <span>طلب معاينة ميدانية</span>
-        </button>
-        <a 
-          href="${waUrl}" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold transition-all shadow-sm"
-        >
-          <i data-lucide="message-circle" class="w-4 h-4 text-emerald-300"></i>
-          <span>محادثة واتساب</span>
-        </a>
-      </div>
-
     </div>
   `;
-
-  modal.classList.remove('hidden');
-  document.body.classList.add('overflow-hidden');
-  initLucideIcons();
-};
-
-window.closePropertyModal = function() {
-  const modal = document.getElementById('property-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-  document.body.classList.remove('overflow-hidden');
-};
-
-function initPropertyDetailsModal() {
-  const modal = document.getElementById('property-modal');
-  if (!modal) return;
-
-  // إغلاق عند النقر على الخلفية
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closePropertyModal();
-    }
-  });
-
-  // إغلاق عبر زر ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closePropertyModal();
-      closeAddPropertyModal();
-    }
-  });
 }
 
-// نموذج CRM طلب عقار خاص
-function initLeadCaptureForm() {
-  const form = document.getElementById('lead-capture-form');
+window.handleModelInspection = function(modelCode) {
+  const modelSelect = document.getElementById('booking-model');
+  const bookingSection = document.getElementById('booking-section');
+  if (modelSelect) modelSelect.value = modelCode;
+  if (bookingSection) bookingSection.scrollIntoView({ behavior: 'smooth' });
+  showToast(`تم تحديد نموذج ${modelCode}، يرجى كتابة اسمك ورقم جوالك لتأكيد المعاينة.`, 'info');
+};
+
+window.handleDownloadPlan = function(modelCode) {
+  const model = modelsData[modelCode];
+  if (!model) return;
+  const msg = `السلام عليكم ورحمة الله، أود الحصول على نسخة المخطط المعماري الكامل (PDF) لـ ${model.title} في مشروع تاون هاوس الشامخة بالدمام.`;
+  const url = `https://api.whatsapp.com/send?phone=966500550223&text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+};
+
+/* ==========================================================================
+   4. حاسبة التمويل والدفعات التقديرية
+   ========================================================================== */
+function initFinancingCalculator() {
+  const priceInput = document.getElementById('calc-price-input');
+  const priceSlider = document.getElementById('calc-price-slider');
+  const downSlider = document.getElementById('calc-down-slider');
+  const downPercentVal = document.getElementById('calc-down-val');
+  const tenureSelect = document.getElementById('calc-tenure');
+
+  const outDownSar = document.getElementById('calc-out-down-sar');
+  const outLoanSar = document.getElementById('calc-out-loan-sar');
+  const outMonthly = document.getElementById('calc-out-monthly');
+  const calcCtaBtn = document.getElementById('calc-cta-btn');
+
+  function calculate() {
+    const price = parseFloat(priceSlider?.value || 1450000);
+    const downPercent = parseFloat(downSlider?.value || 15);
+    const years = parseFloat(tenureSelect?.value || 20);
+
+    if (priceInput && priceInput.value != price) {
+      priceInput.value = price;
+    }
+    if (downPercentVal) {
+      downPercentVal.textContent = `${downPercent}%`;
+    }
+
+    const downPaymentSar = price * (downPercent / 100);
+    const loanAmount = price - downPaymentSar;
+    const profitRateAnnual = 0.0385; // نسبة مرابحة تقريبية 3.85%
+    const totalProfit = loanAmount * profitRateAnnual * years;
+    const totalRepay = loanAmount + totalProfit;
+    const monthlyInstallment = totalRepay / (years * 12);
+
+    if (outDownSar) outDownSar.textContent = `${formatNumber(Math.round(downPaymentSar))} ر.س`;
+    if (outLoanSar) outLoanSar.textContent = `${formatNumber(Math.round(loanAmount))} ر.س`;
+    if (outMonthly) outMonthly.textContent = `${formatNumber(Math.round(monthlyInstallment))} ر.س/شهر`;
+  }
+
+  if (priceSlider) {
+    priceSlider.addEventListener('input', () => {
+      if (priceInput) priceInput.value = priceSlider.value;
+      calculate();
+    });
+  }
+
+  if (priceInput) {
+    priceInput.addEventListener('change', () => {
+      let val = parseFloat(priceInput.value);
+      if (isNaN(val) || val < 1000000) val = 1000000;
+      if (val > 2500000) val = 2500000;
+      priceInput.value = val;
+      if (priceSlider) priceSlider.value = val;
+      calculate();
+    });
+  }
+
+  if (downSlider) {
+    downSlider.addEventListener('input', calculate);
+  }
+
+  if (tenureSelect) {
+    tenureSelect.addEventListener('change', calculate);
+  }
+
+  // أزرار الدفعة الأولى السريعة
+  const quickDownBtns = document.querySelectorAll('.quick-down-btn');
+  quickDownBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      quickDownBtns.forEach(b => b.classList.remove('bg-emerald-900', 'text-white'));
+      btn.classList.add('bg-emerald-900', 'text-white');
+      if (downSlider) {
+        downSlider.value = btn.dataset.percent;
+        calculate();
+      }
+    });
+  });
+
+  if (calcCtaBtn) {
+    calcCtaBtn.addEventListener('click', () => {
+      const paymentSelect = document.getElementById('booking-payment');
+      const bookingSection = document.getElementById('booking-section');
+      if (paymentSelect) paymentSelect.value = 'تمويل بنكي مدعوم';
+      if (bookingSection) bookingSection.scrollIntoView({ behavior: 'smooth' });
+      showToast('تم ضبط طريقة الدفع على (تمويل بنكي مدعوم). يُرجى إكمال الحجز.', 'success');
+    });
+  }
+
+  calculate();
+}
+
+/* ==========================================================================
+   5. استمارة الحجز المباشر وتوليد كود التذكرة (#MS-XXXX)
+   ========================================================================== */
+function initBookingForm() {
+  const form = document.getElementById('booking-lead-form');
   if (!form) return;
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const nameInput = document.getElementById('lead-name');
-    const phoneInput = document.getElementById('lead-phone');
+    const name = document.getElementById('booking-name')?.value.trim();
+    const phone = document.getElementById('booking-phone')?.value.trim();
+    const model = document.getElementById('booking-model')?.value;
+    const unit = document.getElementById('booking-unit')?.value.trim() || 'لم يتم تحديد وحدة معينة';
+    const payment = document.getElementById('booking-payment')?.value || 'تمويل بنكي';
+    const notes = document.getElementById('booking-notes')?.value.trim() || 'لا توجد ملاحظات إضافية';
 
-    if (!nameInput.value || !phoneInput.value) {
-      showToast('يرجى كتابة الاسم ورقم الجوال للتواصل', 'error');
+    // التحقق من الحقول
+    if (!name || name.length < 3) {
+      showToast('يرجى إدخال الاسم الكريم بشكل صحيح.', 'error');
       return;
     }
 
-    // توليد رقم طلب مرجعي سعودي واقعي
-    const ticketId = 'REQ-' + Math.floor(100000 + Math.random() * 900000);
+    if (!phone || !/^0?5[0-9]{8}$/.test(phone.replace(/[\s-]/g, ''))) {
+      showToast('يرجى إدخال رقم جوال سعودي صالح (مثال: 0500550223).', 'error');
+      return;
+    }
 
-    // حالة النجاح في الكرت
-    form.innerHTML = `
-      <div class="text-center py-8 space-y-4">
-        <div class="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto">
-          <i data-lucide="check" class="w-8 h-8"></i>
-        </div>
-        <h3 class="text-xl font-black text-slate-900">تم تسجيل طلبك العقاري بنجاح</h3>
-        <p class="text-slate-600 text-sm max-w-md mx-auto">
-          شكراً لك، أ. <span class="font-bold text-slate-900">${nameInput.value}</span>. تم تعيين مستشارك العقاري المختص وسيتواصل معك خلال 24 ساعة لتقديم الخيارات المطابقة.
-        </p>
-        <div class="inline-block bg-slate-100 px-4 py-2 rounded-lg text-xs font-mono font-bold text-slate-700">
-          رقم الطلب المرجعي: ${ticketId}
-        </div>
-        <div class="pt-4">
-          <a 
-            href="https://api.whatsapp.com/send?text=${encodeURIComponent('السلام عليكم، سجلت طلبي العقاري برقم ' + ticketId + ' وأود المتابعة.')}"
-            target="_blank" 
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 text-white font-bold text-sm hover:bg-emerald-900 transition-colors shadow-sm"
-          >
-            <i data-lucide="message-circle" class="w-4 h-4"></i>
-            متابعة فورية عبر واتساب
-          </a>
-        </div>
-      </div>
-    `;
-    initLucideIcons();
-    showToast(`تم تسجيل طلبك برقم ${ticketId}`, 'success');
+    // توليد رقم مرجعي رسمي للحجز
+    const ticketNumber = `#MS-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // فتح نافذة تأكيد الحجز الرسمية
+    openBookingConfirmationModal({
+      ticketNumber,
+      name,
+      phone,
+      model,
+      unit,
+      payment,
+      notes
+    });
+
+    form.reset();
   });
 }
 
-// نافذة أضف عقارك كمعلن / وسيط
-function initAddPropertyModal() {
-  const modal = document.getElementById('add-property-modal');
-  const openButtons = document.querySelectorAll('.open-add-property-btn');
-  const form = document.getElementById('add-property-form');
-
+function openBookingConfirmationModal(data) {
+  const modal = document.getElementById('booking-modal');
   if (!modal) return;
 
-  openButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      modal.classList.remove('hidden');
-      document.body.classList.add('overflow-hidden');
-    });
-  });
+  const ticketEl = document.getElementById('modal-ticket-id');
+  const nameEl = document.getElementById('modal-client-name');
+  const phoneEl = document.getElementById('modal-client-phone');
+  const modelEl = document.getElementById('modal-client-model');
+  const unitEl = document.getElementById('modal-client-unit');
+  const paymentEl = document.getElementById('modal-client-payment');
+  const whatsappBtn = document.getElementById('modal-whatsapp-cta');
 
-  window.closeAddPropertyModal = function() {
-    modal.classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-  };
+  if (ticketEl) ticketEl.textContent = data.ticketNumber;
+  if (nameEl) nameEl.textContent = data.name;
+  if (phoneEl) phoneEl.textContent = data.phone;
+  if (modelEl) modelEl.textContent = `نموذج ${data.model}`;
+  if (unitEl) unitEl.textContent = data.unit;
+  if (paymentEl) paymentEl.textContent = data.payment;
 
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeAddPropertyModal();
-    }
-  });
+  if (whatsappBtn) {
+    const message = `السلام عليكم ورحمة الله وبركاته،
+أود تأكيد موعد معاينة وحجز في مشروع "تاون هاوس الشامخة — الدمام".
+-------------------------------
+📌 رقم التذكرة المرجعي: ${data.ticketNumber}
+👤 الاسم: ${data.name}
+📱 رقم الجوال: ${data.phone}
+🏠 النموذج المفضل: نموذج ${data.model}
+🔢 الوحدة المحددة: ${data.unit}
+💳 طريقة السداد: ${data.payment}
+📝 ملاحظات: ${data.notes}
+-------------------------------
+شاكر لكم ومقدّر.`;
 
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      closeAddPropertyModal();
-      showToast('تم استلام طلب إضافة العقار وجارٍ مراجعة رخصة فال والصك الإلكتروني', 'success');
-      form.reset();
-    });
+    whatsappBtn.href = `https://api.whatsapp.com/send?phone=966500550223&text=${encodeURIComponent(message)}`;
   }
+
+  modal.classList.remove('hidden');
 }
 
-// إشعارات التوست الأنيقة
-window.showToast = function(message, type = 'info') {
-  const toastContainer = document.getElementById('toast-container');
-  if (!toastContainer) return;
+window.closeBookingModal = function() {
+  const modal = document.getElementById('booking-modal');
+  if (modal) modal.classList.add('hidden');
+};
+
+/* ==========================================================================
+   6. دوال مساعدة عامة وتنبيهات التوست
+   ========================================================================== */
+function formatNumber(num) {
+  return new Intl.NumberFormat('en-US').format(num);
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
 
   const toast = document.createElement('div');
-  const typeStyles = {
-    success: 'bg-emerald-900 text-white border-emerald-700',
-    error: 'bg-rose-900 text-white border-rose-700',
-    info: 'bg-slate-900 text-white border-slate-700'
+  const bgColors = {
+    success: 'bg-emerald-950 text-emerald-100 border-emerald-700',
+    error: 'bg-rose-950 text-rose-100 border-rose-700',
+    info: 'bg-slate-900 text-slate-100 border-slate-700'
   };
 
-  const icons = {
-    success: 'check-circle-2',
-    error: 'alert-circle',
-    info: 'info'
-  };
-
-  toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border text-xs font-semibold transform transition-all duration-300 translate-y-4 opacity-0 pointer-events-auto ${typeStyles[type] || typeStyles.info}`;
+  toast.className = `p-4 rounded-xl border shadow-xl flex items-center justify-between gap-3 text-xs pointer-events-auto transform transition duration-300 translate-y-2 opacity-0 ${bgColors[type] || bgColors.info}`;
   toast.innerHTML = `
-    <i data-lucide="${icons[type] || 'info'}" class="w-4 h-4 shrink-0"></i>
-    <span class="flex-1">${message}</span>
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full ${type === 'success' ? 'bg-emerald-400' : type === 'error' ? 'bg-rose-400' : 'bg-amber-400'}"></span>
+      <span class="font-medium">${message}</span>
+    </div>
+    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white">✕</button>
   `;
 
-  toastContainer.appendChild(toast);
-  initLucideIcons();
+  container.appendChild(toast);
 
   requestAnimationFrame(() => {
-    toast.classList.remove('translate-y-4', 'opacity-0');
+    toast.classList.remove('translate-y-2', 'opacity-0');
   });
 
   setTimeout(() => {
     toast.classList.add('opacity-0', 'translate-y-2');
-    setTimeout(() => {
-      toast.remove();
-    }, 300);
-  }, 4000);
-};
+    setTimeout(() => toast.remove(), 300);
+  }, 4500);
+}
