@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initProjectStatusTabs();
   initUnitMatrix();
   initModelsShowcase();
-  initFinancingCalculator();
   initBookingForm();
 });
 
@@ -401,98 +400,7 @@ window.handleDownloadPlan = function(modelCode) {
 };
 
 /* ==========================================================================
-   4. حاسبة التمويل والدفعات التقديرية
-   ========================================================================== */
-function initFinancingCalculator() {
-  const priceInput = document.getElementById('calc-price-input');
-  const priceSlider = document.getElementById('calc-price-slider');
-  const downSlider = document.getElementById('calc-down-slider');
-  const downPercentVal = document.getElementById('calc-down-val');
-  const tenureSelect = document.getElementById('calc-tenure');
-
-  const outDownSar = document.getElementById('calc-out-down-sar');
-  const outLoanSar = document.getElementById('calc-out-loan-sar');
-  const outMonthly = document.getElementById('calc-out-monthly');
-  const calcCtaBtn = document.getElementById('calc-cta-btn');
-
-  function calculate() {
-    const price = parseFloat(priceSlider?.value || 1450000);
-    const downPercent = parseFloat(downSlider?.value || 15);
-    const years = parseFloat(tenureSelect?.value || 20);
-
-    if (priceInput && priceInput.value != price) {
-      priceInput.value = price;
-    }
-    if (downPercentVal) {
-      downPercentVal.textContent = `${downPercent}%`;
-    }
-
-    const downPaymentSar = price * (downPercent / 100);
-    const loanAmount = price - downPaymentSar;
-    const profitRateAnnual = 0.0385; // نسبة مرابحة تقريبية 3.85%
-    const totalProfit = loanAmount * profitRateAnnual * years;
-    const totalRepay = loanAmount + totalProfit;
-    const monthlyInstallment = totalRepay / (years * 12);
-
-    if (outDownSar) outDownSar.textContent = `${formatNumber(Math.round(downPaymentSar))} ر.س`;
-    if (outLoanSar) outLoanSar.textContent = `${formatNumber(Math.round(loanAmount))} ر.س`;
-    if (outMonthly) outMonthly.textContent = `${formatNumber(Math.round(monthlyInstallment))} ر.س/شهر`;
-  }
-
-  if (priceSlider) {
-    priceSlider.addEventListener('input', () => {
-      if (priceInput) priceInput.value = priceSlider.value;
-      calculate();
-    });
-  }
-
-  if (priceInput) {
-    priceInput.addEventListener('change', () => {
-      let val = parseFloat(priceInput.value);
-      if (isNaN(val) || val < 1000000) val = 1000000;
-      if (val > 2500000) val = 2500000;
-      priceInput.value = val;
-      if (priceSlider) priceSlider.value = val;
-      calculate();
-    });
-  }
-
-  if (downSlider) {
-    downSlider.addEventListener('input', calculate);
-  }
-
-  if (tenureSelect) {
-    tenureSelect.addEventListener('change', calculate);
-  }
-
-  // أزرار الدفعة الأولى السريعة
-  const quickDownBtns = document.querySelectorAll('.quick-down-btn');
-  quickDownBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      quickDownBtns.forEach(b => b.classList.remove('bg-emerald-900', 'text-white'));
-      btn.classList.add('bg-emerald-900', 'text-white');
-      if (downSlider) {
-        downSlider.value = btn.dataset.percent;
-        calculate();
-      }
-    });
-  });
-
-  if (calcCtaBtn) {
-    calcCtaBtn.addEventListener('click', () => {
-      const paymentSelect = document.getElementById('booking-payment');
-      const bookingSection = document.getElementById('booking-section');
-      if (paymentSelect) paymentSelect.value = 'تمويل بنكي مدعوم';
-      if (bookingSection) bookingSection.scrollIntoView({ behavior: 'smooth' });
-      showToast('تم ضبط طريقة الدفع على (تمويل بنكي مدعوم). يُرجى إكمال الحجز.', 'success');
-    });
-  }
-
-  calculate();
-}
-
-/* ==========================================================================
-   5. استمارة الحجز المباشر وتوليد كود التذكرة (#MS-XXXX)
+   4. استمارة الحجز المباشر وتوليد كود التذكرة (#MS-XXXX)
    ========================================================================== */
 function initBookingForm() {
   const form = document.getElementById('booking-lead-form');
