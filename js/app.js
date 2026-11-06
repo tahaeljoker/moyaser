@@ -6,37 +6,18 @@
  * لا يوجد أي محتوى ثابت (hardcoded) في هذا الملف.
  */
 
-/* ─── State ───────────────────────────────────────── */
-const STATE = {
-  unitStatusFilter: "all",
-  activeModel:      DATA.models[0].code,
-};
-
-/* ─── Entry Point ─────────────────────────────────── */
-document.addEventListener("DOMContentLoaded", () => {
-  buildInfoBar();
-  buildNavbar();
-  buildHero();
-  buildProjectTabs();
-  buildUnitMatrix();
-  buildModelsShowcase();
-  buildAboutSection();
-  buildCalculator();
-  buildBookingForm();
-  buildModal();
-  buildFooter();
-});
-
 /* ═══════════════════════════════════════════════════
-   HELPERS
+   HELPERS & ICONS (Must be evaluated first)
    ═══════════════════════════════════════════════════ */
 
 /** تنسيق الأرقام بفواصل إنجليزية */
 const fmt = (n) => new Intl.NumberFormat("en-US").format(n);
 
 /** رسالة واتساب مشفّرة */
-const waLink = (msg) =>
-  `https://api.whatsapp.com/send?phone=${DATA.brand.whatsapp}&text=${encodeURIComponent(msg)}`;
+const waLink = (msg) => {
+  const num = (typeof window !== "undefined" && window.DATA && window.DATA.brand) ? window.DATA.brand.whatsapp : (typeof DATA !== "undefined" && DATA.brand) ? DATA.brand.whatsapp : "966500550223";
+  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(msg)}`;
+};
 
 /** رسالة واتساب الافتراضية */
 const waDefault = () =>
@@ -79,6 +60,12 @@ function toast(msg, type = "info") {
   requestAnimationFrame(() => el.classList.remove("translate-y-2", "opacity-0"));
   setTimeout(() => { el.classList.add("opacity-0", "translate-y-2"); setTimeout(() => el.remove(), 300); }, 4500);
 }
+
+/* ─── State ───────────────────────────────────────── */
+const STATE = {
+  unitStatusFilter: "all",
+  activeModel: "A",
+};
 
 /* ═══════════════════════════════════════════════════
    1. SECTION BUILDERS
@@ -1085,4 +1072,48 @@ function buildFooter() {
         <div class="text-slate-400">${project} — المطور الحصري المباشر</div>
       </div>
     </div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   8. INITIALIZATION & RESILIENCE
+   ═══════════════════════════════════════════════════ */
+
+function initApp() {
+  const dataObj = (typeof window !== "undefined" && window.DATA) || (typeof DATA !== "undefined" ? DATA : null);
+  if (!dataObj) {
+    console.warn("DATA not ready yet, retrying in 30ms...");
+    setTimeout(initApp, 30);
+    return;
+  }
+
+  const builders = [
+    ["info-bar", buildInfoBar],
+    ["main-navbar", buildNavbar],
+    ["hero-section", buildHero],
+    ["project-tabs", buildProjectTabs],
+    ["matrix-section", buildUnitMatrix],
+    ["models-section", buildModelsShowcase],
+    ["about-section", buildAboutSection],
+    ["calc-section", buildCalculator],
+    ["booking-section", buildBookingForm],
+    ["booking-modal", buildModal],
+    ["main-footer", buildFooter],
+  ];
+
+  for (const [name, fn] of builders) {
+    try {
+      fn();
+    } catch (err) {
+      console.error(`Error rendering ${name}:`, err);
+    }
+  }
+}
+
+// تشغيل فوري إذا كانت الصفحة جاهزة بالفعل، أو الاستماع للحدث
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+  } else {
+    initApp();
+  }
 }

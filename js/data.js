@@ -322,3 +322,11 @@ const DATA = {
   ],
 
 };
+
+// ضمان إتاحة الكائن عالمياً على نافذة المتصفح
+if (typeof window !== "undefined") {
+  window.DATA = DATA;
+}
+if (typeof global !== "undefined") {
+  global.DATA = DATA;
+}
