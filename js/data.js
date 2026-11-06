@@ -279,43 +279,23 @@ const DATA = {
   ],
 
   /* =========================================================
-     7. إعدادات حاسبة التمويل (Financing Config)
-     ========================================================= */
-  financing: {
-    defaultPrice:   1450000,
-    minPrice:       1000000,
-    maxPrice:       2500000,
-    priceStep:      25000,
-    defaultDown:    15,
-    downOptions:    [10, 15, 20, 30],
-    annualRate:     0.0385, // نسبة أرباح مرابحة تقريبية 3.85%
-    tenureOptions: [
-      { years: 15, label: "15 سنة (180 شهراً)" },
-      { years: 20, label: "20 سنة (240 شهراً) — الأكثر شيوعاً", default: true },
-      { years: 25, label: "25 سنة (300 شهراً)" },
-    ],
-  },
-
-  /* =========================================================
-     8. روابط التنقل (Nav Links)
+     7. روابط التنقل (Nav Links)
      ========================================================= */
   navLinks: [
     { label: "عن المشروع",         href: "#about-section"    },
     { label: "الموقع والمزايا",    href: "#location-section" },
     { label: "مصفوفة الوحدات",    href: "#matrix-section"   },
     { label: "النماذج (A–F)",      href: "#models-section"   },
-    { label: "حاسبة التمويل",     href: "#calc-section"     },
     { label: "تواصل معنا",         href: "#contact-section"  },
   ],
 
   /* =========================================================
-     9. روابط الفوتر السريعة (Footer Quick Links)
+     8. روابط الفوتر السريعة (Footer Quick Links)
      ========================================================= */
   footerLinks: [
     { label: "عن المشروع",      href: "#about-section"    },
     { label: "مصفوفة الوحدات", href: "#matrix-section"   },
     { label: "النماذج السكنية", href: "#models-section"   },
-    { label: "حاسبة التمويل",   href: "#calc-section"     },
     { label: "حجز وحدة",       href: "#booking-section"  },
     { label: "موقع المشروع",   href: "#location-section" },
     { label: "تواصل معنا",     href: "#contact-section"  },
