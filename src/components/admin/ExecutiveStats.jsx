@@ -21,89 +21,84 @@ export default function ExecutiveStats({ units = [], leadsSummary = {}, role = '
   const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 ${showFinancials ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-4 mb-8`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 ${showFinancials ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-3.5 mb-6`}>
       {/* 1. Sold Value */}
       {showFinancials && (
-        <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-emerald-700/60 transition">
-          <div className="absolute top-0 inset-x-0 h-1 bg-emerald-500/80" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-400">إجمالي المبيعات المحققة</span>
-            <div className="w-10 h-10 rounded-2xl bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 flex items-center justify-center shadow-inner">
-              <DollarSign className="w-5 h-5 text-amber-300" />
+        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-slate-400">إجمالي المبيعات</span>
+            <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 text-emerald-400 flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-heading tracking-tight">{fmt(totalSoldValue)}</span>
-              <span className="text-xs font-bold text-amber-400">ر.س</span>
+              <span className="text-xl font-bold text-white font-heading">{fmt(totalSoldValue)}</span>
+              <span className="text-xs text-slate-400">ر.س</span>
             </div>
-            <span className="text-[11px] text-slate-500 font-medium block mt-1">
-              تم إفراغ {soldUnits.length} وحدة دوبلكس بالصك
+            <span className="text-[11px] text-slate-500 block mt-0.5">
+              {soldUnits.length} وحدة مفرغة
             </span>
           </div>
         </div>
       )}
 
       {/* 2. Units Inventory */}
-      <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-amber-700/60 transition">
-        <div className="absolute top-0 inset-x-0 h-1 bg-amber-500/80" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-bold text-slate-400">مخزون الوحدات السكنية</span>
-          <div className="w-10 h-10 rounded-2xl bg-amber-950/80 text-amber-400 border border-amber-800/60 flex items-center justify-center shadow-inner">
-            <Building className="w-5 h-5" />
+      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-slate-400">حالة الوحدات</span>
+          <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 text-amber-400 flex items-center justify-center">
+            <Building className="w-4 h-4 text-amber-400" />
           </div>
         </div>
         <div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-emerald-400 font-heading tracking-tight">{availableCount}</span>
-            <span className="text-xs text-slate-400 font-bold">متاح</span>
-            <span className="text-slate-700">|</span>
-            <span className="text-xl font-black text-amber-400 font-heading tracking-tight">{reservedCount}</span>
-            <span className="text-xs text-slate-400 font-bold">محجوز</span>
+            <span className="text-xl font-bold text-emerald-400 font-heading">{availableCount}</span>
+            <span className="text-xs text-slate-400">متاح</span>
+            <span className="text-slate-700">/</span>
+            <span className="text-lg font-bold text-amber-400 font-heading">{reservedCount}</span>
+            <span className="text-xs text-slate-400">محجوز</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium block mt-1">
-            من إجمالي {units.length} وحدة معتمدة بالمشروع
+          <span className="text-[11px] text-slate-500 block mt-0.5">
+            من إجمالي {units.length} وحدة
           </span>
         </div>
       </div>
 
       {/* 3. Total Leads */}
-      <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-sky-700/60 transition">
-        <div className="absolute top-0 inset-x-0 h-1 bg-sky-500/80" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-bold text-slate-400">إجمالي طلبات العملاء (Leads)</span>
-          <div className="w-10 h-10 rounded-2xl bg-sky-950/80 text-sky-400 border border-sky-800/60 flex items-center justify-center shadow-inner">
-            <Users className="w-5 h-5" />
+      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-slate-400">طلبات العملاء</span>
+          <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 text-sky-400 flex items-center justify-center">
+            <Users className="w-4 h-4 text-sky-400" />
           </div>
         </div>
         <div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-black text-white font-heading tracking-tight">{totalLeads}</span>
-            <span className="text-xs font-bold text-slate-400">طلب مسجل</span>
+            <span className="text-xl font-bold text-white font-heading">{totalLeads}</span>
+            <span className="text-xs text-slate-400">طلب</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium block mt-1">
-            {leadsSummary.prospective || 0} استفسار | {leadsSummary.reserved || 0} حجز بنكي
+          <span className="text-[11px] text-slate-500 block mt-0.5">
+            {leadsSummary.prospective || 0} استفسار | {leadsSummary.reserved || 0} حجز
           </span>
         </div>
       </div>
 
       {/* 4. Conversion Rate */}
       {showFinancials && (
-        <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-purple-700/60 transition">
-          <div className="absolute top-0 inset-x-0 h-1 bg-purple-500/80" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-400">معدل الإغلاق والتحويل</span>
-            <div className="w-10 h-10 rounded-2xl bg-purple-950/80 text-purple-400 border border-purple-800/60 flex items-center justify-center shadow-inner">
-              <TrendingUp className="w-5 h-5" />
+        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-slate-400">نسبة الإغلاق</span>
+            <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 text-purple-400 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-purple-400" />
             </div>
           </div>
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-heading tracking-tight">{conversionRate}%</span>
-              <span className="text-xs font-bold text-emerald-400 font-medium">نسبة التحويل</span>
+              <span className="text-xl font-bold text-white font-heading">{conversionRate}%</span>
             </div>
-            <span className="text-[11px] text-slate-500 font-medium block mt-1">
-              {closedLeads} صفقات شراء مؤكدة
+            <span className="text-[11px] text-slate-500 block mt-0.5">
+              {closedLeads} تم شراؤها
             </span>
           </div>
         </div>

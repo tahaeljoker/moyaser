@@ -38,59 +38,57 @@ export default function AddWalkInLeadModal({ isOpen, onClose, onLeadCreated }) {
         onClose();
       }
     } catch (err) {
-      setError(err.message || 'فشل تسجيل العميل، يرجى التحقق من المدخلات.');
+      setError(err.message || 'تعذر تسجيل العميل، يرجى التأكد من البيانات.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div className="modal-enter bg-slate-900 border border-slate-800/90 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative text-slate-100 overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 via-amber-400 to-emerald-600" />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+      <div className="modal-enter bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl relative text-slate-100">
         <button
           onClick={onClose}
-          className="absolute top-5 left-5 text-slate-400 hover:text-white transition w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-800"
+          className="absolute top-4 left-4 text-slate-400 hover:text-white transition w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-800"
           aria-label="إغلاق"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-800/80">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-amber-300 shadow-inner">
-            <UserPlus className="w-5 h-5" />
+        <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-800">
+          <div className="w-9 h-9 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400">
+            <UserPlus className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold font-heading text-white">تسجيل عميل جديد (زيارة / اتصال)</h3>
-            <p className="text-xs text-slate-400 mt-0.5">إدراج العميل مباشرة وتوجيهه بالتناوب إلى مستشاري المبيعات.</p>
+            <h3 className="text-sm font-bold font-heading text-white">تسجيل عميل جديد</h3>
+            <p className="text-xs text-slate-400">إضافة بيانات العميل وتعيين مستشار المبيعات.</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3.5 bg-rose-950/70 border border-rose-800/80 rounded-2xl text-xs text-rose-200 font-bold">
+          <div className="mb-3.5 p-2.5 bg-rose-950/70 border border-rose-800/80 rounded-xl text-xs text-rose-200">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">اسم العميل الكريم *</label>
+            <label className="block text-slate-300 font-bold mb-1">اسم العميل *</label>
             <input
               type="text"
               required
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              placeholder="مثال: تركي بن عبدالرحمن الدوسري"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              placeholder="مثال: تركي الدوسري"
+              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-700"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                <span>رقم الجوال السعودي *</span>
+              <label className="block text-slate-300 font-bold mb-1 flex items-center gap-1">
+                <Phone className="w-3.5 h-3.5 text-slate-400" />
+                <span>رقم الجوال *</span>
               </label>
               <input
                 type="text"
@@ -99,65 +97,65 @@ export default function AddWalkInLeadModal({ isOpen, onClose, onLeadCreated }) {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="05XXXXXXXX"
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono text-left"
+                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono text-left"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-bold mb-1.5 flex items-center gap-1.5">
-                <Home className="w-3.5 h-3.5 text-amber-400" />
-                <span>كود الوحدة المهتم بها</span>
+              <label className="block text-slate-300 font-bold mb-1 flex items-center gap-1">
+                <Home className="w-3.5 h-3.5 text-slate-400" />
+                <span>الوحدة (اختياري)</span>
               </label>
               <input
                 type="text"
                 value={formData.unitCode}
                 onChange={(e) => setFormData({ ...formData, unitCode: e.target.value })}
                 placeholder="مثال: U-01"
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-amber-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono uppercase"
+                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-amber-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono uppercase"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">مرحلة العميل الحالية *</label>
+            <label className="block text-slate-300 font-bold mb-1">حالة الطلب *</label>
             <select
               value={formData.stage}
               onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium"
+              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-emerald-700"
             >
-              <option value="prospective">استفسار / جمع بيانات</option>
-              <option value="reserved">حجز بانتظار التمويل البنكي</option>
-              <option value="closed">تم الشراء (بانتظار التسليم)</option>
+              <option value="prospective">استفسار</option>
+              <option value="reserved">حجز (بانتظار البنك)</option>
+              <option value="closed">تم الشراء</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5 flex items-center gap-1.5">
+            <label className="block text-slate-300 font-bold mb-1 flex items-center gap-1">
               <FileText className="w-3.5 h-3.5 text-slate-400" />
-              <span>ملاحظات وتفاصيل الزيارة</span>
+              <span>ملاحظات</span>
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="اكتب متطلبات العميل، القدرة التمويلية، أو موعد المعاينة الميدانية..."
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-700 resize-none"
+              placeholder="أي تفاصيل تخص موعد المعاينة أو رغبات العميل..."
+              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-700 resize-none"
             />
           </div>
 
-          <div className="flex items-center gap-2.5 pt-3 border-t border-slate-800/80">
+          <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-900 to-emerald-800 hover:from-emerald-800 hover:to-emerald-700 text-white font-bold transition flex items-center justify-center gap-2 shadow-md border border-emerald-700/60 active:scale-95"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold transition flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-60"
             >
-              <UserPlus className="w-4 h-4 text-amber-300" />
-              <span>{loading ? 'جاري التسجيل...' : 'حفظ وإدراج العميل'}</span>
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>{loading ? 'جاري الحفظ...' : 'حفظ العميل'}</span>
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="py-3 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold transition border border-slate-700/70"
+              className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 font-medium transition"
             >
               إلغاء
             </button>
