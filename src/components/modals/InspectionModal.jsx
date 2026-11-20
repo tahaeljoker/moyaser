@@ -23,7 +23,17 @@ export default function InspectionModal({ isOpen, onClose, data, onShowToast }) 
   const title = prop ? prop.title : (unit ? `وحدة #${unit.id} — نموذج ${unit.model}` : `نموذج ${m.code} — ${m.name}`);
   const subtitle = prop ? prop.cityDistrict : (unit ? `${unit.area} — تاون هاوس الشامخة` : m.subtitle);
   const areaDisplay = prop ? prop.area : (unit ? unit.area : `${m.totalArea} م²`);
-  const priceDisplay = prop ? `${fmt(prop.price)} ر.س` : (unit ? `${fmt(unit.price)} ر.س` : m.priceFrom);
+
+  const hasUnitP = unit?.price && Number(unit.price) > 0;
+  const hasPropP = prop?.price && Number(prop.price) > 0;
+  const hasModelP = m?.startingPrice && Number(m.startingPrice) > 0;
+  const priceDisplay = hasPropP
+    ? `${fmt(prop.price)} ر.س`
+    : (hasUnitP
+        ? `${fmt(unit.price)} ر.س`
+        : (hasModelP
+            ? `${fmt(m.startingPrice)} ر.س`
+            : (m?.priceFrom && !m.priceFrom.startsWith('0') && m.priceFrom !== '0 ر.س' ? m.priceFrom : 'تواصل لمعرفة السعر')));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +107,7 @@ export default function InspectionModal({ isOpen, onClose, data, onShowToast }) 
 
         <div className="grid grid-cols-2 gap-2 bg-slate-800/60 p-3 rounded-2xl border border-slate-700/50 mb-5 text-xs">
           <div><span className="text-slate-400 block text-[11px]">المساحة الإجمالية</span><span className="font-bold text-slate-200">{areaDisplay}</span></div>
-          <div><span className="text-slate-400 block text-[11px]">السعر التقديري</span><span className="font-bold text-amber-400">{priceDisplay}</span></div>
+          <div><span className="text-slate-400 block text-[11px]">السعر</span><span className="font-bold text-amber-400">{priceDisplay}</span></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">

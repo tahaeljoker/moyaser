@@ -28,3 +28,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# PDF Documents
+*.pdf
+مشروع تاون هاوس الشامخه.pdf

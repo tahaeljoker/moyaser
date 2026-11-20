@@ -8,6 +8,12 @@ const VIEW_TABS = [
   { key: 'floorplan', label: 'المخططات الهندسية', icon: Compass },
 ];
 
+const formatPrice = (priceFrom, startingPrice) => {
+  if (startingPrice && Number(startingPrice) > 0) return `${Number(startingPrice).toLocaleString('en-US')} ر.س`;
+  if (priceFrom && !priceFrom.startsWith('0') && priceFrom !== '0 ر.س') return priceFrom;
+  return 'تواصل لمعرفة السعر';
+};
+
 export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenInspection }) {
   const [activeCode, setActiveCode] = useState('A');
   const [activeView, setActiveView] = useState('exterior');
@@ -31,6 +37,7 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
   };
 
   const imgSrc = imageError ? activeMedia.fallback : (activeMedia.local || activeMedia.fallback);
+  const displayPrice = formatPrice(currentModel.priceFrom, currentModel.startingPrice);
 
   return (
     <section id="models-showcase-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -68,29 +75,25 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
 
       {/* Showcase Card with 3D Media Switcher */}
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 items-stretch">
-        {/* Media & 3D Interactive View Container */}
-        <div className="lg:col-span-7 relative min-h-[380px] lg:min-h-[460px] bg-slate-950 flex flex-col justify-between overflow-hidden">
-          {/* Main Visual */}
+        {/* Media Frame */}
+        <div className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] bg-slate-950 flex flex-col justify-between p-6 overflow-hidden">
           <img
-            key={`${activeCode}-${activeView}-${imageError}`}
+            key={`${activeCode}-${activeView}`}
             src={imgSrc}
-            alt={`${currentModel.name} — ${activeMedia.title}`}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+            alt={`${currentModel.name} - ${activeMedia.title}`}
+            onError={() => setImageError(true)}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-90"
             loading="lazy"
-            onError={() => {
-              if (!imageError) setImageError(true);
-            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/40 pointer-events-none" />
 
-          {/* Top Bar: Model Badge & View Switcher */}
-          <div className="relative z-10 p-4 flex flex-wrap items-center justify-between gap-2">
-            <span className="bg-slate-900/85 backdrop-blur-md text-amber-300 text-xs px-3 py-1 rounded-xl font-bold border border-white/10 shadow-sm">
-              {currentModel.badge}
+          {/* Top Pill & View Tabs */}
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2">
+            <span className="bg-emerald-900/90 backdrop-blur-md text-amber-300 text-xs px-3.5 py-1 rounded-full font-bold border border-emerald-500/30">
+              نموذج {currentModel.code} — {currentModel.badge}
             </span>
 
-            {/* 3D / Interior / FloorPlan Mode Switcher */}
-            <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border border-white/15">
+            <div className="flex items-center gap-1 bg-slate-900/80 backdrop-blur-md p-1 rounded-2xl border border-white/10">
               {VIEW_TABS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeView === tab.key;
@@ -98,10 +101,8 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
                   <button
                     key={tab.key}
                     onClick={() => handleViewChange(tab.key)}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 ${
-                      isActive
-                        ? 'bg-emerald-800 text-white shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    className={`px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                      isActive ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -112,11 +113,8 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
             </div>
           </div>
 
-          {/* Bottom Title Bar */}
-          <div className="relative z-10 p-5 text-white">
-            <span className="text-[11px] font-bold text-amber-400 block mb-0.5 font-heading">
-              نموذج {currentModel.code} — {activeMedia.title}
-            </span>
+          {/* Bottom Title Overlay */}
+          <div className="relative z-10 text-white mt-auto pt-6">
             <h3 className="text-xl sm:text-2xl font-bold font-heading">{currentModel.name}</h3>
             <p className="text-xs text-slate-300 mt-1 max-w-lg">{currentModel.subtitle}</p>
           </div>
@@ -127,8 +125,8 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <span className="text-xs font-bold text-slate-500">السعر يبدأ من:</span>
-              <span className="text-xl font-black text-emerald-950 font-heading">
-                {currentModel.priceFrom}
+              <span className="text-lg sm:text-xl font-black text-emerald-950 font-heading">
+                {displayPrice}
               </span>
             </div>
 
@@ -171,7 +169,7 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
             </button>
             <button
               onClick={() => onOpenInspection({ modelCode: currentModel.code })}
-              className="py-2.5 px-3 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+              className="py-2.5 px-3 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>حجز معاينة</span>
