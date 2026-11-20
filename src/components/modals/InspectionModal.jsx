@@ -49,6 +49,7 @@ export default function InspectionModal({ isOpen, onClose, data, onShowToast }) 
         requestType: 'inspection',
         visitDate: preferredDay,
         visitTime: preferredTime,
+        preferredTime: preferredTime.includes('صباح') ? 'صباحاً' : preferredTime.includes('عصر') ? 'عصراً' : 'مساءً',
         notes: prop ? `العقار: ${prop.title} (${prop.cityDistrict})` : `معاينة نموذج ${m.code}`,
       });
 

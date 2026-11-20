@@ -8,9 +8,7 @@ const router = Router();
 router.get('/settings', async (req, res) => {
   try {
     let settings = await SiteSettings.findOne().lean();
-    if (!settings) {
-      settings = await SiteSettings.create({});
-    }
+    if (!settings) settings = await SiteSettings.create({});
     res.json({ success: true, data: settings });
   } catch (error) {
     console.error('[SiteSettings Error] GET /settings:', error);
@@ -22,16 +20,9 @@ router.get('/settings', async (req, res) => {
 router.put('/admin/settings', verifyToken, requireRole(['admin', 'editor']), async (req, res) => {
   try {
     const {
-      projectName,
-      city,
-      heroTitle,
-      heroSubtitle,
-      regaLicense,
-      falLicense,
-      whatsappNumber,
-      phoneNumber,
-      mapUrl,
-      aboutText,
+      projectName, city, heroTitle, heroSubtitle, regaLicense, falLicense,
+      whatsappNumber, phoneNumber, mapUrl, aboutText, heroImageUrl, heroVideoUrl,
+      projectTour3dUrl, galleryImages, announcementBar, socialLinks, officeInfo, visibleSections,
     } = req.body;
 
     const updates = {};
@@ -45,18 +36,22 @@ router.put('/admin/settings', verifyToken, requireRole(['admin', 'editor']), asy
     if (phoneNumber !== undefined) updates.phoneNumber = String(phoneNumber).trim();
     if (mapUrl !== undefined) updates.mapUrl = String(mapUrl).trim();
     if (aboutText !== undefined) updates.aboutText = String(aboutText).trim();
+    if (heroImageUrl !== undefined) updates.heroImageUrl = String(heroImageUrl).trim();
+    if (heroVideoUrl !== undefined) updates.heroVideoUrl = String(heroVideoUrl).trim();
+    if (projectTour3dUrl !== undefined) updates.projectTour3dUrl = String(projectTour3dUrl).trim();
+    if (Array.isArray(galleryImages)) updates.galleryImages = galleryImages;
+    if (announcementBar && typeof announcementBar === 'object') updates.announcementBar = announcementBar;
+    if (socialLinks && typeof socialLinks === 'object') updates.socialLinks = socialLinks;
+    if (officeInfo && typeof officeInfo === 'object') updates.officeInfo = officeInfo;
+    if (visibleSections && typeof visibleSections === 'object') updates.visibleSections = visibleSections;
 
-    let settings = await SiteSettings.findOneAndUpdate(
+    const settings = await SiteSettings.findOneAndUpdate(
       {},
       { $set: updates },
       { new: true, upsert: true, runValidators: true }
     );
 
-    res.json({
-      success: true,
-      message: 'تم تحديث إعدادات وهوية الموقع بنجاح.',
-      data: settings,
-    });
+    res.json({ success: true, message: 'تم حفظ إعدادات وهوية الموقع بنجاح.', data: settings });
   } catch (error) {
     console.error('[SiteSettings Error] PUT /admin/settings:', error);
     res.status(500).json({ success: false, message: 'تعذر حفظ إعدادات الموقع.' });

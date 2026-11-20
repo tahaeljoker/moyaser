@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X } from 'lucide-react';
+import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X, Image, Layers } from 'lucide-react';
 import { brand } from '../../data/projectData.js';
 
 export default function AdminSidebar({
@@ -23,6 +23,8 @@ export default function AdminSidebar({
 
   const cmsItems = [
     canAccessUnits && { id: 'units', label: 'الوحدات', icon: Building, count: unitsCount },
+    canAccessSettings && { id: 'media', label: 'المعرض والوسائط', icon: Image },
+    canAccessSettings && { id: 'models', label: 'النماذج والمخططات', icon: Layers },
     canAccessSettings && { id: 'settings', label: 'إعدادات الموقع', icon: Settings },
     canAccessUsers && { id: 'users', label: 'فريق العمل', icon: UserCheck },
   ].filter(Boolean);

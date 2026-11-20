@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Compass } from 'lucide-react';
 import { brand, hero } from '../../data/projectData.js';
 
 export default function Hero({ settings = null }) {
@@ -6,6 +6,8 @@ export default function Hero({ settings = null }) {
   const currentTitle = settings?.heroTitle || hero.title;
   const currentSubtitle = settings?.heroSubtitle || hero.titleSub;
   const currentDescription = settings?.aboutText || hero.description;
+  const heroImg = settings?.heroImageUrl || hero.bgImage;
+  const tour3d = settings?.projectTour3dUrl || '';
 
   const waUrl = `https://api.whatsapp.com/send?phone=${currentWhatsApp}&text=${encodeURIComponent(
     'السلام عليكم ورحمة الله، أود الاستفسار عن مشروع تاون هاوس الشامخة بالدمام.'
@@ -18,7 +20,7 @@ export default function Hero({ settings = null }) {
     >
       <div className="absolute inset-0 z-0">
         <img
-          src={hero.bgImage}
+          src={heroImg}
           alt={currentTitle}
           className="w-full h-full object-cover opacity-35"
           loading="lazy"
@@ -62,21 +64,32 @@ export default function Hero({ settings = null }) {
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
             href="#matrix-section"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-slate-950 font-black text-sm shadow-xl hover:shadow-2xl transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-7 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-slate-950 font-black text-xs shadow-xl transition flex items-center justify-center gap-2"
           >
             <span>{hero.ctaPrimary}</span>
             <ArrowLeft className="w-4 h-4" />
           </a>
+          {tour3d && (
+            <a
+              href={tour3d}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-purple-900/60 hover:bg-purple-800 text-white border border-purple-500/40 backdrop-blur-md font-bold text-xs transition flex items-center justify-center gap-2"
+            >
+              <Compass className="w-4 h-4 text-purple-300" />
+              <span>جولة 3D في المشروع</span>
+            </a>
+          )}
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-sm transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-xs transition flex items-center justify-center gap-2"
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="w-4 h-4 text-emerald-400" />
             <span>{hero.ctaSecondary}</span>
           </a>
         </div>

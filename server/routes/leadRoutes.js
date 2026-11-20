@@ -21,7 +21,7 @@ const getNextSalesAgent = async () => {
 // POST /api/leads (Public Lead Capture)
 router.post('/leads', leadSubmissionLimiter, async (req, res) => {
   try {
-    const { fullName, phone, unitCode, requestType, visitDate, visitTime, paymentMethod, notes, source } = req.body;
+    const { fullName, phone, unitCode, requestType, visitDate, visitTime, preferredTime, paymentMethod, notes, source } = req.body;
     if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 3) {
       return res.status(400).json({ success: false, message: 'يرجى إدخال الاسم الثلاثي الكريم (3 أحرف على الأقل).' });
     }
@@ -36,7 +36,9 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
       unitCode: unitCode ? unitCode.toUpperCase().trim() : null,
       requestType: ['booking', 'inspection', 'waitlist'].includes(requestType) ? requestType : 'inspection',
       source: ['website', 'walk_in', 'phone', 'whatsapp'].includes(source) ? source : 'website',
-      visitDate: visitDate ? String(visitDate).trim() : null, visitTime: visitTime ? String(visitTime).trim() : null,
+      visitDate: visitDate ? String(visitDate).trim() : null,
+      visitTime: visitTime ? String(visitTime).trim() : null,
+      preferredTime: preferredTime ? String(preferredTime).trim() : null,
       paymentMethod: paymentMethod ? String(paymentMethod).trim() : 'تمويل بنكي مدعوم / مرابحة عقارية',
       notes: notes ? String(notes).trim().slice(0, 1000) : '', stage: 'prospective',
       assignedAgent: assignedUser ? assignedUser._id : null, assignedAgentName: assignedUser ? assignedUser.name : null,
@@ -55,7 +57,7 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
 // POST /api/admin/leads (Staff Walk-in / Phone Call Lead Entry)
 router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { fullName, phone, unitCode, stage, notes, source, nextFollowUpDate } = req.body;
+    const { fullName, phone, unitCode, stage, notes, source, nextFollowUpDate, preferredTime } = req.body;
     if (!fullName || !phone) return res.status(400).json({ success: false, message: 'الاسم ورقم الجوال مطلوبان.' });
     const cleanPhone = String(phone).trim().replace(/[\s-]/g, '');
     if (!saudiPhoneRegex.test(cleanPhone)) return res.status(400).json({ success: false, message: 'رقم الجوال غير صحيح.' });
@@ -68,6 +70,7 @@ router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'r
       fullName: fullName.trim(), phone: cleanPhone, unitCode: cleanUnit, requestType: 'inspection',
       source: ['website', 'walk_in', 'phone', 'whatsapp'].includes(source) ? source : 'walk_in',
       stage: leadStage, notes: notes ? String(notes).trim().slice(0, 1000) : 'تسجيل زيارة مكتبية / اتصال مباشر',
+      preferredTime: preferredTime ? String(preferredTime).trim() : null,
       nextFollowUpDate: nextFollowUpDate ? new Date(nextFollowUpDate) : null,
       assignedAgent: assignedUser ? assignedUser._id : null, assignedAgentName: assignedUser ? assignedUser.name : null,
     });
@@ -115,7 +118,7 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
 // PATCH /api/admin/leads/:id (Protected)
 router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { stage, assignedAgent, notes, source, nextFollowUpDate, financing, handover } = req.body;
+    const { stage, assignedAgent, notes, source, nextFollowUpDate, preferredTime, financing, handover } = req.body;
     const lead = await Lead.findById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, message: 'طلب العميل غير موجود.' });
 
@@ -136,6 +139,7 @@ router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin
     }
 
     if (source && ['website', 'walk_in', 'phone', 'whatsapp'].includes(source)) lead.source = source;
+    if (preferredTime !== undefined) lead.preferredTime = preferredTime ? String(preferredTime).trim() : null;
     if (nextFollowUpDate !== undefined) lead.nextFollowUpDate = nextFollowUpDate ? new Date(nextFollowUpDate) : null;
     if (financing && typeof financing === 'object') {
       lead.financing = {

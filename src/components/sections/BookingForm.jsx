@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Clock } from 'lucide-react';
 import { brand, properties } from '../../data/projectData.js';
 import { createLead } from '../../services/api.js';
 
@@ -9,6 +9,7 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [propertyId, setPropertyId] = useState('');
+  const [preferredTime, setPreferredTime] = useState('عصراً');
   const [payment, setPayment] = useState('تمويل بنكي مدعوم / مرابحة عقارية');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,6 +41,7 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
         fullName: name.trim(),
         phone: cleanPhone,
         requestType: 'booking',
+        preferredTime,
         paymentMethod: payment,
         notes: `${selectedProp ? `العقار: ${propLabel} | ` : ''}${notes.trim()}`,
       });
@@ -48,7 +50,6 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
         ticket = res.data.ticketNumber;
       }
     } catch (err) {
-      // Graceful offline fallback: keep local ticket and notify
       console.warn('[BookingForm] API sync fallback:', err.message);
     } finally {
       setIsSubmitting(false);
@@ -58,142 +59,129 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
       ticket,
       name: name.trim(),
       phone: cleanPhone,
-      propertyId: selectedProp?.id || null,
-      property: propLabel,
-      payment,
-      notes: notes.trim() || 'لا توجد ملاحظات إضافية',
-      timestamp: new Date().toISOString(),
+      unitId: propertyId || 'غير محدد',
+      paymentMethod: payment,
+      preferredTime,
     };
 
-    // Backup to localStorage
-    try {
-      const existingLeads = JSON.parse(localStorage.getItem('ms_leads') || '[]');
-      existingLeads.push(bookingPayload);
-      localStorage.setItem('ms_leads', JSON.stringify(existingLeads));
-    } catch {
-      // Ignore localStorage errors
-    }
-
     onBookingSuccess(bookingPayload);
-    setName('');
-    setPhone('');
-    setPropertyId('');
-    setNotes('');
   };
 
   return (
-    <section id="booking-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-lg">
-        <div className="text-center max-w-xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200/60 mb-2">
-            حجز ومعاينة رسمية مباشرة
+    <section id="booking-section" className="bg-slate-900 text-white py-16 sm:py-20 lg:py-24 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 bg-amber-950/70 px-3.5 py-1 rounded-full border border-amber-800/80 mb-2.5">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>طلب معاينة وحجز رسمي</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading">
-            سجّل اهتمامك واحجز موعدك
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black font-heading tracking-tight text-white">
+            احجز موعد معاينة أو استفسر عن الوحدات
           </h2>
-          <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-            سيصدر لك رقم تذكرة رسمي ويُربطك مباشرة بمدير المبيعات عبر الواتساب لتنسيق المعاينة الميدانية.
+          <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+            سيتواصل معك مستشار المبيعات المعتمد لتأكيد الموعد وتقديم المشورة التمويلية.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="b-name" className="block text-xs font-bold text-slate-700 mb-1.5">
-                الاسم الثلاثي الكريم *
-              </label>
-              <input
-                type="text"
-                id="b-name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="مثال: عبدالمحسن عبدالله الشمري"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-800"
-              />
+        <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-md">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">الاسم الكريم *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: محمد بن سعد العتيبي"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">رقم الجوال *</label>
+                <input
+                  type="tel"
+                  required
+                  dir="ltr"
+                  placeholder="05XXXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600 font-mono text-left"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">العقار أو المشروع المطلوب</label>
+                <select
+                  value={propertyId}
+                  onChange={(e) => setPropertyId(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                >
+                  <option value="">مشروع تاون هاوس الشامخة (الدمام)</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title} — {p.cityDistrict} ({fmt(p.price)} ر.س)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>الوقت المفضل للاتصال</span>
+                </label>
+                <select
+                  value={preferredTime}
+                  onChange={(e) => setPreferredTime(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                >
+                  <option value="صباحاً">صباحاً (9:00 ص - 12:00 م)</option>
+                  <option value="عصراً">عصراً (4:00 م - 6:30 م)</option>
+                  <option value="مساءً">مساءً (6:30 م - 9:00 م)</option>
+                </select>
+              </div>
             </div>
 
             <div>
-              <label htmlFor="b-phone" className="block text-xs font-bold text-slate-700 mb-1.5">
-                رقم الجوال (+966) *
-              </label>
-              <input
-                type="tel"
-                id="b-phone"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="05xxxxxxxx"
-                dir="ltr"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-right focus:outline-none focus:ring-2 focus:ring-emerald-800"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="booking-property-select" className="block text-xs font-bold text-slate-700 mb-1.5">
-                العقار المطلوب *
-              </label>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">خيار الشراء والتمويل المفضل</label>
               <select
-                id="booking-property-select"
-                required
-                value={propertyId}
-                onChange={(e) => setPropertyId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-800"
-              >
-                <option value="">— اختر العقار المطلوب للمعاينة أو الشراء —</option>
-                {properties.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title} — {p.cityDistrict} ({p.area}) — {fmt(p.price)} ر.س
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="b-payment" className="block text-xs font-bold text-slate-700 mb-1.5">
-                طريقة الشراء المفضلة
-              </label>
-              <select
-                id="b-payment"
                 value={payment}
                 onChange={(e) => setPayment(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-800"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
               >
-                <option value="شراء نقدي (كاش)">شراء نقدي (كاش)</option>
-                <option value="تمويل بنكي مدعوم / مرابحة عقارية">تمويل بنكي مدعوم / مرابحة عقارية</option>
-                <option value="خطة دفعات مرحلية مع المطور">خطة دفعات مرحلية مع المطور</option>
+                <option value="تمويل بنكي مدعوم / مرابحة عقارية">تمويل بنكي مدعوم / مرابحة عقارية (سكني)</option>
+                <option value="سداد نقدي / كاش مباشر">سداد نقدي / كاش مباشر</option>
+                <option value="تمويل تجاري / جهات معتمدة">تمويل تجاري / جهات معتمدة</option>
               </select>
             </div>
-          </div>
 
-          <div>
-            <label htmlFor="b-notes" className="block text-xs font-bold text-slate-700 mb-1.5">
-              الموعد المفضل للمعاينة أو ملاحظات
-            </label>
-            <textarea
-              id="b-notes"
-              rows={2}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="مثال: أفضل المعاينة يوم السبت بعد صلاة العصر..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-800"
-            />
-          </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">ملاحظات أو استفسارات إضافية</label>
+              <textarea
+                rows={2}
+                placeholder="أي استفسار يخص الدفعة الأولى أو رغبة في تفاصيل نموذج معين..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600 resize-none"
+              />
+            </div>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-slate-900 hover:from-emerald-800 hover:to-slate-800 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-75"
-            >
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{isSubmitting ? 'جاري تسجيل الطلب...' : 'تأكيد تسجيل الاهتمام وتوليد تذكرة الحجز الرسمية'}</span>
-            </button>
-            <p className="text-[11px] text-slate-400 text-center mt-2">
-              بياناتك محمية ومخصصة حصرياً لشركة {brand.developer}.
-            </p>
-          </div>
-        </form>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isSubmitting ? 'جاري إرسال الطلب...' : 'إرسال طلب الحجز والمعاينة'}</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   );

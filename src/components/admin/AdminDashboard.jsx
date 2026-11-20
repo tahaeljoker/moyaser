@@ -10,6 +10,8 @@ import LeadsPipeline from './LeadsPipeline.jsx';
 import UnitsManager from './UnitsManager.jsx';
 import UsersManager from './UsersManager.jsx';
 import SiteSettingsManager from './SiteSettingsManager.jsx';
+import MediaGalleryManager from './MediaGalleryManager.jsx';
+import ModelsManager from './ModelsManager.jsx';
 
 export default function AdminDashboard() {
   const { user, loading, isAuthenticated, logout } = useAuth();
@@ -54,7 +56,7 @@ export default function AdminDashboard() {
     if (!canAccessCRM && activeTab === 'leads') setActiveTab('units');
     if (!canAccessUnits && activeTab === 'units') setActiveTab('leads');
     if (!canAccessUsers && activeTab === 'users') setActiveTab('leads');
-    if (!canAccessSettings && activeTab === 'settings') setActiveTab('leads');
+    if (!canAccessSettings && ['settings', 'media', 'models'].includes(activeTab)) setActiveTab('leads');
   }, [role, canAccessCRM, canAccessUnits, canAccessUsers, canAccessSettings, activeTab]);
 
   if (loading) {
@@ -83,13 +85,14 @@ export default function AdminDashboard() {
   const tabTitles = {
     leads: 'طلبات العملاء',
     units: 'الوحدات السكنية',
+    media: 'المعرض والوسائط الرقمية',
+    models: 'النماذج والمخططات الهندسية',
     users: 'فريق العمل والصلاحيات',
-    settings: 'إعدادات الموقع',
+    settings: 'إعدادات وهوية الموقع',
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex selection:bg-emerald-800 selection:text-white" dir="rtl">
-      {/* Fixed Right Sidebar */}
       <AdminSidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -101,7 +104,6 @@ export default function AdminDashboard() {
         onLogout={logout}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:mr-64 min-w-0">
         <AdminHeader
           activeTabTitle={tabTitles[activeTab] || 'لوحة التحكم'}
@@ -120,6 +122,10 @@ export default function AdminDashboard() {
           {activeTab === 'units' && canAccessUnits && (
             <UnitsManager units={units} onUpdateUnit={handleUpdateUnit} onRefresh={loadData} />
           )}
+
+          {activeTab === 'media' && canAccessSettings && <MediaGalleryManager />}
+
+          {activeTab === 'models' && canAccessSettings && <ModelsManager />}
 
           {activeTab === 'users' && canAccessUsers && <UsersManager />}
 

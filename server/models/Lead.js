@@ -51,6 +51,7 @@ const leadSchema = new mongoose.Schema(
     },
     visitDate: { type: String, default: null, trim: true },
     visitTime: { type: String, default: null, trim: true },
+    preferredTime: { type: String, default: null, trim: true },
     paymentMethod: { type: String, default: 'تمويل بنكي مدعوم / مرابحة عقارية', trim: true },
     notes: { type: String, default: '', trim: true, maxlength: 1000 },
     nextFollowUpDate: { type: Date, default: null },

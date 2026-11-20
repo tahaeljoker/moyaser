@@ -80,7 +80,7 @@ export default function PublicShowcase() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-emerald-800 selection:text-white" dir="rtl">
       {/* 1. Header Bar */}
-      <InfoBar />
+      <InfoBar settings={siteSettings} />
 
       {/* 2. Sticky Navbar */}
       <Navbar />
@@ -97,14 +97,18 @@ export default function PublicShowcase() {
       ) : (
         <div>
           {/* 5.1 Interactive 24-Unit Matrix */}
-          <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id })} />
+          {siteSettings?.visibleSections?.unitMatrix !== false && (
+            <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id })} />
+          )}
 
           {/* 5.2 Architectural Models Showcase (A - F) */}
-          <ModelsShowcase
-            onOpenVideo={handleOpenVideo}
-            onOpenFloorPlan={handleOpenFloorPlan}
-            onOpenInspection={handleOpenInspection}
-          />
+          {siteSettings?.visibleSections?.models !== false && (
+            <ModelsShowcase
+              onOpenVideo={handleOpenVideo}
+              onOpenFloorPlan={handleOpenFloorPlan}
+              onOpenInspection={handleOpenInspection}
+            />
+          )}
 
           {/* 5.3 Properties Catalog */}
           <PropertiesCatalog onOpenInspection={handleOpenInspection} />
@@ -113,7 +117,7 @@ export default function PublicShowcase() {
           <AboutSection />
 
           {/* 5.5 Strategic Location & Distances */}
-          <LocationSection />
+          {siteSettings?.visibleSections?.location !== false && <LocationSection />}
 
           {/* 5.6 Booking Lead Form */}
           <BookingForm
@@ -124,7 +128,7 @@ export default function PublicShowcase() {
       )}
 
       {/* 6. Official Footer */}
-      <Footer />
+      <Footer settings={siteSettings} />
 
       {/* Modals */}
       <InspectionModal

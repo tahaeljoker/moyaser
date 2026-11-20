@@ -2,10 +2,16 @@ import { useState } from 'react';
 import { MessageCircle, Phone, Building2 } from 'lucide-react';
 import { brand, footerLinks } from '../../data/projectData.js';
 
-export default function Footer() {
+export default function Footer({ settings = null }) {
   const [logoError, setLogoError] = useState(false);
 
-  const waUrl = `https://api.whatsapp.com/send?phone=${brand.whatsapp}&text=${encodeURIComponent(
+  const rega = settings?.regaLicense || brand.regaLicense;
+  const fal = settings?.falLicense || brand.falLicense;
+  const phone = settings?.phoneNumber || brand.phoneDisplay;
+  const waNumber = settings?.whatsappNumber || brand.whatsapp;
+  const city = settings?.city || `${brand.city} — ${brand.district}`;
+
+  const waUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent(
     'السلام عليكم، أود الاستفسار عن مشروع تاون هاوس الشامخة بالدمام.'
   )}`;
 
@@ -39,20 +45,18 @@ export default function Footer() {
             </p>
             <div className="text-xs text-amber-300 font-bold flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>
-                {brand.city} — {brand.district} — {brand.country}
-              </span>
+              <span>{city} — {brand.country}</span>
             </div>
 
             {/* Regulatory Compliance (REGA & FAL) */}
             <div className="pt-2 border-t border-slate-800/80 space-y-1 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="text-slate-500">رقم ترخيص الهيئة العامة للعقار:</span>
-                <span className="font-mono text-slate-300 font-bold">{brand.regaLicense}</span>
+                <span className="font-mono text-slate-300 font-bold">{rega}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-slate-500">رقم الترخيص الفال:</span>
-                <span className="font-mono text-slate-300 font-bold">{brand.falLicense}</span>
+                <span className="font-mono text-slate-300 font-bold">{fal}</span>
               </div>
             </div>
           </div>
@@ -64,7 +68,7 @@ export default function Footer() {
               <li className="flex items-center gap-2">
                 <span className="text-slate-500">الجوال:</span>
                 <a href={`tel:${brand.phone}`} className="hover:text-amber-400 transition font-bold" dir="ltr">
-                  {brand.phoneDisplay}
+                  {phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">

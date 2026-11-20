@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Download, Printer, MessageCircle, Check, FileText, Image, Video, Compass, ExternalLink } from 'lucide-react';
+import { X, Download, Printer, MessageCircle, Check, FileText, Image, Video, Compass, ExternalLink, Share2 } from 'lucide-react';
 import { brand, models } from '../../data/projectData.js';
 import { triggerBrochurePrint, getBrochureWhatsAppUrl, formatBrochureDate } from '../../utils/brochurePrint.js';
 
@@ -25,7 +25,7 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
 
   const m = models.find((x) => x.code === modelCode) || models[0];
   const currentDate = formatBrochureDate();
-  const waUrl = getBrochureWhatsAppUrl(m, brand);
+  const waInquiryUrl = getBrochureWhatsAppUrl(m, brand);
 
   const images = unit?.media?.images?.length ? unit.media.images : [];
   const videoUrl = unit?.media?.videoUrl || '';
@@ -42,6 +42,13 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
   const [selectedImg, setSelectedImg] = useState(images[0] || null);
 
   const handlePrint = () => { triggerBrochurePrint(m, brand); };
+
+  const shareText = `السلام عليكم ورحمة الله، اطلع على تفاصيل ${unit?.unitCode ? `الوحدة (${unit.unitCode})` : `نموذج (${m.code})`} في مشروع تاون هاوس الشامخة — شركة مُيسّر للتطوير العقاري:
+• النموذج: ${m.name} (${m.code})
+• المساحة: ${unit?.area || `${m.totalArea} م²`}
+• السعر: ${unit?.price ? `${Number(unit.price).toLocaleString('en-US')} ر.س` : m.priceFrom}
+• الرابط: ${window.location.origin}`;
+  const shareWhatsAppUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto" dir="rtl">
@@ -61,7 +68,7 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
           </div>
         </div>
 
-        {/* Media Navigation Tabs (Only shown if extra media exists) */}
+        {/* Media Navigation Tabs */}
         {availableTabs.length > 1 && (
           <div className="no-print flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 border-b border-slate-100">
             {availableTabs.map((t) => {
@@ -177,15 +184,18 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
         )}
 
         {/* Footer Actions */}
-        <div className="no-print flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-slate-100">
-          <button onClick={handlePrint} className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs">
+        <div className="no-print flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+          <button onClick={handlePrint} className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
             <Download className="w-3.5 h-3.5 text-amber-300" /><span>تحميل بروشور (PDF)</span>
           </button>
-          <button onClick={() => window.print()} className="w-full sm:w-auto py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
+          <a href={shareWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <Share2 className="w-3.5 h-3.5 text-emerald-700" /><span>مشاركة عبر واتساب</span>
+          </a>
+          <button onClick={() => window.print()} className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
             <Printer className="w-3.5 h-3.5" /><span>طباعة</span>
           </button>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-1.5">
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-700" /><span>واتساب</span>
+          <a href={waInquiryUrl} target="_blank" rel="noopener noreferrer" className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-700" /><span>استفسار</span>
           </a>
         </div>
       </div>

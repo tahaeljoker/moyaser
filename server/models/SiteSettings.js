@@ -16,6 +16,37 @@ const siteSettingsSchema = new mongoose.Schema(
       default: 'وحدات دوبلكس سكنية مستقلة بتصاميم عصرية ومسطحات بناء واسعة تلبي تطلعات الأسرة السعودية.',
       trim: true,
     },
+    heroImageUrl: { type: String, default: '', trim: true },
+    heroVideoUrl: { type: String, default: '', trim: true },
+    projectTour3dUrl: { type: String, default: '', trim: true },
+    galleryImages: [
+      {
+        url: { type: String, required: true },
+        title: { type: String, default: '' },
+        category: { type: String, default: 'exterior' },
+      },
+    ],
+    announcementBar: {
+      enabled: { type: Boolean, default: false },
+      text: { type: String, default: '' },
+    },
+    socialLinks: {
+      snapchat: { type: String, default: '' },
+      instagram: { type: String, default: '' },
+      x: { type: String, default: '' },
+      tiktok: { type: String, default: '' },
+      email: { type: String, default: '' },
+    },
+    officeInfo: {
+      address: { type: String, default: 'الدمام — حي حديقة الأثير' },
+      workingHours: { type: String, default: 'السبت - الخميس: 9:00 ص - 9:00 م' },
+    },
+    visibleSections: {
+      gallery: { type: Boolean, default: true },
+      models: { type: Boolean, default: true },
+      unitMatrix: { type: Boolean, default: true },
+      location: { type: Boolean, default: true },
+    },
     isDemoPurged: { type: Boolean, default: false },
   },
   { timestamps: true }
