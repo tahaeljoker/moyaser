@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Users, Building, RefreshCw, UserCheck, Settings } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { fetchUnits, fetchAdminLeads, updateLead, updateUnit } from '../../services/api.js';
+import AdminSidebar from './AdminSidebar.jsx';
 import AdminHeader from './AdminHeader.jsx';
 import ExecutiveStats from './ExecutiveStats.jsx';
 import LeadsPipeline from './LeadsPipeline.jsx';
@@ -11,7 +12,7 @@ import UsersManager from './UsersManager.jsx';
 import SiteSettingsManager from './SiteSettingsManager.jsx';
 
 export default function AdminDashboard() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, logout } = useAuth();
   const role = user?.role || 'sales';
 
   const canAccessCRM = ['super_admin', 'admin', 'receptionist', 'sales'].includes(role);
@@ -19,7 +20,9 @@ export default function AdminDashboard() {
   const canAccessUsers = ['super_admin', 'admin'].includes(role);
   const canAccessSettings = ['super_admin', 'admin', 'editor'].includes(role);
 
-  const [activeTab, setActiveTab] = useState(canAccessCRM ? 'leads' : 'units');
+  const initialTab = role === 'editor' ? 'units' : 'leads';
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [units, setUnits] = useState([]);
   const [leads, setLeads] = useState([]);
   const [leadsSummary, setLeadsSummary] = useState({});
@@ -56,8 +59,8 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 text-xs gap-2">
-        <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
+        <RefreshCw className="w-5 h-5 text-emerald-800 animate-spin" />
         <span>جاري التحميل...</span>
       </div>
     );
@@ -77,102 +80,52 @@ export default function AdminDashboard() {
     return res;
   };
 
+  const tabTitles = {
+    leads: 'طلبات العملاء',
+    units: 'الوحدات السكنية',
+    users: 'فريق العمل والصلاحيات',
+    settings: 'إعدادات الموقع',
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-800 selection:text-white" dir="rtl">
-      <AdminHeader />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex selection:bg-emerald-800 selection:text-white" dir="rtl">
+      {/* Fixed Right Sidebar */}
+      <AdminSidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        role={role}
+        leadsCount={leads.length}
+        unitsCount={units.length}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onLogout={logout}
+      />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-          <div>
-            <h1 className="text-lg sm:text-xl font-bold font-heading text-white">
-              لوحة التحكم
-            </h1>
-            <div className="text-xs text-slate-400 mt-0.5">
-              {role === 'sales' && <span>طلبات المستشار: {user.name}</span>}
-              {role === 'receptionist' && <span>تسجيل وتوجيه الزوار</span>}
-              {role === 'editor' && <span>إدارة الوحدات والمحتوى</span>}
-              {['super_admin', 'admin'].includes(role) && <span>مشروع تاون هاوس الشامخة — الدمام</span>}
-            </div>
-          </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col lg:mr-64 min-w-0">
+        <AdminHeader
+          activeTabTitle={tabTitles[activeTab] || 'لوحة التحكم'}
+          onRefresh={loadData}
+          isLoadingData={isLoadingData}
+          onOpenMobileMenu={() => setSidebarOpen(true)}
+        />
 
-          <button
-            onClick={loadData}
-            disabled={isLoadingData}
-            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition border border-slate-800 self-start sm:self-auto"
-            title="تحديث البيانات"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoadingData ? 'animate-spin text-emerald-400' : ''}`} />
-          </button>
-        </div>
+        <main className="p-4 sm:p-6 max-w-7xl w-full mx-auto space-y-6">
+          <ExecutiveStats units={units} leadsSummary={leadsSummary} role={role} />
 
-        <ExecutiveStats units={units} leadsSummary={leadsSummary} role={role} />
-
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 mb-5 bg-slate-900 p-1 rounded-xl border border-slate-800 w-fit">
-          {canAccessCRM && (
-            <button
-              onClick={() => setActiveTab('leads')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-                activeTab === 'leads'
-                  ? 'bg-emerald-800 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>طلبات العملاء</span>
-              <span className="px-1.5 py-0.5 rounded text-[11px] bg-slate-950 font-mono text-slate-300">{leads.length}</span>
-            </button>
+          {activeTab === 'leads' && canAccessCRM && (
+            <LeadsPipeline leads={leads} onUpdateLead={handleUpdateLead} onRefresh={loadData} />
           )}
 
-          {canAccessUnits && (
-            <button
-              onClick={() => setActiveTab('units')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-                activeTab === 'units'
-                  ? 'bg-emerald-800 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Building className="w-3.5 h-3.5" />
-              <span>الوحدات</span>
-              <span className="px-1.5 py-0.5 rounded text-[11px] bg-slate-950 font-mono text-slate-300">{units.length}</span>
-            </button>
+          {activeTab === 'units' && canAccessUnits && (
+            <UnitsManager units={units} onUpdateUnit={handleUpdateUnit} onRefresh={loadData} />
           )}
 
-          {canAccessUsers && (
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-                activeTab === 'users'
-                  ? 'bg-emerald-800 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>فريق العمل</span>
-            </button>
-          )}
+          {activeTab === 'users' && canAccessUsers && <UsersManager />}
 
-          {canAccessSettings && (
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-                activeTab === 'settings'
-                  ? 'bg-emerald-800 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span>الإعدادات</span>
-            </button>
-          )}
-        </div>
-
-        {activeTab === 'leads' && canAccessCRM && <LeadsPipeline leads={leads} onUpdateLead={handleUpdateLead} onRefresh={loadData} />}
-        {activeTab === 'units' && canAccessUnits && <UnitsManager units={units} onUpdateUnit={handleUpdateUnit} onRefresh={loadData} />}
-        {activeTab === 'users' && canAccessUsers && <UsersManager />}
-        {activeTab === 'settings' && canAccessSettings && <SiteSettingsManager />}
-      </main>
+          {activeTab === 'settings' && canAccessSettings && <SiteSettingsManager />}
+        </main>
+      </div>
     </div>
   );
 }
