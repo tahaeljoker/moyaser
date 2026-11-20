@@ -54,13 +54,11 @@ const unitSchema = new mongoose.Schema(
       rooms: { type: String, default: '' },
       baths: { type: Number, default: 0 },
     },
-    media: [
-      {
-        type: { type: String, enum: ['image', 'video'], default: 'image' },
-        url: { type: String, required: true },
-        title: { type: String, default: '' },
-      },
-    ],
+    media: {
+      images: { type: [String], default: [] },
+      videoUrl: { type: String, default: '', trim: true },
+      tour3dUrl: { type: String, default: '', trim: true },
+    },
   },
   {
     timestamps: true,

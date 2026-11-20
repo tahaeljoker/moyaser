@@ -5,6 +5,23 @@ import { verifyToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
+const parseMedia = (media) => {
+  if (media && typeof media === 'object' && !Array.isArray(media)) {
+    return {
+      images: Array.isArray(media.images) ? media.images.map((s) => String(s).trim()).filter(Boolean) : [],
+      videoUrl: media.videoUrl ? String(media.videoUrl).trim() : '',
+      tour3dUrl: media.tour3dUrl ? String(media.tour3dUrl).trim() : '',
+    };
+  }
+  if (Array.isArray(media)) {
+    return {
+      images: media.map((m) => (typeof m === 'string' ? m.trim() : m?.url ? String(m.url).trim() : '')).filter(Boolean),
+      videoUrl: '', tour3dUrl: '',
+    };
+  }
+  return { images: [], videoUrl: '', tour3dUrl: '' };
+};
+
 // GET /api/units (Public)
 router.get('/units', async (req, res) => {
   try {
@@ -29,7 +46,7 @@ router.get('/units/:unitCode', async (req, res) => {
     const unit = await Unit.findOne({ unitCode });
     if (!unit) return res.status(404).json({ success: false, message: 'الوحدة غير موجودة.' });
     res.json({ success: true, data: unit });
-  } catch (error) {
+  } catch {
     res.status(500).json({ success: false, message: 'فشل استرجاع تفاصيل الوحدة.' });
   }
 });
@@ -41,7 +58,6 @@ router.post('/admin/units', verifyToken, requireRole(['admin', 'editor']), async
     if (!unitCode || !price) {
       return res.status(400).json({ success: false, message: 'كود الوحدة والسعر مطلوبان.' });
     }
-
     const cleanCode = unitCode.toUpperCase().trim();
     const existing = await Unit.findOne({ unitCode: cleanCode });
     if (existing) {
@@ -57,7 +73,7 @@ router.post('/admin/units', verifyToken, requireRole(['admin', 'editor']), async
       price: Number(price),
       status: ['available', 'reserved', 'sold'].includes(status) ? status : 'available',
       floorPlanSpecs: floorPlanSpecs || {},
-      media: Array.isArray(media) ? media : [],
+      media: parseMedia(media),
     });
 
     res.status(201).json({ success: true, message: 'تمت إضافة الوحدة بنجاح.', data: newUnit });
@@ -76,7 +92,7 @@ router.patch('/admin/units/:unitCode', verifyToken, requireRole(['admin', 'edito
 
     if (status && ['available', 'reserved', 'sold'].includes(status)) allowed.status = status;
     if (typeof price === 'number' && price > 0) allowed.price = price;
-    if (Array.isArray(media)) allowed.media = media;
+    if (media !== undefined) allowed.media = parseMedia(media);
     if (typeof facade === 'string') allowed.facade = facade.trim();
     if (typeof area === 'string') allowed.area = area.trim();
     if (typeof model === 'string') allowed.model = model.toUpperCase().trim();
@@ -100,8 +116,6 @@ router.patch('/admin/units/:unitCode', verifyToken, requireRole(['admin', 'edito
 router.delete('/admin/units/:unitCode', verifyToken, requireRole(['admin']), async (req, res) => {
   try {
     const unitCode = req.params.unitCode.toUpperCase().trim();
-
-    // Prevent deletion if linked to an active reserved or closed lead
     const linkedLead = await Lead.findOne({ unitCode, stage: { $in: ['reserved', 'closed'] } });
     if (linkedLead) {
       return res.status(409).json({
@@ -112,7 +126,6 @@ router.delete('/admin/units/:unitCode', verifyToken, requireRole(['admin']), asy
 
     const deleted = await Unit.findOneAndDelete({ unitCode });
     if (!deleted) return res.status(404).json({ success: false, message: 'الوحدة غير موجودة للحذف.' });
-
     res.json({ success: true, message: `تم حذف الوحدة (${unitCode}) بنجاح.` });
   } catch (error) {
     console.error('[Admin Unit Delete Error]', error);
