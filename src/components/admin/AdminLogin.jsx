@@ -34,12 +34,14 @@ export default function AdminLogin() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center px-4">
         <div className="flex justify-center mb-4">
           {!logoError ? (
-            <img
-              src={brand.logo}
-              alt={brand.developer}
-              className="h-14 w-auto object-contain"
-              onError={() => setLogoError(true)}
-            />
+            <div className="bg-white/95 p-2.5 rounded-2xl shadow-lg inline-flex items-center justify-center">
+              <img
+                src={brand.logo}
+                alt={brand.developer}
+                className="h-16 w-auto object-contain"
+                onError={() => setLogoError(true)}
+              />
+            </div>
           ) : (
             <div className="w-14 h-14 rounded-2xl bg-emerald-900 text-amber-400 flex items-center justify-center shadow-lg">
               <Building2 className="w-8 h-8" />

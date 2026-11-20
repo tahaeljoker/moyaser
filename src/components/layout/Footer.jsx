@@ -17,12 +17,14 @@ export default function Footer() {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center">
               {!logoError ? (
-                <img
-                  src={brand.logo}
-                  alt={brand.developer}
-                  className="h-11 sm:h-12 w-auto object-contain"
-                  onError={() => setLogoError(true)}
-                />
+                <div className="bg-white/95 p-2 rounded-xl inline-flex items-center justify-center shadow-sm">
+                  <img
+                    src={brand.logo}
+                    alt={brand.developer}
+                    className="h-12 w-auto object-contain"
+                    onError={() => setLogoError(true)}
+                  />
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-xl bg-emerald-900 text-amber-400 flex items-center justify-center">

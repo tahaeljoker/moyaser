@@ -2,29 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Brand Fonts (Local @font-face with reliable system fallbacks) ── */
-@font-face {
-  font-family: 'bbcnassim-bold';
-  src: url('/fonts/bbcnassim-bold.woff2') format('woff2'),
-       url('/fonts/bbcnassim-bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Dthuluth';
-  src: url('/fonts/Dthuluth.woff2') format('woff2'),
-       url('/fonts/Dthuluth.ttf') format('truetype');
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* ── Brand Fonts ── */
 @font-face {
   font-family: 'Lulo Clean';
-  src: url('/fonts/LuloClean.woff2') format('woff2'),
-       url('/fonts/LuloClean.otf') format('opentype');
+  src: url('/fonts/LuloClean.ttf') format('truetype');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
@@ -34,7 +15,7 @@
 html {
   scroll-behavior: smooth;
   direction: rtl;
-  font-family: 'bbcnassim-bold', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'IBM Plex Sans Arabic', 'Alexandria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -46,8 +27,8 @@ body {
 }
 
 h1, h2, h3, h4, .font-heading {
-  font-family: 'Dthuluth', 'bbcnassim-bold', 'Readex Pro', sans-serif;
-  letter-spacing: -0.01em;
+  font-family: 'Alexandria', 'IBM Plex Sans Arabic', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 /* ── Custom Scrollbar ── */

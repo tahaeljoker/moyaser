@@ -25,12 +25,14 @@ export default function AdminHeader() {
           <div className="flex items-center gap-3">
             <Link to="/admin" className="flex items-center gap-2">
               {!logoError ? (
-                <img
-                  src={brand.logo}
-                  alt={brand.developer}
-                  className="h-9 w-auto object-contain"
-                  onError={() => setLogoError(true)}
-                />
+                <div className="bg-white/95 p-1 rounded-lg flex items-center justify-center shadow-sm">
+                  <img
+                    src={brand.logo}
+                    alt={brand.developer}
+                    className="h-8 w-auto object-contain"
+                    onError={() => setLogoError(true)}
+                  />
+                </div>
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-emerald-900 text-amber-400 flex items-center justify-center">
                   <Building2 className="w-5 h-5" />
