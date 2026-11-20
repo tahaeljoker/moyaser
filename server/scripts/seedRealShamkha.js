@@ -22,7 +22,7 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'دوبلكس أرضي مستقل مع حوش وارتداد خاص 177 م² وكراج مستقل ومدخل خاص.',
     features: ['حوش وارتداد خاص 177 م²', 'مجلس رجال مستقل', '3 أجنحة نوم ماستر', 'كراج خاص'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-a.webp',
     floorPlanImageUrl: '/images/shamkha/plan-a-1.webp',
     isActive: true,
   },
@@ -37,7 +37,7 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'دوبلكس علوي فاخر بإطلالة مفتوحة وجلسة سطح خاصة وتوزيع ذكي للمساحات.',
     features: ['تراس سطح خاص', 'صالة عائلية علوية', 'تأسيس مصعد', 'موقف مظلل'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-b.webp',
     floorPlanImageUrl: '/images/shamkha/plan-b-1.webp',
     isActive: true,
   },
@@ -52,7 +52,7 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'أناقة معمارية واستغلال هندسي ذكي مع فناء إضاءة سماوية.',
     features: ['فناء إضاءة سماوية Sky Light', 'مطبخ مفتوح', 'كفاءة في استهلاك الطاقة'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-c.webp',
     floorPlanImageUrl: '/images/shamkha/plan-c-1.webp',
     isActive: true,
   },
@@ -67,7 +67,7 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'واجهتان معماريتان وإضاءة طبيعية وافرة مع كراج لسيارتين وحديقة جانبية.',
     features: ['موقع زاوية', 'حديقة جانبية', 'كراج لسيارتين', '4 أجنحة ماستر'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-d.webp',
     floorPlanImageUrl: '/images/shamkha/plan-d-1.webp',
     isActive: true,
   },
@@ -82,7 +82,7 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'حلول سكنية مدروسة للعائلات الحديثة بأعلى قيمة استثمارية.',
     features: ['أعلى قيمة مقابل السعر', 'تكلفة تشغيل منخفضة', 'نوافذ ممتدة'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-e.webp',
     floorPlanImageUrl: '/images/shamkha/plan-e-1.webp',
     isActive: true,
   },
@@ -97,25 +97,42 @@ const shamkhaModels = [
     startingPrice: 0,
     description: 'دوبلكس علوي مستقل مع روف وحوش 179 م² ممتد على 3 أدوار باستقلالية تامة.',
     features: ['مسطح 247 م² + حوش 179 م²', '3 أدوار مستقلة', 'تراس روف علوي', 'تأسيس مصعد'],
-    renderImageUrl: '/images/shamkha/hero-exterior.webp',
+    renderImageUrl: '/images/shamkha/render-f.webp',
     floorPlanImageUrl: '/images/shamkha/plan-f-1.webp',
     isActive: true,
   },
 ];
 
-const shamkhaUnits = Array.from({ length: 24 }, (_, i) => {
-  const num = i + 1;
-  const modelCode = num <= 4 ? 'A' : num <= 8 ? 'B' : num <= 12 ? 'C' : num <= 16 ? 'D' : num <= 20 ? 'E' : 'F';
-  const model = shamkhaModels.find((m) => m.code === modelCode);
+// The Official 15 Units from the Brochure (7 Ground, 8 Upper)
+const shamkha15Units = [
+  // Ground Units (7)
+  { unitCode: '118-G', model: 'A', floor: 'أرضي', facade: 'شمالية' },
+  { unitCode: '119-G', model: 'A', floor: 'أرضي', facade: 'جنوبية' },
+  { unitCode: '120-G', model: 'A', floor: 'أرضي', facade: 'شمالية' },
+  { unitCode: '128-G', model: 'C', floor: 'أرضي', facade: 'جنوبية' },
+  { unitCode: '130-G', model: 'C', floor: 'أرضي', facade: 'شمالية' },
+  { unitCode: '126-G', model: 'E', floor: 'أرضي', facade: 'جنوبية' },
+  { unitCode: '132-G', model: 'F', floor: 'أرضي', facade: 'شمالية' },
+  // Upper Units (8)
+  { unitCode: '117-U', model: 'B', floor: 'علوي', facade: 'جنوبية' },
+  { unitCode: '118-U', model: 'B', floor: 'علوي', facade: 'شمالية' },
+  { unitCode: '119-U', model: 'B', floor: 'علوي', facade: 'جنوبية' },
+  { unitCode: '120-U', model: 'B', floor: 'علوي', facade: 'شمالية' },
+  { unitCode: '126-U', model: 'D', floor: 'علوي', facade: 'جنوبية' },
+  { unitCode: '128-U', model: 'D', floor: 'علوي', facade: 'شمالية' },
+  { unitCode: '130-U', model: 'D', floor: 'علوي', facade: 'جنوبية' },
+  { unitCode: '132-U', model: 'D', floor: 'علوي', facade: 'شمالية' },
+].map((u) => {
+  const m = shamkhaModels.find((model) => model.code === u.model);
   return {
-    unitCode: `U-${String(num).padStart(2, '0')}`,
-    model: modelCode,
+    unitCode: u.unitCode,
+    model: u.model,
     type: 'townhouse',
-    area: model.area,
+    area: m.area,
     price: 0,
     status: 'available',
-    floor: num <= 12 ? 'أرضي' : 'علوي',
-    facade: num % 2 === 0 ? 'شمالية' : 'جنوبية',
+    floor: u.floor,
+    facade: u.facade,
     media: {
       images: ['/images/shamkha/hero-exterior.webp'],
       videoUrl: '',
@@ -129,21 +146,17 @@ async function seed() {
   await mongoose.connect(MONGO_URI);
   console.log('[Seed Real Shamkha] Connected.');
 
-  // 1. Clear ONLY demo units and demo models
   console.log('[Seed Real Shamkha] Clearing units and models...');
   await Unit.deleteMany({});
   await PropertyModel.deleteMany({});
   await Lead.deleteMany({ notes: /تجريبي|demo/i });
 
-  // 2. Insert Models
   console.log('[Seed Real Shamkha] Seeding 6 Official Models (A to F)...');
   await PropertyModel.insertMany(shamkhaModels);
 
-  // 3. Insert Units
-  console.log('[Seed Real Shamkha] Seeding 24 Official Units...');
-  await Unit.insertMany(shamkhaUnits);
+  console.log('[Seed Real Shamkha] Seeding 15 Official Units (7 Ground, 8 Upper)...');
+  await Unit.insertMany(shamkha15Units);
 
-  // 4. Update Site Settings
   console.log('[Seed Real Shamkha] Updating Site Settings...');
   const settingsData = {
     projectName: 'تاون هاوس الشامخة — الدمام',
@@ -169,7 +182,7 @@ async function seed() {
       { url: '/images/shamkha/interior-3.webp', title: 'جناح الماستر الرئيسي', category: 'interior' },
       { url: '/images/shamkha/interior-4.webp', title: 'المطبخ وتوزيع المساحات', category: 'interior' },
       { url: '/images/shamkha/interior-5.webp', title: 'الإطلالات وجلسة السطح', category: 'interior' },
-      { url: '/images/shamkha/masterplan.webp', title: 'المخطط العام للـ 24 وحدة', category: 'masterplan' },
+      { url: '/images/shamkha/masterplan.webp', title: 'المخطط العام للـ 15 وحدة', category: 'masterplan' },
     ],
     visibleSections: {
       gallery: true, models: true, unitMatrix: true, location: true,
@@ -185,7 +198,7 @@ async function seed() {
     await SiteSettings.create(settingsData);
   }
 
-  console.log('[Seed Real Shamkha] Finished successfully!');
+  console.log('[Seed Real Shamkha] Seeded 15 real units and official models successfully!');
   await mongoose.disconnect();
   process.exit(0);
 }

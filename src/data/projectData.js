@@ -34,7 +34,7 @@ export const hero = {
   ctaSecondary: 'تواصل واتساب مباشرة',
   bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85',
   metrics: [
-    { label: 'إجمالي الوحدات', value: '24 وحدة', sub: 'دوبلكس مستقل' },
+    { label: 'إجمالي الوحدات', value: '15 وحدة', sub: 'دوبلكس مستقل' },
     { label: 'تنوع النماذج', value: '6 نماذج', sub: 'من نموذج A إلى F' },
     { label: 'المساحات المتوفرة', value: '227–427 م²', sub: 'أرضي وحوش وروف' },
     { label: 'الاستقلالية', value: '100%', sub: 'مدخل وكراج وخزان مستقل' },
@@ -63,7 +63,7 @@ export const about = {
   stats: [
     { num: '100%', label: 'استقلالية المرافق والخزانات', sub: 'عداد وكراج وخزان مستقل' },
     { num: '6', label: 'نماذج معمارية متنوعة', sub: 'من نموذج A إلى F' },
-    { num: '24', label: 'وحدة دوبلكس متكاملة', sub: 'بحي حديقة الأثير' },
+    { num: '15', label: 'وحدة دوبلكس متكاملة', sub: 'بحي حديقة الأثير' },
   ],
   image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
   imageCaption: 'الواجهة بالحجر الطبيعي وزجاج استركتشر — تشطيبات تعزل الحرارة وتتحمل الأجواء الساحلية',

@@ -18,18 +18,16 @@ export default function UnitMatrix({ onSelectUnit }) {
       .then((res) => {
         if (isMounted) {
           if (res?.data && Array.isArray(res.data)) {
-            const mapped = res.data.map((dbUnit) => {
-              const rawId = dbUnit.unitCode?.replace('U-', '');
-              const numId = parseInt(rawId, 10);
-              return {
-                id: isNaN(numId) ? dbUnit.unitCode : numId,
-                unitCode: dbUnit.unitCode,
-                model: dbUnit.model,
-                area: dbUnit.area,
-                price: dbUnit.price,
-                status: dbUnit.status,
-              };
-            });
+            const mapped = res.data.map((dbUnit) => ({
+              id: dbUnit.unitCode || dbUnit._id,
+              unitCode: dbUnit.unitCode,
+              model: dbUnit.model,
+              area: dbUnit.area,
+              price: dbUnit.price,
+              status: dbUnit.status,
+              floor: dbUnit.floor,
+              facade: dbUnit.facade,
+            }));
             setUnitList(mapped);
           } else {
             setUnitList([]);
@@ -63,7 +61,7 @@ export default function UnitMatrix({ onSelectUnit }) {
   }, [unitList, statusFilter, modelFilter]);
 
   const notifyWaitlist = (unit) => {
-    const code = unit.unitCode || `U-${unit.id}`;
+    const code = unit.unitCode || unit.id;
     const waUrl = `https://api.whatsapp.com/send?phone=${brand.whatsapp}&text=${encodeURIComponent(
       `السلام عليكم، أرغب في تسجيلي بقائمة الانتظار للوحدة (${code}) نموذج ${unit.model} بمشروع تاون هاوس الشامخة بالدمام.`
     )}`;
@@ -80,7 +78,7 @@ export default function UnitMatrix({ onSelectUnit }) {
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">تحديث فوري ومباشر</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading">
-              مصفوفة الـ 24 وحدة — تاون هاوس الشامخة
+              مصفوفة الوحدات السكنية ({unitList.length} وحدة) — تاون هاوس الشامخة
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
               اختر وحدتك واستكشف المخطط الهندسي وأبعاد مسطحات البناء المعتمدة.
@@ -161,8 +159,8 @@ export default function UnitMatrix({ onSelectUnit }) {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-1.5">
-                        <span className="w-7 h-7 rounded-lg bg-slate-900 text-amber-400 font-heading font-black text-xs flex items-center justify-center">
-                          {u.id}
+                        <span className="px-2 py-0.5 rounded-lg bg-slate-900 text-amber-400 font-mono font-bold text-xs flex items-center justify-center">
+                          {u.unitCode || u.id}
                         </span>
                         <span className="text-xs font-bold text-slate-900 font-heading">نموذج {u.model}</span>
                       </div>

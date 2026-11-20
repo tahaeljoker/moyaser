@@ -146,7 +146,7 @@ export default function SiteSettingsManager() {
             {[
               { id: 'gallery', label: 'معرض الصور' },
               { id: 'models', label: 'النماذج المعمارية' },
-              { id: 'unitMatrix', label: 'جدول الـ 24 وحدة' },
+              { id: 'unitMatrix', label: 'مصفوفة الوحدات السكنية' },
               { id: 'location', label: 'الموقع والمسافات' },
               { id: 'specs', label: 'المواصفات الفنية' },
               { id: 'guarantees', label: 'الضمانات والتأمين' },
