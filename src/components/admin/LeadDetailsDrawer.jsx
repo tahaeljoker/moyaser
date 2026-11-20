@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { X, Phone, MessageCircle, Save, CheckCircle2, AlertCircle, Building2, Calendar, DollarSign, ShieldCheck } from 'lucide-react';
+import { X, Phone, MessageCircle, Save, CheckCircle2, AlertCircle, Building2, Calendar, DollarSign, ShieldCheck, AlertTriangle } from 'lucide-react';
 import LeadActivityLog from './LeadActivityLog.jsx';
+import WhatsAppTemplatesBar from './WhatsAppTemplatesBar.jsx';
 import { addLeadActivity } from '../../services/api.js';
 
 const banks = ['الراجحي', 'الأهلي', 'الإنماء', 'الرياض', 'البلاد', 'ساب', 'نقدي / كاش', 'أخرى'];
+const cancelReasons = ['السعر', 'رفض البنك', 'الموقع', 'لا يرد', 'أخرى'];
 
 const initialForm = (lead) => ({
   stage: lead?.stage || 'prospective',
+  cancellationReason: lead?.cancellationReason || '',
   source: lead?.source || 'website',
   assignedAgent: lead?.assignedAgent?._id || lead?.assignedAgent || '',
   nextFollowUpDate: lead?.nextFollowUpDate ? lead.nextFollowUpDate.split('T')[0] : '',
@@ -30,31 +33,33 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
 
   useEffect(() => { setForm(initialForm(lead)); }, [lead]);
 
+  const isReservationExpired = lead.stage === 'reserved' && !lead.financing?.depositPaid && lead.reservationExpiresAt && new Date(lead.reservationExpiresAt) < new Date();
+
   const handleSaveDetails = async (e) => {
     e?.preventDefault();
     setSavingDetails(true);
     setStatusMsg({ type: null, text: null });
     try {
       await onUpdateLead(lead._id, {
-        stage: form.stage, source: form.source,
+        stage: form.stage,
+        cancellationReason: form.stage === 'cancelled' ? (form.cancellationReason || 'أخرى') : null,
+        source: form.source,
         assignedAgent: isAdmin ? (form.assignedAgent || null) : undefined,
-        nextFollowUpDate: form.nextFollowUpDate || null, notes: form.notes,
+        nextFollowUpDate: form.nextFollowUpDate || null,
+        notes: form.notes,
         financing: {
           bankName: form.bankName, depositPaid: form.depositPaid,
           depositAmount: Number(form.depositAmount) || 0,
           expectedDeedDate: form.expectedDeedDate || null,
         },
         handover: {
-          status: form.handoverStatus,
-          finalPrice: Number(form.finalPrice) || 0,
-          deliveredAt: form.deliveredAt || null,
+          status: form.handoverStatus, finalPrice: Number(form.finalPrice) || 0, deliveredAt: form.deliveredAt || null,
         },
       });
       setStatusMsg({ type: 'success', text: 'تم حفظ تفاصيل الطلب بنجاح.' });
       setTimeout(() => setStatusMsg({ type: null, text: null }), 3000);
-    } catch (err) {
-      setStatusMsg({ type: 'error', text: err.message || 'فشل حفظ التعديلات.' });
-    } finally { setSavingDetails(false); }
+    } catch (err) { setStatusMsg({ type: 'error', text: err.message || 'فشل حفظ التعديلات.' }); }
+    finally { setSavingDetails(false); }
   };
 
   const handleAddActivity = async (note, nextDate) => {
@@ -71,7 +76,7 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
 
   const openWhatsApp = () => {
     const digits = lead.phone.replace(/\D/g, '').replace(/^0/, '966');
-    window.open(`https://wa.me/${digits}?text=${encodeURIComponent(`السلام عليكم أستاذ ${lead.fullName}، بخصوص طلبك (${lead.ticketNumber}) لدى شركة مُيسّر للتطوير العقاري.`)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(`السلام عليكم أستاذ ${lead.fullName}، بخصوص طلبك (${lead.ticketNumber}) لدى شركة مُيسّر للتطوير العقاري.`)}`, '_blank');
   };
 
   return (
@@ -85,29 +90,34 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
             </div>
             <p className="text-[11px] text-slate-500 font-mono mt-0.5" dir="ltr">{lead.phone}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" aria-label="إغلاق">
-            <X className="w-5 h-5" />
-          </button>
+          <button onClick={onClose} className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition" aria-label="إغلاق"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs">
           {statusMsg.text && (
-            <div className={`p-2.5 rounded-xl text-xs font-medium border flex items-center gap-2 ${
-              statusMsg.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-700'
-            }`}>
+            <div className={`p-2.5 rounded-xl text-xs font-medium border flex items-center gap-2 ${statusMsg.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>
               {statusMsg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-700" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
               <span>{statusMsg.text}</span>
             </div>
           )}
 
+          {isReservationExpired && (
+            <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-2 font-medium">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>تنبيه: انتهت مهلة الحجز المحددة (7 أيام) دون تأكيد سداد العربون. يرجى المتابعة مع العميل أو تحرير الوحدة.</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-2">
             <button onClick={openWhatsApp} className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold flex items-center justify-center gap-1.5 transition">
-              <MessageCircle className="w-4 h-4" /><span>محادثة واتساب</span>
+              <MessageCircle className="w-4 h-4" /><span>محادثة مباشرة</span>
             </button>
             <a href={`tel:${lead.phone}`} className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold flex items-center justify-center gap-1.5 transition text-center">
               <Phone className="w-4 h-4 text-slate-500" /><span>اتصال هاتفي</span>
             </a>
           </div>
+
+          <WhatsAppTemplatesBar lead={lead} />
 
           <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <h3 className="font-bold text-slate-800 flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5 text-emerald-800" /><span>بيانات الطلب الأساسية</span></h3>
@@ -118,6 +128,7 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
                   <option value="prospective">استفسار</option>
                   <option value="reserved">حجز (بانتظار البنك)</option>
                   <option value="closed">تم الشراء</option>
+                  <option value="cancelled">ملغي</option>
                 </select>
               </div>
               <div>
@@ -130,6 +141,16 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
                 </select>
               </div>
             </div>
+
+            {form.stage === 'cancelled' && (
+              <div>
+                <label className="block text-rose-700 mb-1 font-bold">سبب الإلغاء</label>
+                <select value={form.cancellationReason} onChange={(e) => setForm({ ...form, cancellationReason: e.target.value })} className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-rose-300 text-rose-900 focus:outline-none focus:ring-1 focus:ring-rose-600">
+                  <option value="">اختر سبب الإلغاء...</option>
+                  {cancelReasons.map((r) => (<option key={r} value={r}>{r}</option>))}
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-2.5">
               <div>

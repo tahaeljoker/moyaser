@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const saudiPhoneRegex = /^05[0-9]{8}$/;
+const internationalPhoneRegex = /^\+?[1-9]\d{7,14}$/;
 
 const leadSchema = new mongoose.Schema(
   {
@@ -23,9 +23,9 @@ const leadSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: function (v) {
-          return saudiPhoneRegex.test(v);
+          return internationalPhoneRegex.test(String(v || '').replace(/[\s\-()]/g, ''));
         },
-        message: 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.',
+        message: 'رقم الجوال يجب أن يكون رقماً دولياً صالحاً من 8 إلى 15 رقماً.',
       },
       index: true,
     },
@@ -58,9 +58,18 @@ const leadSchema = new mongoose.Schema(
     stage: {
       type: String,
       required: true,
-      enum: ['prospective', 'reserved', 'closed'],
+      enum: ['prospective', 'reserved', 'closed', 'cancelled'],
       default: 'prospective',
       index: true,
+    },
+    cancellationReason: {
+      type: String,
+      enum: ['السعر', 'رفض البنك', 'الموقع', 'لا يرد', 'أخرى', null],
+      default: null,
+    },
+    reservationExpiresAt: {
+      type: Date,
+      default: null,
     },
     assignedAgent: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     assignedAgentName: { type: String, default: null, trim: true },

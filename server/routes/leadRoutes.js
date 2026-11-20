@@ -8,7 +8,7 @@ import { leadSubmissionLimiter } from '../middleware/rateLimiter.js';
 import { sendLeadNotifications } from '../services/whatsappService.js';
 
 const router = Router();
-const saudiPhoneRegex = /^05[0-9]{8}$/;
+const intlPhoneRegex = /^\+?[1-9]\d{7,14}$/;
 
 const getNextSalesAgent = async () => {
   try {
@@ -18,22 +18,35 @@ const getNextSalesAgent = async () => {
   return null;
 };
 
-// POST /api/leads (Public Lead Capture)
+// POST /api/leads (Public Lead Capture with Duplicate Detection)
 router.post('/leads', leadSubmissionLimiter, async (req, res) => {
   try {
     const { fullName, phone, unitCode, requestType, visitDate, visitTime, preferredTime, paymentMethod, notes, source } = req.body;
     if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 3) {
       return res.status(400).json({ success: false, message: 'يرجى إدخال الاسم الثلاثي الكريم (3 أحرف على الأقل).' });
     }
-    const cleanPhone = String(phone || '').trim().replace(/[\s-]/g, '');
-    if (!saudiPhoneRegex.test(cleanPhone)) {
-      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.' });
+    const cleanPhone = String(phone || '').trim().replace(/[\s\-()]/g, '');
+    if (!intlPhoneRegex.test(cleanPhone)) {
+      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون رقماً دولياً صالحاً من 8 إلى 15 رقماً.' });
+    }
+
+    const cleanUnit = unitCode ? unitCode.toUpperCase().trim() : null;
+    const existingLead = await Lead.findOne({ phone: cleanPhone, stage: { $ne: 'cancelled' } }).sort({ createdAt: -1 });
+    if (existingLead) {
+      const noteMsg = `طلب استفسار إضافي عبر الموقع${cleanUnit ? ` للوحدة ${cleanUnit}` : ''}${notes ? `: ${notes}` : ''}`;
+      existingLead.activityLog.push({ note: noteMsg, authorName: 'النظام الآلي', authorRole: 'system', createdAt: new Date() });
+      await existingLead.save();
+      return res.status(200).json({
+        success: true,
+        isDuplicate: true,
+        message: `لديك طلب سابق مسجل برقم (${existingLead.ticketNumber})${existingLead.assignedAgentName ? ` مع المستشار ${existingLead.assignedAgentName}` : ''}. تم تسجيل استفسارك الجديد بسجل المتابعة وسيتم التواصل معك قريباً.`,
+        data: existingLead,
+      });
     }
 
     const assignedUser = await getNextSalesAgent();
     const lead = new Lead({
-      fullName: fullName.trim(), phone: cleanPhone,
-      unitCode: unitCode ? unitCode.toUpperCase().trim() : null,
+      fullName: fullName.trim(), phone: cleanPhone, unitCode: cleanUnit,
       requestType: ['booking', 'inspection', 'waitlist'].includes(requestType) ? requestType : 'inspection',
       source: ['website', 'walk_in', 'phone', 'whatsapp'].includes(source) ? source : 'website',
       visitDate: visitDate ? String(visitDate).trim() : null,
@@ -54,17 +67,30 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
   }
 });
 
-// POST /api/admin/leads (Staff Walk-in / Phone Call Lead Entry)
+// POST /api/admin/leads (Staff Entry with Duplicate Check)
 router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
     const { fullName, phone, unitCode, stage, notes, source, nextFollowUpDate, preferredTime } = req.body;
     if (!fullName || !phone) return res.status(400).json({ success: false, message: 'الاسم ورقم الجوال مطلوبان.' });
-    const cleanPhone = String(phone).trim().replace(/[\s-]/g, '');
-    if (!saudiPhoneRegex.test(cleanPhone)) return res.status(400).json({ success: false, message: 'رقم الجوال غير صحيح.' });
+    const cleanPhone = String(phone).trim().replace(/[\s\-()]/g, '');
+    if (!intlPhoneRegex.test(cleanPhone)) return res.status(400).json({ success: false, message: 'رقم الجوال غير صحيح.' });
+
+    const cleanUnit = unitCode ? unitCode.toUpperCase().trim() : null;
+    const existingLead = await Lead.findOne({ phone: cleanPhone, stage: { $ne: 'cancelled' } }).sort({ createdAt: -1 });
+    if (existingLead) {
+      const noteMsg = `تسجيل زيارة/اتصال إضافي بواسطة ${req.user.name || 'الموظف'}${cleanUnit ? ` للوحدة ${cleanUnit}` : ''}${notes ? `: ${notes}` : ''}`;
+      existingLead.activityLog.push({ note: noteMsg, authorName: req.user.name || 'موظف', authorRole: req.user.role || 'staff', createdAt: new Date() });
+      await existingLead.save();
+      return res.status(200).json({
+        success: true,
+        isDuplicate: true,
+        message: `العميل مسجل مسبقاً برقم تذكرة (${existingLead.ticketNumber}). تمت إضافة الملاحظة لملف العميل القائم.`,
+        data: existingLead,
+      });
+    }
 
     const assignedUser = req.user.role === 'sales' ? { _id: req.user.id, name: req.user.name, phone: req.user.phone } : await getNextSalesAgent();
-    const leadStage = ['prospective', 'reserved', 'closed'].includes(stage) ? stage : 'prospective';
-    const cleanUnit = unitCode ? unitCode.toUpperCase().trim() : null;
+    const leadStage = ['prospective', 'reserved', 'closed', 'cancelled'].includes(stage) ? stage : 'prospective';
 
     const lead = new Lead({
       fullName: fullName.trim(), phone: cleanPhone, unitCode: cleanUnit, requestType: 'inspection',
@@ -72,6 +98,7 @@ router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'r
       stage: leadStage, notes: notes ? String(notes).trim().slice(0, 1000) : 'تسجيل زيارة مكتبية / اتصال مباشر',
       preferredTime: preferredTime ? String(preferredTime).trim() : null,
       nextFollowUpDate: nextFollowUpDate ? new Date(nextFollowUpDate) : null,
+      reservationExpiresAt: leadStage === 'reserved' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : null,
       assignedAgent: assignedUser ? assignedUser._id : null, assignedAgentName: assignedUser ? assignedUser.name : null,
     });
 
@@ -93,7 +120,7 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
     const { stage, unitCode, search } = req.query;
     const filter = {};
     if (req.user.role === 'sales') filter.assignedAgent = req.user.id;
-    if (stage && ['prospective', 'reserved', 'closed'].includes(stage)) filter.stage = stage;
+    if (stage && ['prospective', 'reserved', 'closed', 'cancelled'].includes(stage)) filter.stage = stage;
     if (unitCode) filter.unitCode = unitCode.toUpperCase().trim();
     if (search) {
       const q = String(search).trim();
@@ -106,7 +133,7 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
       Lead.aggregate([...matchStage, { $group: { _id: '$stage', count: { $sum: 1 } } }]),
     ]);
 
-    const summary = { prospective: 0, reserved: 0, closed: 0, total: 0 };
+    const summary = { prospective: 0, reserved: 0, closed: 0, cancelled: 0, total: 0 };
     counts.forEach((c) => { if (summary[c._id] !== undefined) summary[c._id] = c.count; summary.total += c.count; });
     res.json({ success: true, summary, count: leads.length, data: leads });
   } catch (error) {
@@ -118,7 +145,7 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
 // PATCH /api/admin/leads/:id (Protected)
 router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { stage, assignedAgent, notes, source, nextFollowUpDate, preferredTime, financing, handover } = req.body;
+    const { stage, cancellationReason, reservationExpiresAt, assignedAgent, notes, source, nextFollowUpDate, preferredTime, financing, handover } = req.body;
     const lead = await Lead.findById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, message: 'طلب العميل غير موجود.' });
 
@@ -126,18 +153,28 @@ router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin
       return res.status(403).json({ success: false, message: 'غير مصرح بتعديل طلب غير مسند إليك.' });
     }
 
-    if (stage && ['prospective', 'reserved', 'closed'].includes(stage)) {
+    if (stage && ['prospective', 'reserved', 'closed', 'cancelled'].includes(stage)) {
+      const prevStage = lead.stage;
       lead.stage = stage;
+      if (stage === 'reserved' && !lead.reservationExpiresAt) {
+        lead.reservationExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      }
       if (lead.unitCode) {
         if (stage === 'reserved') await Unit.updateOne({ unitCode: lead.unitCode }, { $set: { status: 'reserved' } });
         else if (stage === 'closed') await Unit.updateOne({ unitCode: lead.unitCode }, { $set: { status: 'sold' } });
-        else if (stage === 'prospective') {
+        else if (['prospective', 'cancelled'].includes(stage) && ['reserved', 'closed'].includes(prevStage)) {
           const other = await Lead.findOne({ _id: { $ne: lead._id }, unitCode: lead.unitCode, stage: 'reserved' });
           if (!other) await Unit.updateOne({ unitCode: lead.unitCode }, { $set: { status: 'available' } });
         }
       }
     }
 
+    if (cancellationReason !== undefined) {
+      lead.cancellationReason = ['السعر', 'رفض البنك', 'الموقع', 'لا يرد', 'أخرى'].includes(cancellationReason) ? cancellationReason : null;
+    }
+    if (reservationExpiresAt !== undefined) {
+      lead.reservationExpiresAt = reservationExpiresAt ? new Date(reservationExpiresAt) : null;
+    }
     if (source && ['website', 'walk_in', 'phone', 'whatsapp'].includes(source)) lead.source = source;
     if (preferredTime !== undefined) lead.preferredTime = preferredTime ? String(preferredTime).trim() : null;
     if (nextFollowUpDate !== undefined) lead.nextFollowUpDate = nextFollowUpDate ? new Date(nextFollowUpDate) : null;

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, MessageCircle, FileText, UserCheck, UserPlus, Clock, Download } from 'lucide-react';
+import { Search, MessageCircle, FileText, UserCheck, UserPlus, Clock, Download, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { fetchAdminUsers } from '../../services/api.js';
 import { exportToCsv } from '../../utils/exportCsv.js';
@@ -10,6 +10,7 @@ const stageBadges = {
   prospective: 'bg-sky-50 text-sky-800 border-sky-200',
   reserved: 'bg-amber-50 text-amber-800 border-amber-200',
   closed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  cancelled: 'bg-slate-100 text-slate-700 border-slate-300',
 };
 
 const getFollowUpStatus = (dateStr) => {
@@ -25,7 +26,7 @@ const getFollowUpStatus = (dateStr) => {
 };
 
 const sourceMap = { website: 'الموقع الإلكتروني', walk_in: 'زيارة للمكتب', phone: 'اتصال هاتفي', whatsapp: 'محادثة واتساب' };
-const stageMap = { prospective: 'استفسار', reserved: 'حجز (بانتظار البنك)', closed: 'تم الشراء' };
+const stageMap = { prospective: 'استفسار', reserved: 'حجز (بانتظار البنك)', closed: 'تم الشراء', cancelled: 'ملغي' };
 const handoverMap = { pending_deed: 'بانتظار الإفراغ', preparing_unit: 'تجهيز الوحدة', delivered: 'تم التسليم للعميل' };
 
 export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
@@ -78,8 +79,9 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
 
   const openWhatsApp = (e, phone, ticket, name) => {
     e.stopPropagation();
-    const digits = phone.replace(/\D/g, '').replace(/^0/, '966');
-    window.open(`https://wa.me/${digits}?text=${encodeURIComponent(`السلام عليكم أستاذ ${name}، بخصوص طلبك (${ticket}) لدى شركة مُيسّر للتطوير العقاري.`)}`, '_blank');
+    const cleanDigits = phone.replace(/\D/g, '');
+    const digits = cleanDigits.startsWith('05') && cleanDigits.length === 10 ? `966${cleanDigits.slice(1)}` : (cleanDigits.startsWith('5') && cleanDigits.length === 9 ? `966${cleanDigits}` : cleanDigits);
+    window.open(`https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(`السلام عليكم أستاذ ${name}، بخصوص طلبك (${ticket}) لدى شركة مُيسّر للتطوير العقاري.`)}`, '_blank');
   };
 
   const hasFilterOrSearch = activeStage !== 'all' || searchQuery.trim().length > 0;
@@ -115,6 +117,7 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
           { id: 'prospective', label: 'استفسار', count: leads.filter((l) => l.stage === 'prospective').length },
           { id: 'reserved', label: 'حجز (بانتظار البنك)', count: leads.filter((l) => l.stage === 'reserved').length },
           { id: 'closed', label: 'تم الشراء', count: leads.filter((l) => l.stage === 'closed').length },
+          { id: 'cancelled', label: 'ملغي', count: leads.filter((l) => l.stage === 'cancelled').length },
         ].map((tab) => (
           <button key={tab.id} onClick={() => setActiveStage(tab.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${activeStage === tab.id ? 'bg-emerald-800 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
             <span>{tab.label}</span>
@@ -144,6 +147,7 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
             <tbody className="divide-y divide-slate-100 bg-white">
               {filteredLeads.map((lead) => {
                 const followUp = getFollowUpStatus(lead.nextFollowUpDate);
+                const isExpired = lead.stage === 'reserved' && !lead.financing?.depositPaid && lead.reservationExpiresAt && new Date(lead.reservationExpiresAt) < new Date();
                 return (
                   <tr key={lead._id} onClick={() => setSelectedLead(lead)} className="hover:bg-slate-50/80 transition cursor-pointer">
                     <td className="py-3 px-3 whitespace-nowrap">
@@ -163,7 +167,14 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
                       </span>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border inline-block ${stageBadges[lead.stage]}`}>{stageMap[lead.stage] || lead.stage}</span>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border inline-block ${stageBadges[lead.stage]}`}>{stageMap[lead.stage] || lead.stage}</span>
+                        {isExpired && (
+                          <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300 text-[10px] font-bold inline-flex items-center gap-1" title="انتهت مهلة الـ 7 أيام دون سداد العربون">
+                            <AlertTriangle className="w-3 h-3 text-rose-700" /><span>انتهت مدة الحجز</span>
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       {followUp ? (

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { UserPlus, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { fetchAdminUsers, createAdminUser, updateAdminUser } from '../../services/api.js';
+import PhoneInputWithCountry from '../ui/PhoneInputWithCountry.jsx';
 
 const ROLE_BADGES = {
   super_admin: { label: 'مالك النظام', cls: 'bg-purple-50 text-purple-800 border-purple-200' },
@@ -21,7 +22,7 @@ export default function UsersManager() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'sales' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '+966', password: '', role: 'sales' });
 
   const loadUsers = async () => {
     try {
@@ -62,11 +63,12 @@ export default function UsersManager() {
     try {
       setActionLoading(true);
       setError(null);
-      const res = await createAdminUser(form);
+      const cleanPhone = form.phone ? String(form.phone).replace(/[\s\-()]/g, '') : null;
+      const res = await createAdminUser({ ...form, phone: cleanPhone });
       if (res?.user) {
         setUsers((prev) => [res.user, ...prev]);
         setShowAddModal(false);
-        setForm({ name: '', email: '', phone: '', password: '', role: 'sales' });
+        setForm({ name: '', email: '', phone: '+966', password: '', role: 'sales' });
         setSuccess('تم إنشاء الحساب بنجاح.');
         setTimeout(() => setSuccess(null), 3000);
       }
@@ -181,8 +183,8 @@ export default function UsersManager() {
                 <input type="email" required dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="user@muyassar-ra.com" className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-800 text-left" />
               </div>
               <div>
-                <label className="text-slate-700 font-bold block mb-1">رقم الجوال (إشعارات واتساب)</label>
-                <input type="text" dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="05XXXXXXXX" className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-800 font-mono text-left" />
+                <label className="text-slate-700 font-bold block mb-1">رقم الجوال (واتساب)</label>
+                <PhoneInputWithCountry value={form.phone} onChange={(p) => setForm({ ...form, phone: p })} />
               </div>
               <div>
                 <label className="text-slate-700 font-bold block mb-1">كلمة المرور المؤقتة *</label>

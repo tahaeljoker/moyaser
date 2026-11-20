@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { CheckCircle2, Clock } from 'lucide-react';
 import { brand, properties } from '../../data/projectData.js';
 import { createLead } from '../../services/api.js';
+import PhoneInputWithCountry from '../ui/PhoneInputWithCountry.jsx';
 
 const fmt = (n) => new Intl.NumberFormat('en-US').format(n);
 
 export default function BookingForm({ onBookingSuccess, onShowToast }) {
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+966');
   const [propertyId, setPropertyId] = useState('');
   const [preferredTime, setPreferredTime] = useState('عصراً');
   const [payment, setPayment] = useState('تمويل بنكي مدعوم / مرابحة عقارية');
@@ -22,9 +23,9 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
       return;
     }
 
-    const cleanPhone = phone.trim().replace(/[\s-]/g, '');
-    if (!cleanPhone || !/^0?5[0-9]{8}$/.test(cleanPhone)) {
-      onShowToast('يرجى إدخال رقم جوال سعودي صالح (مثال: 0500550223).', 'error');
+    const cleanPhone = String(phone || '').trim().replace(/[\s\-()]/g, '');
+    if (!cleanPhone || !/^\+?[1-9]\d{7,14}$/.test(cleanPhone)) {
+      onShowToast('يرجى إدخال رقم جوال دولي صالح من 8 إلى 15 رقماً.', 'error');
       return;
     }
 
@@ -49,6 +50,9 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
       if (res?.data?.ticketNumber) {
         ticket = res.data.ticketNumber;
       }
+      if (res?.isDuplicate) {
+        onShowToast(res.message, 'info');
+      }
     } catch (err) {
       console.warn('[BookingForm] API sync fallback:', err.message);
     } finally {
@@ -59,129 +63,151 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
       ticket,
       name: name.trim(),
       phone: cleanPhone,
-      unitId: propertyId || 'غير محدد',
-      paymentMethod: payment,
+      property: propLabel,
       preferredTime,
+      paymentMethod: payment,
+      timestamp: new Date().toLocaleDateString('ar-SA', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
     };
 
     onBookingSuccess(bookingPayload);
   };
 
   return (
-    <section id="booking-section" className="bg-slate-900 text-white py-16 sm:py-20 lg:py-24 relative overflow-hidden">
+    <section id="booking-section" className="py-20 bg-slate-900 relative overflow-hidden" dir="rtl">
+      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-30" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 bg-amber-950/70 px-3.5 py-1 rounded-full border border-amber-800/80 mb-2.5">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>طلب معاينة وحجز رسمي</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black font-heading tracking-tight text-white">
-            احجز موعد معاينة أو استفسر عن الوحدات
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-amber-400 font-bold tracking-wider text-xs uppercase bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+            خطوة نحو الاستقرار
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3 font-heading">
+            احجز استشارتك أو وحدتك في تاون هاوس الشامخة
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-            سيتواصل معك مستشار المبيعات المعتمد لتأكيد الموعد وتقديم المشورة التمويلية.
+          <p className="text-slate-400 mt-2 text-xs sm:text-sm">
+            فريق مُيسّر للتطوير العقاري مستعد لتسهيل إجراءات التملك والتمويل البنكي المتوافق مع الشريعة.
           </p>
         </div>
 
-        <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-md">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">الاسم الكريم *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: محمد بن سعد العتيبي"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">رقم الجوال *</label>
-                <input
-                  type="tel"
-                  required
-                  dir="ltr"
-                  placeholder="05XXXXXXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600 font-mono text-left"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">العقار أو المشروع المطلوب</label>
-                <select
-                  value={propertyId}
-                  onChange={(e) => setPropertyId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                >
-                  <option value="">مشروع تاون هاوس الشامخة (الدمام)</option>
-                  {properties.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title} — {p.cityDistrict} ({fmt(p.price)} ر.س)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>الوقت المفضل للاتصال</span>
-                </label>
-                <select
-                  value={preferredTime}
-                  onChange={(e) => setPreferredTime(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                >
-                  <option value="صباحاً">صباحاً (9:00 ص - 12:00 م)</option>
-                  <option value="عصراً">عصراً (4:00 م - 6:30 م)</option>
-                  <option value="مساءً">مساءً (6:30 م - 9:00 م)</option>
-                </select>
-              </div>
-            </div>
-
+        <form onSubmit={handleSubmit} className="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-md space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">خيار الشراء والتمويل المفضل</label>
-              <select
-                value={payment}
-                onChange={(e) => setPayment(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
-              >
-                <option value="تمويل بنكي مدعوم / مرابحة عقارية">تمويل بنكي مدعوم / مرابحة عقارية (سكني)</option>
-                <option value="سداد نقدي / كاش مباشر">سداد نقدي / كاش مباشر</option>
-                <option value="تمويل تجاري / جهات معتمدة">تمويل تجاري / جهات معتمدة</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">ملاحظات أو استفسارات إضافية</label>
-              <textarea
-                rows={2}
-                placeholder="أي استفسار يخص الدفعة الأولى أو رغبة في تفاصيل نموذج معين..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-600 resize-none"
+              <label className="block text-xs font-bold text-slate-300 mb-2">الاسم الثلاثي الكريم *</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="مثال: محمد بن سعد القحطاني"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400"
               />
             </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{isSubmitting ? 'جاري إرسال الطلب...' : 'إرسال طلب الحجز والمعاينة'}</span>
-              </button>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-2">رقم الجوال (واتساب) *</label>
+              <PhoneInputWithCountry
+                value={phone}
+                onChange={setPhone}
+                required
+                className="bg-slate-900/80 border-slate-700 text-slate-100"
+              />
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-2">الوحدة أو النموذج المرغوب</label>
+              <select
+                value={propertyId}
+                onChange={(e) => setPropertyId(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-400"
+              >
+                <option value="">استشارة عامة لكافة النماذج المتاحة</option>
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title} — {p.cityDistrict} ({p.area})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-2">الوقت المفضل للتواصل</label>
+              <div className="grid grid-cols-3 gap-2">
+                {['صباحاً (9 - 12)', 'ظهراً (1 - 4)', 'عصراً (4 - 9)'].map((time) => (
+                  <button
+                    key={time}
+                    type="button"
+                    onClick={() => setPreferredTime(time.split(' ')[0])}
+                    className={`py-2 px-1 text-center rounded-xl text-xs font-medium border transition ${
+                      preferredTime === time.split(' ')[0]
+                        ? 'bg-amber-400/20 text-amber-300 border-amber-400/60 font-bold'
+                        : 'bg-slate-900/50 text-slate-400 border-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {time.split(' ')[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-2">آلية الشراء المفضلة</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                'تمويل بنكي مدعوم / مرابحة عقارية',
+                'دفع نقدي كامل (كاش)',
+                'دفعات ميسرة مع المطور',
+              ].map((opt) => (
+                <label
+                  key={opt}
+                  className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs transition ${
+                    payment === opt
+                      ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-300'
+                      : 'bg-slate-900/40 border-slate-700 text-slate-400 hover:text-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={opt}
+                    checked={payment === opt}
+                    onChange={(e) => setPayment(e.target.value)}
+                    className="text-emerald-500 focus:ring-0"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-2">ملاحظات أو استفسارات إضافية</label>
+            <textarea
+              rows="3"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="هل لديك بنك مفضل، أو تفاصيل خاصة بتمويل سكني؟"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400 resize-none"
+            />
+          </div>
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition disabled:opacity-60"
+            >
+              {isSubmitting ? 'جاري إرسال الطلب...' : 'تأكيد إرسال الطلب وحجز موعد استشارة'}
+            </button>
+            <p className="text-center text-[11px] text-slate-400 mt-3">
+              معلوماتك محمية ومشفرة وفق أعلى معايير الخصوصية السعودية.
+            </p>
+          </div>
+        </form>
       </div>
     </section>
   );

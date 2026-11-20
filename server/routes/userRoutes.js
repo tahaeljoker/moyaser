@@ -6,6 +6,7 @@ import { verifyToken, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 const ALLOWED_ROLES = ['super_admin', 'admin', 'editor', 'receptionist', 'sales'];
+const intlPhoneRegex = /^\+?[1-9]\d{7,14}$/;
 
 // Require admin or super_admin authentication for all user management routes
 router.use(verifyToken, requireRole(['admin']));
@@ -36,7 +37,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/admin/users - Create new team member (super_admin, admin, editor, receptionist, sales)
+// POST /api/admin/users - Create new team member
 router.post('/', async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
@@ -49,11 +50,11 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, message: 'كلمة المرور يجب أن لا تقل عن 6 أحرف.' });
     }
 
-    if (phone && !/^05[0-9]{8}$/.test(phone)) {
-      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون سعودياً صحيحاً يبدأ بـ 05 (10 أرقام).' });
+    const cleanPhone = phone ? String(phone).replace(/[\s\-()]/g, '') : null;
+    if (cleanPhone && !intlPhoneRegex.test(cleanPhone)) {
+      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون رقماً دولياً صالحاً من 8 إلى 15 رقماً.' });
     }
 
-    // Role check: Only super_admin can create another super_admin
     const targetRole = ALLOWED_ROLES.includes(role) ? role : 'sales';
     if (targetRole === 'super_admin' && req.user.role !== 'super_admin') {
       return res.status(403).json({ success: false, message: 'لا يمكن إنشاء حساب مالك نظام إلا بواسطة مالك النظام نفسه.' });
@@ -71,7 +72,7 @@ router.post('/', async (req, res) => {
     const newUser = await User.create({
       name: name.trim(),
       email: normalizedEmail,
-      phone: phone ? phone.trim() : null,
+      phone: cleanPhone,
       passwordHash,
       role: targetRole,
       isActive: true,
@@ -108,7 +109,6 @@ router.patch('/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
     }
 
-    // Admin cannot modify super_admin account
     if (user.role === 'super_admin' && req.user.role !== 'super_admin') {
       return res.status(403).json({ success: false, message: 'لا يمكن لغير مالك النظام تعديل حساب المطور أو مالك النظام.' });
     }
@@ -116,10 +116,11 @@ router.patch('/:id', async (req, res) => {
     if (typeof isActive === 'boolean') user.isActive = isActive;
     if (name && typeof name === 'string') user.name = name.trim();
     if (phone !== undefined) {
-      if (phone && !/^05[0-9]{8}$/.test(phone)) {
-        return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.' });
+      const cleanPhone = phone ? String(phone).replace(/[\s\-()]/g, '') : null;
+      if (cleanPhone && !intlPhoneRegex.test(cleanPhone)) {
+        return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون رقماً دولياً صالحاً من 8 إلى 15 رقماً.' });
       }
-      user.phone = phone ? phone.trim() : null;
+      user.phone = cleanPhone;
     }
     if (role && ALLOWED_ROLES.includes(role)) {
       if (role === 'super_admin' && req.user.role !== 'super_admin') {

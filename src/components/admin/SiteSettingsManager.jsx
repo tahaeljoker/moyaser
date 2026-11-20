@@ -9,7 +9,7 @@ export default function SiteSettingsManager() {
     announcementBar: { enabled: false, text: '' },
     socialLinks: { snapchat: '', instagram: '', x: '', tiktok: '', email: '' },
     officeInfo: { address: 'الدمام — حي حديقة الأثير', workingHours: 'السبت - الخميس: 9:00 ص - 9:00 م' },
-    visibleSections: { gallery: true, models: true, unitMatrix: true, location: true },
+    visibleSections: { gallery: true, models: true, unitMatrix: true, location: true, specs: true, guarantees: true, afterSales: true, partners: true },
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -29,7 +29,10 @@ export default function SiteSettingsManager() {
           announcementBar: res.data.announcementBar || { enabled: false, text: '' },
           socialLinks: res.data.socialLinks || { snapchat: '', instagram: '', x: '', tiktok: '', email: '' },
           officeInfo: res.data.officeInfo || { address: 'الدمام — حي حديقة الأثير', workingHours: 'السبت - الخميس: 9:00 ص - 9:00 م' },
-          visibleSections: res.data.visibleSections || { gallery: true, models: true, unitMatrix: true, location: true },
+          visibleSections: {
+            gallery: true, models: true, unitMatrix: true, location: true, specs: true, guarantees: true, afterSales: true, partners: true,
+            ...(res.data.visibleSections || {}),
+          },
         });
       }
     } catch (err) { setStatus({ type: 'error', msg: err.message || 'تعذر تحميل الإعدادات.' }); }
@@ -79,7 +82,7 @@ export default function SiteSettingsManager() {
               <span>تفعيل الشريط</span>
             </label>
           </div>
-          <input type="text" placeholder="مثال: خصم خاص 5% بمناسبة بدء بيع المرحلة الثانية..." value={form.announcementBar?.text || ''} onChange={(e) => setForm({ ...form, announcementBar: { ...form.announcementBar, text: e.target.value } })} className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200" />
+          <input type="text" placeholder="مثال: خصم خاص بمناسبة إطلاق المرحلة الثانية..." value={form.announcementBar?.text || ''} onChange={(e) => setForm({ ...form, announcementBar: { ...form.announcementBar, text: e.target.value } })} className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200" />
         </div>
 
         {/* Basic Project Info */}
@@ -145,6 +148,10 @@ export default function SiteSettingsManager() {
               { id: 'models', label: 'النماذج المعمارية' },
               { id: 'unitMatrix', label: 'جدول الـ 24 وحدة' },
               { id: 'location', label: 'الموقع والمسافات' },
+              { id: 'specs', label: 'المواصفات الفنية' },
+              { id: 'guarantees', label: 'الضمانات والتأمين' },
+              { id: 'afterSales', label: 'خدمات ما بعد البيع' },
+              { id: 'partners', label: 'شركاء النجاح' },
             ].map((sec) => (
               <label key={sec.id} className="flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 font-medium">
                 <input type="checkbox" checked={form.visibleSections?.[sec.id] !== false} onChange={(e) => setForm({ ...form, visibleSections: { ...form.visibleSections, [sec.id]: e.target.checked } })} className="rounded text-emerald-800" />

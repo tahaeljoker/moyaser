@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const internationalPhoneRegex = /^\+?[1-9]\d{7,14}$/;
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -21,7 +23,13 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
-      match: [/^05[0-9]{8}$/, 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05'],
+      validate: {
+        validator: function (v) {
+          if (!v) return true;
+          return internationalPhoneRegex.test(String(v).replace(/[\s\-()]/g, ''));
+        },
+        message: 'يرجى إدخال رقم جوال دولي صحيح.',
+      },
       default: null,
     },
     passwordHash: {
