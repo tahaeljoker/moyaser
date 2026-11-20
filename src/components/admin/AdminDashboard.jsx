@@ -54,7 +54,15 @@ export default function AdminDashboard() {
     if (!canAccessSettings && activeTab === 'settings') setActiveTab('leads');
   }, [role, canAccessCRM, canAccessUnits, canAccessUsers, canAccessSettings, activeTab]);
 
-  if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-300 text-xs">جاري التحقق من الجلسة...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-300 text-xs gap-3">
+        <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin" />
+        <span>جاري التحقق من الجلسة والصلاحيات...</span>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
 
   const handleUpdateLead = async (leadId, updates) => {
@@ -74,14 +82,25 @@ export default function AdminDashboard() {
       <AdminHeader />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-black font-heading text-white">لوحة التحكم والمتابعة التشغيلية</h2>
-            {role === 'sales' && <span className="text-xs text-amber-400 font-bold">عرض خاص بطلبات المستشار: {user.name}</span>}
-            {role === 'receptionist' && <span className="text-xs text-emerald-400 font-bold">مكتب الاستقبال وإدراج العملاء</span>}
-            {role === 'editor' && <span className="text-xs text-blue-400 font-bold">إدارة المحتوى ومخزون الوحدات</span>}
+            <h2 className="text-xl sm:text-2xl font-black font-heading text-white tracking-tight">
+              لوحة التحكم والمتابعة التشغيلية
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              {role === 'sales' && <span className="text-xs text-amber-400 font-bold">عرض خاص بطلبات المستشار: {user.name}</span>}
+              {role === 'receptionist' && <span className="text-xs text-emerald-400 font-bold">مكتب الاستقبال وإدراج العملاء</span>}
+              {role === 'editor' && <span className="text-xs text-sky-400 font-bold">إدارة المحتوى ومخزون الوحدات</span>}
+              {['super_admin', 'admin'].includes(role) && <span className="text-xs text-slate-400">إشراف شامل على مؤشرات المبيعات، الوحدات، والـ CRM</span>}
+            </div>
           </div>
-          <button onClick={loadData} disabled={isLoadingData} className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition border border-slate-800" title="تحديث">
+
+          <button
+            onClick={loadData}
+            disabled={isLoadingData}
+            className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-400 hover:text-white transition border border-slate-800/90 shadow-sm self-start sm:self-auto active:scale-95"
+            title="تحديث البيانات"
+          >
             <RefreshCw className={`w-4 h-4 ${isLoadingData ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
         </div>
@@ -89,32 +108,61 @@ export default function AdminDashboard() {
         <ExecutiveStats units={units} leadsSummary={leadsSummary} role={role} />
 
         {/* Dynamic Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 w-fit">
+        <div className="flex flex-wrap items-center gap-2 mb-6 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/90 shadow-md w-fit backdrop-blur-sm">
           {canAccessCRM && (
-            <button onClick={() => setActiveTab('leads')} className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${activeTab === 'leads' ? 'bg-emerald-900 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60'}`}>
-              <Users className="w-4 h-4" />
+            <button
+              onClick={() => setActiveTab('leads')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === 'leads'
+                  ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-white shadow-md border border-emerald-700/60'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Users className="w-4 h-4 text-emerald-300" />
               <span>إدارة العملاء (CRM)</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-950/80 font-mono">{leads.length}</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-950/80 font-mono text-emerald-300">{leads.length}</span>
             </button>
           )}
 
           {canAccessUnits && (
-            <button onClick={() => setActiveTab('units')} className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${activeTab === 'units' ? 'bg-emerald-900 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60'}`}>
-              <Building className="w-4 h-4" />
-              <span>مخزون الوحدات ({units.length})</span>
+            <button
+              onClick={() => setActiveTab('units')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === 'units'
+                  ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-white shadow-md border border-emerald-700/60'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Building className="w-4 h-4 text-amber-300" />
+              <span>مخزون الوحدات</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-950/80 font-mono text-amber-300">{units.length}</span>
             </button>
           )}
 
           {canAccessUsers && (
-            <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${activeTab === 'users' ? 'bg-emerald-900 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60'}`}>
-              <UserCheck className="w-4 h-4 text-amber-300" />
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === 'users'
+                  ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-white shadow-md border border-emerald-700/60'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <UserCheck className="w-4 h-4 text-amber-400" />
               <span>فريق العمل والصلاحيات</span>
             </button>
           )}
 
           {canAccessSettings && (
-            <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${activeTab === 'settings' ? 'bg-emerald-900 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60'}`}>
-              <Settings className="w-4 h-4 text-emerald-400" />
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === 'settings'
+                  ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-white shadow-md border border-emerald-700/60'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Settings className="w-4 h-4 text-sky-300" />
               <span>إعدادات الموقع والهوية</span>
             </button>
           )}
