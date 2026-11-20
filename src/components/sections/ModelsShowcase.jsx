@@ -1,0 +1,184 @@
+import { useState } from 'react';
+import { Video, FileText, Calendar, Layers, Sparkles, Compass } from 'lucide-react';
+import { models } from '../../data/projectData.js';
+
+const VIEW_TABS = [
+  { key: 'exterior', label: 'الواجهة الخارجية (3D)', icon: Layers },
+  { key: 'interior', label: 'التشطيبات الداخلية', icon: Sparkles },
+  { key: 'floorplan', label: 'المخططات الهندسية', icon: Compass },
+];
+
+export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenInspection }) {
+  const [activeCode, setActiveCode] = useState('A');
+  const [activeView, setActiveView] = useState('exterior');
+  const [imageError, setImageError] = useState(false);
+
+  const currentModel = models.find((m) => m.code === activeCode) || models[0];
+  const activeMedia = currentModel.mediaViews?.[activeView] || {
+    local: currentModel.image,
+    fallback: currentModel.image,
+    title: currentModel.name,
+  };
+
+  const handleModelChange = (code) => {
+    setActiveCode(code);
+    setImageError(false);
+  };
+
+  const handleViewChange = (viewKey) => {
+    setActiveView(viewKey);
+    setImageError(false);
+  };
+
+  const imgSrc = imageError ? activeMedia.fallback : (activeMedia.local || activeMedia.fallback);
+
+  return (
+    <section id="models-showcase-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 mb-2">
+          معرض النماذج والوسائط ثلاثية الأبعاد
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading">
+          النماذج المعمارية (A — F)
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-600 mt-2">
+          6 نماذج دوبلكس بتوزيعات هندسية مدروسة وواجهات ثلاثية الأبعاد وتشطيبات متكاملة.
+        </p>
+      </div>
+
+      {/* Model Tabs (A to F) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
+        {models.map((m) => (
+          <button
+            key={m.code}
+            onClick={() => handleModelChange(m.code)}
+            className={`p-3 rounded-2xl border text-center transition ${
+              activeCode === m.code
+                ? 'bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-900/20'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="text-xs font-black font-heading block">نموذج {m.code}</span>
+            <span className={`text-[10px] block mt-0.5 truncate ${activeCode === m.code ? 'text-amber-300' : 'text-slate-500'}`}>
+              {m.totalArea} م²
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Showcase Card with 3D Media Switcher */}
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 items-stretch">
+        {/* Media & 3D Interactive View Container */}
+        <div className="lg:col-span-7 relative min-h-[380px] lg:min-h-[460px] bg-slate-950 flex flex-col justify-between overflow-hidden">
+          {/* Main Visual */}
+          <img
+            key={`${activeCode}-${activeView}-${imageError}`}
+            src={imgSrc}
+            alt={`${currentModel.name} — ${activeMedia.title}`}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+            loading="lazy"
+            onError={() => {
+              if (!imageError) setImageError(true);
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/60 pointer-events-none" />
+
+          {/* Top Bar: Model Badge & View Switcher */}
+          <div className="relative z-10 p-4 flex flex-wrap items-center justify-between gap-2">
+            <span className="bg-slate-900/85 backdrop-blur-md text-amber-300 text-xs px-3 py-1 rounded-xl font-bold border border-white/10 shadow-sm">
+              {currentModel.badge}
+            </span>
+
+            {/* 3D / Interior / FloorPlan Mode Switcher */}
+            <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border border-white/15">
+              {VIEW_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeView === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => handleViewChange(tab.key)}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-emerald-800 text-white shadow-sm'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom Title Bar */}
+          <div className="relative z-10 p-5 text-white">
+            <span className="text-[11px] font-bold text-amber-400 block mb-0.5 font-heading">
+              نموذج {currentModel.code} — {activeMedia.title}
+            </span>
+            <h3 className="text-xl sm:text-2xl font-bold font-heading">{currentModel.name}</h3>
+            <p className="text-xs text-slate-300 mt-1 max-w-lg">{currentModel.subtitle}</p>
+          </div>
+        </div>
+
+        {/* Specs & Actions Panel */}
+        <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-500">السعر يبدأ من:</span>
+              <span className="text-xl font-black text-emerald-950 font-heading">
+                {currentModel.priceFrom}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <span className="text-[10px] text-slate-400 block mb-0.5">المساحة الكلية</span>
+                <span className="text-xs font-bold text-slate-800 font-heading">{currentModel.totalArea} م²</span>
+              </div>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <span className="text-[10px] text-slate-400 block mb-0.5">مسطح البناء</span>
+                <span className="text-xs font-bold text-slate-800 font-heading">{currentModel.builtArea} م²</span>
+              </div>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <span className="text-[10px] text-slate-400 block mb-0.5">دورات المياه</span>
+                <span className="text-xs font-bold text-slate-800 font-heading">{currentModel.baths}</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 text-xs text-slate-600 bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
+              <span className="font-bold text-slate-800 block mb-1">المزايا الهندسية المعتمدة:</span>
+              <p className="text-slate-700 font-medium">{currentModel.rooms}</p>
+              <p className="text-slate-500 text-[11px]">{currentModel.floors}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+            <button
+              onClick={() => onOpenFloorPlan(currentModel.code)}
+              className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-1.5"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>المخطط والبروشور</span>
+            </button>
+            <button
+              onClick={() => onOpenVideo(currentModel.code)}
+              className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>جولة الفيديو</span>
+            </button>
+            <button
+              onClick={() => onOpenInspection({ modelCode: currentModel.code })}
+              className="py-2.5 px-3 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>حجز معاينة</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

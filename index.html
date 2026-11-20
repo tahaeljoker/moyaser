@@ -1,128 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مُيسّر للتطوير العقاري | تاون هاوس الشامخة — الدمام (حي حديقة الأثير)</title>
-  <meta name="description"
-    content="مشروع تاون هاوس الشامخة بالدمام (حي حديقة الأثير) من شركة مُيسّر للتطوير العقاري. 24 وحدة دوبلكس مستقلة بمساحات من 227م² حتى 427م² بتصاميم عصرية وتشطيبات فاخرة.">
-
-  <!-- الخطوط الرسمية: ريديكس برو وتجوال -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap"
-    rel="stylesheet">
-
-  <!-- Tailwind CSS عبر CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            emerald: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              200: '#a7f3d0',
-              300: '#6ee7b7',
-              400: '#34d399',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              800: '#065f46',
-              900: '#064e3b',
-              950: '#022c22',
-            },
-            sand: {
-              50: '#fffbeb',
-              100: '#fef3c7',
-              200: '#fde68a',
-              500: '#f59e0b',
-              600: '#d97706',
-              700: '#b45309',
-            }
-          },
-          fontFamily: {
-            sans: ['Tajawal', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            heading: ['Readex Pro', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- ملف التنسيقات المخصصة -->
-  <link rel="stylesheet" href="css/styles.css?v=20261106_12">
-</head>
-
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-800 selection:text-white">
-
-  <!-- 1. شريط الخدمة والمبيعات السريع -->
-  <div id="info-bar" class="bg-slate-950 text-slate-300 text-[12px] py-2 border-b border-slate-800"></div>
-
-  <!-- 2. شريط التنقل الفاخر الثابت -->
-  <header id="main-navbar"
-    class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm transition"></header>
-
-  <!-- 3. قسم الواجهة الرئيسية الفاخرة (Hero) -->
-  <section id="hero-section"
-    class="relative min-h-[580px] lg:min-h-[640px] flex items-center justify-center overflow-hidden bg-slate-950 text-white">
-  </section>
-
-  <!-- 4. تبويبات حالة المشاريع -->
-  <section id="project-tabs" class="-mt-6 relative z-20"></section>
-
-  <!-- حاوية مشاريع قيد التطوير (ديناميكية) -->
-  <div id="upcoming-projects-container" class="hidden"></div>
-
-  <!-- حاوية الوحدات الجاهزة (المشروع الأساسي الشامخة) -->
-  <div id="ready-units-container">
-    <!-- 5. مصفوفة الـ 24 وحدة السكنية التفاعلية -->
-    <section id="matrix-section"></section>
-
-    <!-- 6. معرض العقارات والوحدات المتاحة (Featured Properties Catalog) -->
-    <section id="models-section"></section>
-
-    <!-- 7. نبذة عن المشروع والمزايا الهندسية -->
-    <section id="about-section"></section>
-
-    <!-- 8. الموقع الاستراتيجي والمسافات الحيوية -->
-    <section id="location-section"></section>
-
-    <!-- 9. استمارة الحجز المباشر وإدارة الطلبات -->
-    <section id="booking-section"></section>
-  </div>
-
-  <!-- 10. الفوتر المؤسسي الرسمي -->
-  <footer id="main-footer" class="bg-slate-950 text-white border-t border-slate-800 pt-16 pb-12"></footer>
-
-  <!-- 10. نوافذ التطبيق التفاعلية الفاخرة (Modals) -->
-  <!-- نافذة المعاينة الميدانية والحجز السريع -->
-  <div id="inspection-modal"
-    class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 modal-backdrop overflow-y-auto"></div>
-
-  <!-- نافذة جولة الفيديو الافتراضية -->
-  <div id="video-tour-modal"
-    class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 modal-backdrop"></div>
-
-  <!-- نافذة المخطط المعماري الهندسي والطباعة -->
-  <div id="floorplan-modal"
-    class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 modal-backdrop overflow-y-auto"></div>
-
-  <!-- نافذة تأكيد تذكرة الحجز الرسمية -->
-  <div id="booking-modal"
-    class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 modal-backdrop"></div>
-
-  <!-- حاوية إشعارات التوست -->
-  <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full">
-  </div>
-
-  <!-- سكربتات التطبيق التفاعلية: data.js أولاً ثم app.js -->
-  <script src="js/data.js?v=20261106_12"></script>
-  <script src="js/app.js?v=20261106_12"></script>
-
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/brand/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="مشروع تاون هاوس الشامخة بالدمام (حي حديقة الأثير) من شركة مُيسّر للتطوير العقاري. 24 وحدة دوبلكس مستقلة بمساحات من 227م² حتى 427م²." />
+    <title>مُيسّر للتطوير العقاري | تاون هاوس الشامخة — الدمام</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
