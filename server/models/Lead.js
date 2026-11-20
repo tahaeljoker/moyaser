@@ -43,27 +43,17 @@ const leadSchema = new mongoose.Schema(
       default: 'inspection',
       index: true,
     },
-    visitDate: {
+    source: {
       type: String,
-      default: null,
-      trim: true,
+      enum: ['website', 'walk_in', 'phone', 'whatsapp'],
+      default: 'website',
+      index: true,
     },
-    visitTime: {
-      type: String,
-      default: null,
-      trim: true,
-    },
-    paymentMethod: {
-      type: String,
-      default: 'تمويل بنكي مدعوم / مرابحة عقارية',
-      trim: true,
-    },
-    notes: {
-      type: String,
-      default: '',
-      trim: true,
-      maxlength: 1000,
-    },
+    visitDate: { type: String, default: null, trim: true },
+    visitTime: { type: String, default: null, trim: true },
+    paymentMethod: { type: String, default: 'تمويل بنكي مدعوم / مرابحة عقارية', trim: true },
+    notes: { type: String, default: '', trim: true, maxlength: 1000 },
+    nextFollowUpDate: { type: Date, default: null },
     stage: {
       type: String,
       required: true,
@@ -71,23 +61,37 @@ const leadSchema = new mongoose.Schema(
       default: 'prospective',
       index: true,
     },
-    assignedAgent: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: null,
+    assignedAgent: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    assignedAgentName: { type: String, default: null, trim: true },
+    financing: {
+      bankName: { type: String, default: '', trim: true },
+      depositPaid: { type: Boolean, default: false },
+      depositAmount: { type: Number, default: 0 },
+      expectedDeedDate: { type: Date, default: null },
     },
-    assignedAgentName: {
-      type: String,
-      default: null,
-      trim: true,
+    handover: {
+      status: {
+        type: String,
+        enum: ['pending_deed', 'preparing_unit', 'delivered'],
+        default: 'pending_deed',
+      },
+      finalPrice: { type: Number, default: 0 },
+      deliveredAt: { type: Date, default: null },
     },
+    activityLog: [
+      {
+        note: { type: String, required: true, trim: true },
+        authorName: { type: String, required: true, trim: true },
+        authorRole: { type: String, required: true, trim: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-// Auto-generate sequential ticket number MS-1001 if not provided
 leadSchema.pre('save', async function (next) {
   if (this.isNew && !this.ticketNumber) {
     try {
@@ -101,13 +105,10 @@ leadSchema.pre('save', async function (next) {
       if (lastLead && lastLead.ticketNumber) {
         const parts = lastLead.ticketNumber.split('-');
         const parsed = parseInt(parts[1], 10);
-        if (!isNaN(parsed)) {
-          nextNum = parsed + 1;
-        }
+        if (!isNaN(parsed)) nextNum = parsed + 1;
       }
       this.ticketNumber = `MS-${nextNum}`;
-    } catch (err) {
-      // Fallback random ticket to avoid save failure on race condition
+    } catch {
       this.ticketNumber = `MS-${Math.floor(1000 + Math.random() * 9000)}`;
     }
   }

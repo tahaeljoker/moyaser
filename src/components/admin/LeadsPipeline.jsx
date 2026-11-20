@@ -1,8 +1,27 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, MessageCircle, Save, UserCheck, UserPlus } from 'lucide-react';
+import { Search, MessageCircle, FileText, UserCheck, UserPlus, Clock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { fetchAdminUsers } from '../../services/api.js';
 import AddWalkInLeadModal from './AddWalkInLeadModal.jsx';
+import LeadDetailsDrawer from './LeadDetailsDrawer.jsx';
+
+const stageBadges = {
+  prospective: 'bg-sky-50 text-sky-800 border-sky-200',
+  reserved: 'bg-amber-50 text-amber-800 border-amber-200',
+  closed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+};
+
+const getFollowUpStatus = (dateStr) => {
+  if (!dateStr) return null;
+  const target = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return { label: 'متابعة متأخرة', cls: 'bg-rose-50 text-rose-700 border-rose-200' };
+  if (diffDays === 0) return { label: 'متابعة اليوم', cls: 'bg-amber-50 text-amber-800 border-amber-200' };
+  return null;
+};
 
 export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
   const { user } = useAuth();
@@ -11,10 +30,9 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
 
   const [activeStage, setActiveStage] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingNotes, setEditingNotes] = useState({});
-  const [savingId, setSavingId] = useState(null);
   const [staffList, setStaffList] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   useEffect(() => {
     if (isAdmin) {
@@ -22,11 +40,10 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
     }
   }, [isAdmin]);
 
-  const stageBadgeClasses = {
-    prospective: 'bg-sky-50 text-sky-800 border-sky-200',
-    reserved: 'bg-amber-50 text-amber-800 border-amber-200',
-    closed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-  };
+  const activeLeadInList = useMemo(() => {
+    if (!selectedLead) return null;
+    return leads.find((l) => l._id === selectedLead._id) || selectedLead;
+  }, [leads, selectedLead]);
 
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
@@ -43,27 +60,8 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
     });
   }, [leads, activeStage, searchQuery]);
 
-  const handleStageChange = async (leadId, newStage) => {
-    try { await onUpdateLead(leadId, { stage: newStage }); } catch (err) { alert(err.message || 'فشل تحديث الحالة.'); }
-  };
-
-  const handleAgentReassign = async (leadId, newAgentId) => {
-    try { await onUpdateLead(leadId, { assignedAgent: newAgentId || null }); } catch (err) { alert(err.message || 'فشل إسناد الطلب.'); }
-  };
-
-  const handleSaveNotes = async (leadId) => {
-    const noteText = editingNotes[leadId];
-    if (noteText === undefined) return;
-    setSavingId(leadId);
-    try {
-      await onUpdateLead(leadId, { notes: noteText });
-      const next = { ...editingNotes };
-      delete next[leadId];
-      setEditingNotes(next);
-    } catch (err) { alert(err.message || 'فشل حفظ الملاحظة.'); } finally { setSavingId(null); }
-  };
-
-  const openWhatsApp = (phone, ticket, name) => {
+  const openWhatsApp = (e, phone, ticket, name) => {
+    e.stopPropagation();
     const digits = phone.replace(/\D/g, '').replace(/^0/, '966');
     const msg = `السلام عليكم ورحمة الله أستاذ ${name}، بخصوص طلبك (${ticket}) لدى شركة مُيسّر للتطوير العقاري.`;
     window.open(`https://wa.me/${digits}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -76,9 +74,8 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
         <div>
           <h2 className="text-base sm:text-lg font-bold font-heading text-slate-900">طلبات العملاء</h2>
-          <p className="text-xs text-slate-500 mt-0.5">متابعة الاستفسارات، الحجوزات، والطلبات المسندة للمبيعات.</p>
+          <p className="text-xs text-slate-500 mt-0.5">متابعة الاستفسارات، التمويل البنكي، والعقود والملفات.</p>
         </div>
-
         <div className="flex flex-wrap items-center gap-2">
           {canAddLead && (
             <button
@@ -89,7 +86,6 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
               <span>تسجيل عميل</span>
             </button>
           )}
-
           <div className="relative w-full sm:w-64">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none" />
             <input
@@ -97,7 +93,7 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="بحث بالاسم، الجوال، التذكرة..."
-              className="w-full pr-9 pl-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-800 focus:border-emerald-800"
+              className="w-full pr-9 pl-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-800"
             />
           </div>
         </div>
@@ -115,9 +111,7 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
             key={tab.id}
             onClick={() => setActiveStage(tab.id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-              activeStage === tab.id
-                ? 'bg-emerald-800 text-white'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              activeStage === tab.id ? 'bg-emerald-800 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>{tab.label}</span>
@@ -140,18 +134,19 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
                 <th className="py-3 px-3">الوحدة</th>
                 <th className="py-3 px-3">المسؤول</th>
                 <th className="py-3 px-3">الحالة</th>
-                <th className="py-3 px-3">الملاحظات</th>
-                <th className="py-3 px-3 text-center">التواصل</th>
+                <th className="py-3 px-3">المتابعة القادمة</th>
+                <th className="py-3 px-3 text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {filteredLeads.map((lead) => {
-                const currentNote = editingNotes[lead._id] ?? lead.notes ?? '';
-                const hasUnsavedNote = editingNotes[lead._id] !== undefined && editingNotes[lead._id] !== lead.notes;
-                const agentId = lead.assignedAgent?._id || lead.assignedAgent || '';
-
+                const followUp = getFollowUpStatus(lead.nextFollowUpDate);
                 return (
-                  <tr key={lead._id} className="hover:bg-slate-50/75 transition">
+                  <tr
+                    key={lead._id}
+                    onClick={() => setSelectedLead(lead)}
+                    className="hover:bg-slate-50/80 transition cursor-pointer"
+                  >
                     <td className="py-3 px-3 whitespace-nowrap">
                       <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-[11px]">{lead.ticketNumber}</span>
                     </td>
@@ -167,56 +162,50 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
                       )}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      {isAdmin ? (
-                        <select
-                          value={agentId}
-                          onChange={(e) => handleAgentReassign(lead._id, e.target.value)}
-                          className="px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-800"
-                        >
-                          <option value="">غير مسند</option>
-                          {staffList.map((s) => (
-                            <option key={s.id} value={s.id}>{s.name} ({s.role === 'sales' ? 'مبيعات' : s.role})</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-slate-700 text-xs font-medium">
-                          <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
-                          <span>{lead.assignedAgentName || lead.assignedAgent?.name || 'مستشار المبيعات'}</span>
-                        </span>
-                      )}
+                      <span className="inline-flex items-center gap-1 text-slate-700 text-xs font-medium">
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>{lead.assignedAgentName || lead.assignedAgent?.name || 'غير مسند'}</span>
+                      </span>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <select
-                        value={lead.stage}
-                        onChange={(e) => handleStageChange(lead._id, e.target.value)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold border focus:outline-none focus:ring-1 focus:ring-emerald-800 ${stageBadgeClasses[lead.stage]}`}
-                      >
-                        <option value="prospective">استفسار</option>
-                        <option value="reserved">حجز (بانتظار البنك)</option>
-                        <option value="closed">تم الشراء</option>
-                      </select>
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border inline-block ${stageBadges[lead.stage]}`}>
+                        {lead.stage === 'prospective' && 'استفسار'}
+                        {lead.stage === 'reserved' && 'حجز (بانتظار البنك)'}
+                        {lead.stage === 'closed' && 'تم الشراء'}
+                      </span>
                     </td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1 min-w-[160px]">
-                        <input
-                          type="text"
-                          value={currentNote}
-                          onChange={(e) => setEditingNotes({ ...editingNotes, [lead._id]: e.target.value })}
-                          placeholder="ملاحظة..."
-                          className="w-full px-2 py-1 rounded bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-800"
-                        />
-                        {hasUnsavedNote && (
-                          <button onClick={() => handleSaveNotes(lead._id)} disabled={savingId === lead._id} className="p-1 rounded bg-emerald-800 hover:bg-emerald-700 text-white transition flex-shrink-0" title="حفظ">
-                            <Save className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      {followUp ? (
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[11px] font-bold ${followUp.cls}`}>
+                          <Clock className="w-3 h-3" />
+                          <span>{followUp.label}</span>
+                        </span>
+                      ) : lead.nextFollowUpDate ? (
+                        <span className="text-slate-500 font-mono text-[11px]" dir="ltr">
+                          {new Date(lead.nextFollowUpDate).toLocaleDateString('ar-SA')}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <button onClick={() => openWhatsApp(lead.phone, lead.ticketNumber, lead.fullName)} className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium text-xs inline-flex items-center gap-1 transition" title="محادثة واتساب">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>واتساب</span>
-                      </button>
+                      <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => setSelectedLead(lead)}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-medium text-xs inline-flex items-center gap-1 transition"
+                          title="تفاصيل الطلب والمتابعة"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-slate-600" />
+                          <span>تفاصيل</span>
+                        </button>
+                        <button
+                          onClick={(e) => openWhatsApp(e, lead.phone, lead.ticketNumber, lead.fullName)}
+                          className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium text-xs inline-flex items-center gap-1 transition"
+                          title="محادثة واتساب"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -225,6 +214,15 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
           </table>
         </div>
       )}
+
+      <LeadDetailsDrawer
+        lead={activeLeadInList}
+        isOpen={Boolean(selectedLead)}
+        onClose={() => setSelectedLead(null)}
+        onUpdateLead={onUpdateLead}
+        staffList={staffList}
+        isAdmin={isAdmin}
+      />
 
       <AddWalkInLeadModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onLeadCreated={onRefresh} />
     </div>

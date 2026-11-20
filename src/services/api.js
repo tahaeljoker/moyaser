@@ -1,4 +1,4 @@
-8/**
+/**
  * Muyassar Real Estate — Frontend API Client
  * Clean fetch wrapper with JWT Bearer auth support from sessionStorage
  */
@@ -118,6 +118,13 @@ export async function updateLead(id, updates) {
   return request(`admin/leads/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(updates),
+  });
+}
+
+export async function addLeadActivity(leadId, note, nextFollowUpDate) {
+  return request(`admin/leads/${leadId}/activities`, {
+    method: 'POST',
+    body: JSON.stringify({ note, nextFollowUpDate }),
   });
 }
 
