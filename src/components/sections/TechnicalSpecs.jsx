@@ -1,41 +1,45 @@
-import { Shield, Layers, Wind, Sparkles, Cpu, CheckCircle2 } from 'lucide-react';
+import { Shield, Layers, Wind, Sparkles, Cpu, CheckCircle2, Home, Paintbrush } from 'lucide-react';
 
 const specs = [
   {
     icon: Layers,
-    title: 'عزل حراري ومائي مزدوج 10 سنوات',
-    desc: 'نظام عزل فوم بولي يوريثان معتمد لكامل الأسطح ودورات المياه، يطابق اشتراطات كود البناء السعودي ويرشد استهلاك التكييف بنسبة 40%.',
-    badge: 'معتمد رسمياً',
+    title: 'عزل مائي وحراري',
+    desc: 'منظومة عزل متكاملة للأسطح ودورات المياه والمطابخ لحماية المبنى وترشيد استهلاك الطاقة.',
   },
   {
     icon: Wind,
-    title: 'ألمنيوم دبل غلاس عازل للصوت والحرارة',
-    desc: 'قطاعات ألمنيوم معالجة بسماكة عالية مع زجاج مزدوج يفصل بينهما غاز خامل يضمن أقصى عزل صوتي وأمان حراري فائق.',
-    badge: 'زجاج مزدوج',
+    title: 'نوافذ ألمنيوم دبل جلاس',
+    desc: 'قطاعات ألمنيوم متينة مع زجاج مزدوج لعزل الصوت والحرارة وتوفير الهدوء الداخلي.',
   },
   {
     icon: Shield,
-    title: 'أبواب أمان مصفحة ومقاومة للحريق',
-    desc: 'أبواب مداخل رئيسية مدعمة بفولاذ صلب ومفصلات أمان متعددة النقاط، تجمع بين الفخامة المعمارية والأمان الأسري التام.',
-    badge: 'حماية متقدمة',
-  },
-  {
-    icon: Sparkles,
-    title: 'أرضيات بورسلان نخب أول مقاسات واسعة',
-    desc: 'تشطيبات أرضيات إسبانية وسعودية فاخرة مقاسات 120×60 سم مع فواصل تمدد هندسية مقاومة للخدش والتآكل وسهلة التنظيف.',
-    badge: 'نخب أول',
+    title: 'أبواب خارجية قوية وآمنة',
+    desc: 'أبواب خارجية متينة مصممة لتوفير أعلى درجات الأمان والخصوصية للمنزل.',
   },
   {
     icon: Cpu,
-    title: 'تمديدات كهربائية وسباكة معتمدة',
-    desc: 'قواطع وأفياش شركة الفنار المعتمدة، وشبكة تغذية حرارية نيبرو وأنابيب خضراء ألمانية مقاومة للضغط العالي مع فحص ضغط موثق.',
-    badge: 'الفنار + نيبرو',
+    title: 'تمديدات كهربائية وفق أعلى معايير السلامة',
+    desc: 'شبكات وتمديدات كهربائية منفذة باحترافية تامة لتأمين استقرار الأحمال والسلامة الكهربائية.',
+  },
+  {
+    icon: Home,
+    title: 'أسقف جبسية',
+    desc: 'تصاميم أسقف جبسية عصرية بتوزيع متناسق يتيح خيارات إنارة ديكورية حديثة.',
   },
   {
     icon: CheckCircle2,
-    title: 'مطابقة تامة للمواصفات والمقاييس (SASO)',
-    desc: 'كافة المواد الإنشائية والكهربائية والميكانيكية حاصلة على علامة الجودة السعودية ومطابقة لمتطلبات كود البناء السعودي الصارم.',
-    badge: 'كود البناء السعودي',
+    title: 'أنظمة سباكة بمواد بضمانات مصنعية',
+    desc: 'شبكة تغذية وصرف بمواد معتمدة ذات جودة عالية مدعومة بضمانات مصنعية موثقة.',
+  },
+  {
+    icon: Sparkles,
+    title: 'أرضيات وبلاط فاخر',
+    desc: 'أرضيات وبورسلان وبلاط عالي الجودة بتشطيبات أنيقة ومقاومة للاستخدام اليومي.',
+  },
+  {
+    icon: Paintbrush,
+    title: 'تشطيبات داخلية عالية الجودة',
+    desc: 'تنفيذ دقيق لكافة تفاصيل التشطيب الداخلي من دهانات وأعمال ديكورية بمقاييس هندسية متقنة.',
   },
 ];
 
@@ -46,35 +50,30 @@ export default function TechnicalSpecs() {
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 border border-emerald-300 text-emerald-900 text-xs font-bold mb-3">
             <Shield className="w-3.5 h-3.5 text-emerald-800" />
-            <span>الجودة والمعايير الهندسية</span>
+            <span>المواصفات الفنية المعتمدة</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading">
-            مواصفات إنشائية وفنية صُممت لتدوم لعقود
+            مواصفات إنشائية وفنية مطابقة للبروشور الرسمي
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm mt-2">
-            نعتمد في مُيسّر للتطوير العقاري مواد بناء رائدة واختبارات هندسية موثقة تمنحك وعائلتك راحة البال واستدامة الاستثمار.
+            تم انتقاء كل عنصر في مشروع تاون هاوس الشامخة لضمان الجودة والمتانة والراحة الدائمة للأسرة.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {specs.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={idx}
-                className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-emerald-300 transition-all flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-800">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                      {item.badge}
-                    </span>
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-800 mb-3">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 mb-1.5">{item.title}</h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             );
