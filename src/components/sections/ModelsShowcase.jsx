@@ -69,8 +69,9 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
   const displayPrice = formatPrice(currentModel.priceFrom, currentModel.startingPrice);
 
   return (
-    <section id="models-showcase-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center max-w-2xl mx-auto mb-10">
+    <section id="models-showcase-section" className="py-14 md:py-20 bg-slate-50 border-b border-slate-200" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 mb-2">
           معرض النماذج والوسائط ثلاثية الأبعاد
         </div>
@@ -206,6 +207,7 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
   );
 }

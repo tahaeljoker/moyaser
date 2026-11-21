@@ -14,19 +14,17 @@ const nearbyLandmarks = [
 
 export default function NearbyLandmarks() {
   return (
-    <section className="py-16 sm:py-20 bg-white border-b border-slate-100" dir="rtl">
+    <div className="pt-0 pb-14 md:pb-20 bg-slate-50 border-b border-slate-200" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-3">
-            <Compass className="w-3.5 h-3.5" />
-            <span>الموقع الاستراتيجي والمعالم القريبة</span>
+        <div className="pt-8 border-t border-slate-200/80 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading">
+              أبرز الوجهات والمعالم القريبة
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              مسافات قيادة محسوبة وأبرز المرافق والخدمات المحيطة بحي حديقة الأثير.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading">
-            موقع حيوي متصل بأهم وجهات الدمام
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm mt-2">
-            موقع استثنائي في حي حديقة الأثير بالدمام يوفر وصولاً سريعاً للمرافق الحيوية والمعالم الرئيسية.
-          </p>
         </div>
 
         {/* Timed landmarks */}
@@ -73,6 +71,6 @@ export default function NearbyLandmarks() {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

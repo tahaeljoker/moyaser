@@ -1,6 +1,6 @@
 import { Shield, Layers, Wind, Sparkles, Cpu, CheckCircle2, Home, Paintbrush } from 'lucide-react';
 
-const specs = [
+export const specs = [
   {
     icon: Layers,
     title: 'عزل مائي وحراري',

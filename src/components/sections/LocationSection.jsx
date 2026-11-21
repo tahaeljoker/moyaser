@@ -3,7 +3,7 @@ import { brand, locationDistances } from '../../data/projectData.js';
 
 export default function LocationSection() {
   return (
-    <section id="location-section" className="bg-slate-100/70 border-t border-slate-200/80 py-16">
+    <section id="location-section" className="bg-slate-50 pt-14 md:pt-20 pb-6" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>

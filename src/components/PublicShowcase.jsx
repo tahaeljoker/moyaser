@@ -6,15 +6,13 @@ import Footer from './layout/Footer.jsx';
 import Hero from './sections/Hero.jsx';
 import ProjectTabs from './sections/ProjectTabs.jsx';
 import UpcomingProjects from './sections/UpcomingProjects.jsx';
-import UnitMatrix from './sections/UnitMatrix.jsx';
-import ModelsShowcase from './sections/ModelsShowcase.jsx';
-import PropertiesCatalog from './sections/PropertiesCatalog.jsx';
 import AboutSection from './sections/AboutSection.jsx';
+import ProjectGallery from './sections/ProjectGallery.jsx';
+import ModelsShowcase from './sections/ModelsShowcase.jsx';
+import UnitMatrix from './sections/UnitMatrix.jsx';
 import LocationSection from './sections/LocationSection.jsx';
 import NearbyLandmarks from './sections/NearbyLandmarks.jsx';
-import TechnicalSpecs from './sections/TechnicalSpecs.jsx';
-import ProjectGuarantees from './sections/ProjectGuarantees.jsx';
-import AfterSalesPartners from './sections/AfterSalesPartners.jsx';
+import QualityGuaranteesHub from './sections/QualityGuaranteesHub.jsx';
 import BookingForm from './sections/BookingForm.jsx';
 import InspectionModal from './modals/InspectionModal.jsx';
 import VideoTourModal from './modals/VideoTourModal.jsx';
@@ -73,8 +71,10 @@ export default function PublicShowcase() {
         <UpcomingProjects />
       ) : (
         <div>
-          {vs?.unitMatrix !== false && (
-            <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id, unitCode: unit.unitCode, unit })} />
+          <AboutSection />
+
+          {vs?.gallery !== false && (
+            <ProjectGallery settings={siteSettings} />
           )}
 
           {vs?.models !== false && (
@@ -85,8 +85,9 @@ export default function PublicShowcase() {
             />
           )}
 
-          <PropertiesCatalog onOpenInspection={handleOpenInspection} />
-          <AboutSection />
+          {vs?.unitMatrix !== false && (
+            <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id, unitCode: unit.unitCode, unit })} />
+          )}
 
           {vs?.location !== false && (
             <>
@@ -95,9 +96,7 @@ export default function PublicShowcase() {
             </>
           )}
 
-          {vs?.specs !== false && <TechnicalSpecs />}
-          {vs?.guarantees !== false && <ProjectGuarantees />}
-          {(vs?.afterSales !== false || vs?.partners !== false) && <AfterSalesPartners />}
+          <QualityGuaranteesHub visibleSections={vs} />
 
           <BookingForm onBookingSuccess={handleBookingSuccess} onShowToast={showToast} />
         </div>

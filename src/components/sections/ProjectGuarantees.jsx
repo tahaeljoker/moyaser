@@ -1,6 +1,6 @@
 import { Award, Check } from 'lucide-react';
 
-const guarantees = [
+export const guarantees = [
   {
     period: '10 سنوات',
     title: 'تأمين التعاونية ضد العيوب الخفية',

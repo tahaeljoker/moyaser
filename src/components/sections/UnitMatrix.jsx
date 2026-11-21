@@ -72,7 +72,7 @@ export default function UnitMatrix({ onSelectUnit }) {
   };
 
   return (
-    <section id="matrix-section" className="py-20 bg-slate-50 border-b border-slate-200" dir="rtl">
+    <section id="matrix-section" className="py-14 md:py-20 bg-white border-b border-slate-200" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
@@ -118,8 +118,8 @@ export default function UnitMatrix({ onSelectUnit }) {
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${statusFilter === f.key
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
               >
                 {f.label}

@@ -211,17 +211,20 @@ export const upcoming = [
 
 export const navLinks = [
   { label: 'عن المشروع', href: '#about-section' },
-  { label: 'الموقع والمزايا', href: '#location-section' },
-  { label: 'مصفوفة الوحدات', href: '#matrix-section' },
-  { label: 'العقارات المتاحة', href: '#models-section' },
-  { label: 'تواصل معنا', href: '#contact-section' },
+  { label: 'المعرض', href: '#gallery-section' },
+  { label: 'النماذج', href: '#models-showcase-section' },
+  { label: 'الوحدات', href: '#matrix-section' },
+  { label: 'الموقع', href: '#location-section' },
+  { label: 'المواصفات والضمانات', href: '#quality-section' },
+  { label: 'احجز معاينة', href: '#booking-section' },
 ];
 
 export const footerLinks = [
   { label: 'عن المشروع', href: '#about-section' },
+  { label: 'معرض الصور', href: '#gallery-section' },
+  { label: 'النماذج المعمارية', href: '#models-showcase-section' },
   { label: 'مصفوفة الوحدات', href: '#matrix-section' },
-  { label: 'العقارات المتاحة', href: '#models-section' },
-  { label: 'حجز وحدة', href: '#booking-section' },
-  { label: 'موقع المشروع', href: '#location-section' },
-  { label: 'تواصل معنا', href: '#contact-section' },
+  { label: 'الموقع والمسافات', href: '#location-section' },
+  { label: 'المواصفات والضمانات', href: '#quality-section' },
+  { label: 'احجز وحدتك', href: '#booking-section' },
 ];

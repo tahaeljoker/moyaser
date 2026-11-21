@@ -1,6 +1,6 @@
 import { Handshake, Wrench, FileSpreadsheet, Percent, Building } from 'lucide-react';
 
-const afterSalesServices = [
+export const afterSalesServices = [
   {
     icon: Wrench,
     title: 'محضر استلام هندسي وفحص نهائي',
@@ -18,7 +18,7 @@ const afterSalesServices = [
   },
 ];
 
-const partners = [
+export const partners = [
   { name: 'JOTUN', label: 'دهانات جوتن العالمية', role: 'الدهانات الخارجية والداخلية' },
   { name: 'أطلال الخليجية', label: 'أطلال الخليجية للألمنيوم', role: 'قطاعات الألمنيوم والواجهات الزجاجية' },
   { name: 'Elite Touch', label: 'Elite Touch Design', role: 'التصميم الداخلي والحلول المعمارية' },

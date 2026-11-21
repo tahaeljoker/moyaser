@@ -9,7 +9,7 @@ export default function AboutSection() {
   };
 
   return (
-    <section id="about-section" className="bg-slate-50/70 border-y border-slate-200/80 py-16 sm:py-20 lg:py-24">
+    <section id="about-section" className="bg-slate-50 border-b border-slate-200 py-14 md:py-20" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Storytelling & Stats */}
