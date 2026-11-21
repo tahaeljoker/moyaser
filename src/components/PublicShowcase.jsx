@@ -4,8 +4,7 @@ import InfoBar from './layout/InfoBar.jsx';
 import Navbar from './layout/Navbar.jsx';
 import Footer from './layout/Footer.jsx';
 import Hero from './sections/Hero.jsx';
-import ProjectTabs from './sections/ProjectTabs.jsx';
-import UpcomingProjects from './sections/UpcomingProjects.jsx';
+import Reveal from './ui/Reveal.jsx';
 import AboutSection from './sections/AboutSection.jsx';
 import ProjectGallery from './sections/ProjectGallery.jsx';
 import ModelsShowcase from './sections/ModelsShowcase.jsx';
@@ -21,7 +20,6 @@ import BookingConfirmationModal from './modals/BookingConfirmationModal.jsx';
 import Toast from './ui/Toast.jsx';
 
 export default function PublicShowcase() {
-  const [projectTab, setProjectTab] = useState('ready');
   const [siteSettings, setSiteSettings] = useState(null);
 
   useEffect(() => {
@@ -65,42 +63,49 @@ export default function PublicShowcase() {
       <InfoBar settings={siteSettings} />
       <Navbar />
       <Hero settings={siteSettings} />
-      <ProjectTabs activeTab={projectTab} setActiveTab={setProjectTab} />
 
-      {projectTab === 'upcoming' ? (
-        <UpcomingProjects />
-      ) : (
-        <div>
+      <main>
+        <Reveal direction="up">
           <AboutSection />
+        </Reveal>
 
-          {vs?.gallery !== false && (
+        {vs?.gallery !== false && (
+          <Reveal direction="up">
             <ProjectGallery settings={siteSettings} />
-          )}
+          </Reveal>
+        )}
 
-          {vs?.models !== false && (
+        {vs?.models !== false && (
+          <Reveal direction="up">
             <ModelsShowcase
               onOpenVideo={handleOpenVideo}
               onOpenFloorPlan={handleOpenFloorPlan}
               onOpenInspection={handleOpenInspection}
             />
-          )}
+          </Reveal>
+        )}
 
-          {vs?.unitMatrix !== false && (
+        {vs?.unitMatrix !== false && (
+          <Reveal direction="up">
             <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id, unitCode: unit.unitCode, unit })} />
-          )}
+          </Reveal>
+        )}
 
-          {vs?.location !== false && (
-            <>
-              <LocationSection />
-              <NearbyLandmarks />
-            </>
-          )}
+        {vs?.location !== false && (
+          <Reveal direction="up">
+            <LocationSection />
+            <NearbyLandmarks />
+          </Reveal>
+        )}
 
+        <Reveal direction="up">
           <QualityGuaranteesHub visibleSections={vs} />
+        </Reveal>
 
+        <Reveal direction="up">
           <BookingForm onBookingSuccess={handleBookingSuccess} onShowToast={showToast} />
-        </div>
-      )}
+        </Reveal>
+      </main>
 
       <Footer settings={siteSettings} />
 

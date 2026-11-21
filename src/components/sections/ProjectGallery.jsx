@@ -59,13 +59,13 @@ export default function ProjectGallery({ settings }) {
               <div
                 key={idx}
                 onClick={() => setActiveIdx(idx)}
-                className="group relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 cursor-pointer shadow-xs hover:shadow-md transition duration-300"
+                className="group relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 cursor-pointer shadow-xs hover:shadow-md transition duration-500 ease-out hover:-translate-y-0.5"
               >
                 <div className="h-56 sm:h-64 overflow-hidden">
                   <img
                     src={img.url}
                     alt={img.title || 'صورة من المشروع'}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
                     loading="lazy"
                   />
                 </div>

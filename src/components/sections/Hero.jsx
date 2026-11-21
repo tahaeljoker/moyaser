@@ -1,97 +1,135 @@
-import { ArrowLeft, MessageCircle, Compass } from 'lucide-react';
-import { brand, hero } from '../../data/projectData.js';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Compass } from 'lucide-react';
+import { brand } from '../../data/projectData.js';
 
 export default function Hero({ settings = null }) {
-  const currentWhatsApp = settings?.whatsappNumber || brand.whatsapp;
-  const currentTitle = settings?.heroTitle || hero.title;
-  const currentSubtitle = settings?.heroSubtitle || hero.titleSub;
-  const currentDescription = settings?.aboutText || hero.description;
-  const heroImg = settings?.heroImageUrl || hero.bgImage;
+  const [mounted, setMounted] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  const heroImg = settings?.heroImageUrl || '/images/shamkha/hero-exterior.webp';
   const tour3d = settings?.projectTour3dUrl || '';
 
-  const waUrl = `https://api.whatsapp.com/send?phone=${currentWhatsApp}&text=${encodeURIComponent(
-    'السلام عليكم ورحمة الله، أود الاستفسار عن مشروع تاون هاوس الشامخة بالدمام.'
-  )}`;
+  useEffect(() => {
+    setMounted(true);
+    const onScroll = () => { setScrollY(window.scrollY); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <section
       id="hero-section"
-      className="relative min-h-[580px] lg:min-h-[640px] flex items-center justify-center overflow-hidden bg-slate-950 text-white"
+      className="relative overflow-hidden bg-[#F8F7F4] border-b border-stone-200/90 pt-8 pb-14 md:py-20"
+      dir="rtl"
     >
-      <div className="absolute inset-0 z-0">
-        <img
-          src={heroImg}
-          alt={currentTitle}
-          className="w-full h-full object-cover opacity-35"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/90 via-slate-950/90 to-slate-950" />
-      </div>
-
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-900/80 backdrop-blur-md border border-emerald-500/30 text-amber-300 text-xs font-bold mb-6 shadow-lg">
-          <span className="w-2 h-2 rounded-full bg-amber-400" />
-          <span>{brand.developer} — المطور الحصري للمشروع</span>
-        </div>
-
-        <p className="text-sm sm:text-base font-semibold text-emerald-300 mb-2 font-heading tracking-wide">
-          {hero.tagline}
-        </p>
-
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-heading text-white tracking-tight leading-tight mb-6">
-          {currentTitle}
-          <span className="block text-xl sm:text-3xl lg:text-4xl font-bold text-slate-200 mt-2 font-heading">
-            {currentSubtitle}
-          </span>
-        </h1>
-
-        <p className="text-sm sm:text-base text-slate-300 max-w-3xl mx-auto leading-relaxed mb-10">
-          {currentDescription}
-        </p>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-10">
-          {hero.metrics.map((m, idx) => (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Typography Column (Right in RTL) */}
+          <div
+            className={`lg:col-span-7 relative transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[18px] opacity-0'
+            }`}
+          >
+            {/* Subtle Brand Logo Watermark */}
             <div
-              key={idx}
-              className="p-3 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-right"
+              className="absolute -top-12 -right-8 w-72 h-72 sm:w-96 sm:h-96 pointer-events-none select-none opacity-[0.045] will-change-transform"
+              style={{ transform: `translate3d(0, ${scrollY * 0.06}px, 0)` }}
+              aria-hidden="true"
             >
-              <span className="text-xs text-slate-300 block mb-1">{m.label}</span>
-              <span className="text-xl sm:text-2xl font-black text-amber-400 font-heading block">
-                {m.value}
-              </span>
-              <span className="text-[11px] text-slate-400 block mt-0.5">{m.sub}</span>
+              <img
+                src="/brand/logo.svg"
+                alt=""
+                className="w-full h-full object-contain filter grayscale"
+              />
             </div>
-          ))}
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a
-            href="#matrix-section"
-            className="w-full sm:w-auto px-7 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-slate-950 font-black text-xs shadow-xl transition flex items-center justify-center gap-2"
+            <div className="relative z-10 space-y-4">
+              <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wider text-emerald-900 bg-emerald-100/60 px-3 py-1 rounded-full border border-emerald-200/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-800" />
+                <span>الدمام — مشروع تاون هاوس الشامخة</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-900 font-heading leading-[1.25] tracking-tight">
+                {settings?.heroTitle || 'مُيسر، اسم تثق به في عالم العقار'}
+              </h1>
+
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+                {settings?.heroSubtitle ||
+                  '15 تاون هاوس دوبلكس مستقل بحي حديقة الأثير، يجمع بين الخصوصية التامة للفيلا وجودة البناء المستدامة وضمانات معتمدة تصل إلى 25 سنة.'}
+              </p>
+
+              {/* Architectural Hairline Divider */}
+              <div className="h-px bg-stone-300 w-20 animate-draw-line my-5" />
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <a
+                  href="#models-showcase-section"
+                  className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-emerald-950 text-white text-xs font-bold transition shadow-xs flex items-center gap-2"
+                >
+                  <span>استكشف النماذج</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href="#booking-section"
+                  className="px-6 py-3 rounded-xl bg-white border border-stone-300 hover:border-slate-400 hover:bg-stone-50 text-slate-800 text-xs font-bold transition"
+                >
+                  <span>احجز معاينة</span>
+                </a>
+              </div>
+
+              {/* Key Facts Strip */}
+              <div className="pt-8 border-t border-stone-200/80 grid grid-cols-3 gap-4 max-w-md">
+                <div>
+                  <span className="block text-base sm:text-lg font-bold font-heading text-slate-900">
+                    15 وحدة
+                  </span>
+                  <span className="text-[11px] text-slate-500 block mt-0.5">سكنية مستقلة</span>
+                </div>
+                <div>
+                  <span className="block text-base sm:text-lg font-bold font-heading text-slate-900">
+                    6 نماذج
+                  </span>
+                  <span className="text-[11px] text-slate-500 block mt-0.5">دوبلكس ورووف</span>
+                </div>
+                <div>
+                  <span className="block text-base sm:text-lg font-bold font-heading text-slate-900">
+                    25 سنة
+                  </span>
+                  <span className="text-[11px] text-slate-500 block mt-0.5">ضمانات معتمدة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Column (Left in RTL) */}
+          <div
+            className={`lg:col-span-5 relative transition-all duration-700 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[18px] opacity-0'
+            }`}
           >
-            <span>{hero.ctaPrimary}</span>
-            <ArrowLeft className="w-4 h-4" />
-          </a>
-          {tour3d && (
-            <a
-              href={tour3d}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-purple-900/60 hover:bg-purple-800 text-white border border-purple-500/40 backdrop-blur-md font-bold text-xs transition flex items-center justify-center gap-2"
-            >
-              <Compass className="w-4 h-4 text-purple-300" />
-              <span>جولة 3D في المشروع</span>
-            </a>
-          )}
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-xs transition flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-4 h-4 text-emerald-400" />
-            <span>{hero.ctaSecondary}</span>
-          </a>
+            <div className="relative h-[360px] sm:h-[460px] lg:h-[520px] rounded-3xl overflow-hidden border border-stone-200/90 shadow-sm bg-stone-100">
+              <img
+                src={heroImg}
+                alt="الواجهة المعمارية لمشروع تاون هاوس الشامخة"
+                className="w-full h-full object-cover animate-ken-burns-slow"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
+
+              {tour3d && (
+                <a
+                  href={tour3d}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/95 hover:bg-white text-slate-900 text-xs font-bold backdrop-blur-xs shadow-sm transition border border-stone-200"
+                >
+                  <Compass className="w-3.5 h-3.5 text-emerald-800" />
+                  <span>جولة ثلاثية الأبعاد</span>
+                </a>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>

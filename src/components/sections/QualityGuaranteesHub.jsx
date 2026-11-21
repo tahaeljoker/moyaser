@@ -61,7 +61,7 @@ export default function QualityGuaranteesHub({ visibleSections: vs }) {
             {specs.map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between transition duration-500 ease-out hover:-translate-y-0.5 hover:shadow-xs">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-800 mb-3 shadow-xs">
                       <Icon className="w-5 h-5" />
@@ -79,7 +79,7 @@ export default function QualityGuaranteesHub({ visibleSections: vs }) {
         {(activeTab || tabs[0]?.id) === 'guarantees' && vs?.guarantees !== false && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
             {guarantees.map((item, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+              <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between transition duration-500 ease-out hover:-translate-y-0.5 hover:shadow-xs">
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-xs font-bold font-mono">
@@ -102,7 +102,7 @@ export default function QualityGuaranteesHub({ visibleSections: vs }) {
             {afterSalesServices.map((srv, idx) => {
               const Icon = srv.icon;
               return (
-                <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
+                <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs transition duration-500 ease-out hover:-translate-y-0.5 hover:shadow-sm">
                   <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-800 mb-3 shadow-xs">
                     <Icon className="w-5 h-5" />
                   </div>

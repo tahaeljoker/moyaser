@@ -154,7 +154,7 @@ export default function UnitMatrix({ onSelectUnit }) {
               return (
                 <div
                   key={u.id}
-                  className={`p-4 rounded-2xl border shadow-xs flex flex-col justify-between transition duration-200 ${u.status === 'available' ? 'border-emerald-200/80 bg-white hover:-translate-y-1 hover:shadow-md' : u.status === 'reserved' ? 'border-amber-200/70 bg-amber-50/20' : 'border-slate-200 bg-slate-50/60 opacity-75'
+                  className={`p-4 rounded-2xl border shadow-xs flex flex-col justify-between transition duration-500 ease-out ${u.status === 'available' ? 'border-emerald-200/80 bg-white hover:-translate-y-1 hover:shadow-md' : u.status === 'reserved' ? 'border-amber-200/70 bg-amber-50/20' : 'border-slate-200 bg-slate-50/60 opacity-75'
                     }`}
                 >
                   <div>
