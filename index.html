@@ -25,6 +25,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      window.addEventListener('error', function (e) {
+        var r = document.getElementById('root');
+        if (r && (!r.childNodes || r.childNodes.length === 0)) {
+          var b = document.createElement('div');
+          b.style.cssText = 'padding:20px;font-family:sans-serif;direction:rtl;text-align:center;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;margin:20px;border-radius:12px;';
+          b.innerHTML = '<strong>تعذر تحميل الصفحة تلقائياً:</strong><div style="direction:ltr;margin-top:8px;font-family:monospace;font-size:12px;">' + (e.message || 'Runtime Error') + '</div><button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;background:#064e3b;color:#fff;border:none;border-radius:8px;cursor:pointer;">إعادة المحاولة</button>';
+          document.body.appendChild(b);
+        }
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

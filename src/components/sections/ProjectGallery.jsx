@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Image as ImageIcon, Eye, X, ChevronRight, ChevronLeft, Map } from 'lucide-react';
+import { Image as ImageIcon, Eye, X, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const defaultGallery = [
   { url: '/images/shamkha/interior-1.webp', title: 'مجلس الضيوف الفاخر', category: 'interior' },
@@ -11,9 +11,15 @@ const defaultGallery = [
 ];
 
 export default function ProjectGallery({ settings }) {
-  const images = (settings?.galleryImages && settings.galleryImages.length > 0)
+  const rawList = Array.isArray(settings?.galleryImages) && settings.galleryImages.length > 0
     ? settings.galleryImages
     : defaultGallery;
+
+  const images = rawList.map((img) =>
+    typeof img === 'string'
+      ? { url: img, title: 'مشروع تاون هاوس الشامخة', category: img.includes('masterplan') ? 'masterplan' : 'interior' }
+      : { url: img?.url || '', title: img?.title || '', category: img?.category || 'interior' }
+  ).filter((img) => Boolean(img.url));
 
   const [activeIdx, setActiveIdx] = useState(null);
 
@@ -54,33 +60,36 @@ export default function ProjectGallery({ settings }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {images.map((img, idx) => {
-            const isMasterplan = img.category === 'masterplan' || img.url.includes('masterplan');
+            const isMasterplan = img?.category === 'masterplan' || img?.url?.includes('masterplan');
             return (
               <div
-                key={idx}
+                key={img.url || idx}
                 onClick={() => setActiveIdx(idx)}
-                className="group relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 cursor-pointer shadow-xs hover:shadow-md transition duration-500 ease-out hover:-translate-y-0.5"
+                className="group relative rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-100 shadow-xs hover:shadow-md transition cursor-pointer aspect-4/3"
               >
-                <div className="h-56 sm:h-64 overflow-hidden">
-                  <img
-                    src={img.url}
-                    alt={img.title || 'صورة من المشروع'}
-                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition" />
-                <div className="absolute top-3 left-3 p-2 rounded-xl bg-slate-900/70 text-white backdrop-blur-xs opacity-0 group-hover:opacity-100 transition">
-                  <Eye className="w-4 h-4" />
-                </div>
-                <div className="absolute bottom-3.5 right-3.5 left-3.5 flex items-center justify-between text-white">
-                  <span className="text-xs font-bold font-heading">{img.title}</span>
-                  {isMasterplan && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md">
-                      <Map className="w-3 h-3" />
-                      <span>المخطط</span>
+                <img
+                  src={img.url}
+                  alt={img.title || 'صورة من مشروع تاون هاوس الشامخة'}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">
+                  <div className="flex justify-between items-start">
+                    {isMasterplan && (
+                      <span className="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-[10px] font-bold">
+                        المخطط العام
+                      </span>
+                    )}
+                    <span className="mr-auto p-1.5 rounded-lg bg-white/20 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Eye className="w-3.5 h-3.5" />
                     </span>
-                  )}
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-bold font-heading line-clamp-1">
+                      {img.title}
+                    </h3>
+                  </div>
                 </div>
               </div>
             );
@@ -88,7 +97,7 @@ export default function ProjectGallery({ settings }) {
         </div>
       </div>
 
-      {activeIdx !== null && (
+      {activeIdx !== null && images[activeIdx] && (
         <div
           className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setActiveIdx(null)}
@@ -105,7 +114,7 @@ export default function ProjectGallery({ settings }) {
                 </span>
                 <button
                   onClick={() => setActiveIdx(null)}
-                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
                   aria-label="إغلاق المعاينة"
                 >
                   <X className="w-4 h-4" />
@@ -121,14 +130,14 @@ export default function ProjectGallery({ settings }) {
               />
               <button
                 onClick={handlePrev}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/10 transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/10 transition cursor-pointer"
                 aria-label="الصورة السابقة"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/10 transition"
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/10 transition cursor-pointer"
                 aria-label="الصورة التالية"
               >
                 <ChevronLeft className="w-5 h-5" />

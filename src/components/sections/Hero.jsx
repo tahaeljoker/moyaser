@@ -12,7 +12,7 @@ export default function Hero({ settings = null }) {
     ? settings.galleryImages.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
     : [];
 
-  const slides = rawSlides.length > 0 ? [heroImg, ...rawSlides.filter((s) => s !== heroImg)] : [heroImg];
+  const slides = rawSlides.length > 0 ? Array.from(new Set([heroImg, ...rawSlides])) : [heroImg];
 
   useEffect(() => {
     setMounted(true);
@@ -36,7 +36,7 @@ export default function Hero({ settings = null }) {
       <div className="absolute inset-0 z-0 overflow-hidden">
         {slides.map((slide, idx) => (
           <img
-            key={slide}
+            key={`${slide}-${idx}`}
             src={slide}
             alt="مشروع تاون هاوس الشامخة — الدمام"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
