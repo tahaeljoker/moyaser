@@ -16,10 +16,18 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    getMe()
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      try { controller.abort(); } catch {}
+    }, 7000);
+
+    getMe({ signal: controller.signal })
       .then((res) => {
         if (isMounted && res?.user) {
           setUser(res.user);
+        } else if (isMounted) {
+          logoutUser();
+          setUser(null);
         }
       })
       .catch(() => {
@@ -27,11 +35,14 @@ export function AuthProvider({ children }) {
         if (isMounted) setUser(null);
       })
       .finally(() => {
+        clearTimeout(timeoutId);
         if (isMounted) setLoading(false);
       });
 
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
+      try { controller.abort(); } catch {}
     };
   }, []);
 

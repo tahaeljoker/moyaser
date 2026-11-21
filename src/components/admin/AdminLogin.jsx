@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, ArrowLeft, Building2, AlertCircle } from 'lucide-react';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { Lock, Mail, ArrowLeft, Building2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { brand } from '../../data/projectData.js';
 
@@ -11,8 +11,21 @@ export default function AdminLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 text-xs gap-2" dir="rtl">
+        <RefreshCw className="w-5 h-5 text-emerald-800 animate-spin" />
+        <span>جاري التحقق من الجلسة...</span>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/admin" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +34,7 @@ export default function AdminLogin() {
 
     try {
       await login(email.trim(), password);
-      navigate('/admin');
+      navigate('/admin', { replace: true });
     } catch (err) {
       setError(err?.data?.message || err.message || 'بيانات الدخول غير صحيحة، يرجى التأكد من البريد وكلمة المرور.');
     } finally {

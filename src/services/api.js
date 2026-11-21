@@ -7,13 +7,22 @@ const envUrl = import.meta.env.VITE_API_BASE_URL;
 const API_BASE_URL = (import.meta.env.PROD && (!envUrl || envUrl.includes('localhost'))) ? '/api' : (envUrl || '/api');
 
 export function getToken() {
-  try { return sessionStorage.getItem('muyassar_token'); } catch { return null; }
+  try {
+    return localStorage.getItem('muyassar_token') || sessionStorage.getItem('muyassar_token');
+  } catch {
+    return null;
+  }
 }
 
 export function setToken(token) {
   try {
-    if (token) sessionStorage.setItem('muyassar_token', token);
-    else sessionStorage.removeItem('muyassar_token');
+    if (token) {
+      localStorage.setItem('muyassar_token', token);
+      sessionStorage.setItem('muyassar_token', token);
+    } else {
+      localStorage.removeItem('muyassar_token');
+      sessionStorage.removeItem('muyassar_token');
+    }
   } catch {}
 }
 
@@ -154,8 +163,8 @@ export async function loginUser(email, password) {
   return data;
 }
 
-export async function getMe() {
-  return request('auth/me', { method: 'GET' });
+export async function getMe(options = {}) {
+  return request('auth/me', { method: 'GET', ...options });
 }
 
 export function logoutUser() {
