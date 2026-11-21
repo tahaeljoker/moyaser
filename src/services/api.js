@@ -3,7 +3,8 @@
  * Clean fetch wrapper with JWT Bearer auth support from sessionStorage
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const envUrl = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = (import.meta.env.PROD && (!envUrl || envUrl.includes('localhost'))) ? '/api' : (envUrl || '/api');
 
 export function getToken() {
   try { return sessionStorage.getItem('muyassar_token'); } catch { return null; }

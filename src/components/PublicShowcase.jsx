@@ -74,7 +74,7 @@ export default function PublicShowcase() {
       ) : (
         <div>
           {vs?.unitMatrix !== false && (
-            <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id })} />
+            <UnitMatrix onSelectUnit={(unit) => handleOpenInspection({ unitId: unit.id, unitCode: unit.unitCode, unit })} />
           )}
 
           {vs?.models !== false && (

@@ -16,11 +16,11 @@ export default function InspectionModal({ isOpen, onClose, data, onShowToast }) 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const prop = data?.propertyId ? properties.find((p) => p.id === data.propertyId) : null;
-  const unit = data?.unitId ? units.find((u) => u.id === Number(data.unitId)) : null;
+  const unit = data?.unit || (data?.unitId ? units.find((u) => String(u.id) === String(data.unitId) || u.unitCode === data.unitId) : null);
   const targetCode = unit ? unit.model : (data?.modelCode || 'A');
   const m = models.find((x) => x.code === targetCode) || models[0];
 
-  const title = prop ? prop.title : (unit ? `وحدة #${unit.id} — نموذج ${unit.model}` : `نموذج ${m.code} — ${m.name}`);
+  const title = prop ? prop.title : (unit ? `وحدة ${unit.unitCode || unit.id} — نموذج ${unit.model}` : `نموذج ${m.code} — ${m.name}`);
   const subtitle = prop ? prop.cityDistrict : (unit ? `${unit.area} — تاون هاوس الشامخة` : m.subtitle);
   const areaDisplay = prop ? prop.area : (unit ? unit.area : `${m.totalArea} م²`);
 

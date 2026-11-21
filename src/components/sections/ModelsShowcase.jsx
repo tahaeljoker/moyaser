@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Video, FileText, Calendar, Layers, Sparkles, Compass } from 'lucide-react';
-import { models } from '../../data/projectData.js';
+import { models as fallbackModels } from '../../data/projectData.js';
+import { fetchModels } from '../../services/api.js';
 
 const VIEW_TABS = [
   { key: 'exterior', label: 'الواجهة الخارجية (3D)', icon: Layers },
@@ -15,11 +16,39 @@ const formatPrice = (priceFrom, startingPrice) => {
 };
 
 export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenInspection }) {
+  const [modelList, setModelList] = useState(fallbackModels);
   const [activeCode, setActiveCode] = useState('A');
   const [activeView, setActiveView] = useState('exterior');
   const [imageError, setImageError] = useState(false);
 
-  const currentModel = models.find((m) => m.code === activeCode) || models[0];
+  useEffect(() => {
+    let isMounted = true;
+    fetchModels()
+      .then((res) => {
+        if (isMounted && res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          const merged = fallbackModels.map((fb) => {
+            const live = res.data.find((m) => m.code === fb.code);
+            if (!live) return fb;
+            return {
+              ...fb,
+              name: live.name || fb.name,
+              area: live.area || fb.area,
+              areaDisplay: live.area || fb.area,
+              floors: live.floors || fb.floors,
+              baths: live.bathrooms || fb.baths,
+              startingPrice: live.startingPrice !== undefined ? live.startingPrice : fb.startingPrice,
+              description: live.description || fb.description,
+              highlights: (live.features && live.features.length > 0) ? live.features : fb.highlights,
+            };
+          });
+          setModelList(merged);
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
+
+  const currentModel = modelList.find((m) => m.code === activeCode) || modelList[0];
   const activeMedia = currentModel.mediaViews?.[activeView] || {
     local: currentModel.image,
     fallback: currentModel.image,
@@ -55,7 +84,7 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
 
       {/* Model Tabs (A to F) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
-        {models.map((m) => (
+        {modelList.map((m) => (
           <button
             key={m.code}
             onClick={() => handleModelChange(m.code)}
@@ -67,7 +96,7 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
           >
             <span className="text-xs font-black font-heading block">نموذج {m.code}</span>
             <span className={`text-[10px] block mt-0.5 truncate ${activeCode === m.code ? 'text-amber-300' : 'text-slate-500'}`}>
-              {m.totalArea} م²
+              {m.areaDisplay || m.area || `${m.totalArea} م²`}
             </span>
           </button>
         ))}
@@ -132,8 +161,8 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
 
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <span className="text-[10px] text-slate-400 block mb-0.5">المساحة الكلية</span>
-                <span className="text-xs font-bold text-slate-800 font-heading">{currentModel.totalArea} م²</span>
+                <span className="text-[10px] text-slate-400 block mb-0.5">المساحة الإجمالية</span>
+                <span className="text-xs font-bold text-slate-800 font-heading">{currentModel.areaDisplay || `${currentModel.totalArea} م²`}</span>
               </div>
               <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                 <span className="text-[10px] text-slate-400 block mb-0.5">مسطح البناء</span>

@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Bell, Building, MessageCircle } from 'lucide-react';
 import { models, brand } from '../../data/projectData.js';
+import { units as fallbackUnits } from '../../data/unitsData.js';
 import { fetchUnits } from '../../services/api.js';
 import StatusBadge from '../ui/StatusBadge.jsx';
 
 const fmt = (n) => new Intl.NumberFormat('en-US').format(n);
 
 export default function UnitMatrix({ onSelectUnit }) {
-  const [unitList, setUnitList] = useState([]);
+  const [unitList, setUnitList] = useState(fallbackUnits || []);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState('all');
@@ -17,7 +18,7 @@ export default function UnitMatrix({ onSelectUnit }) {
     fetchUnits()
       .then((res) => {
         if (isMounted) {
-          if (res?.data && Array.isArray(res.data)) {
+          if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
             const mapped = res.data.map((dbUnit) => ({
               id: dbUnit.unitCode || dbUnit._id,
               unitCode: dbUnit.unitCode,
@@ -30,14 +31,14 @@ export default function UnitMatrix({ onSelectUnit }) {
             }));
             setUnitList(mapped);
           } else {
-            setUnitList([]);
+            setUnitList(fallbackUnits || []);
           }
           setLoading(false);
         }
       })
       .catch(() => {
         if (isMounted) {
-          setUnitList([]);
+          setUnitList(fallbackUnits || []);
           setLoading(false);
         }
       });
@@ -54,8 +55,10 @@ export default function UnitMatrix({ onSelectUnit }) {
 
   const filteredUnits = useMemo(() => {
     return unitList.filter((u) => {
-      const matchStatus = statusFilter === 'all' || u.status === statusFilter;
-      const matchModel = modelFilter === 'all' || u.model === modelFilter;
+      const uStatus = String(u.status || '').toLowerCase().trim();
+      const uModel = String(u.model || '').toUpperCase().trim();
+      const matchStatus = statusFilter === 'all' || uStatus === statusFilter.toLowerCase().trim();
+      const matchModel = modelFilter === 'all' || uModel === modelFilter.toUpperCase().trim();
       return matchStatus && matchModel;
     });
   }, [unitList, statusFilter, modelFilter]);
@@ -114,11 +117,10 @@ export default function UnitMatrix({ onSelectUnit }) {
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
-                  statusFilter === f.key
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${statusFilter === f.key
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
+                  }`}
               >
                 {f.label}
               </button>
@@ -152,9 +154,8 @@ export default function UnitMatrix({ onSelectUnit }) {
               return (
                 <div
                   key={u.id}
-                  className={`p-4 rounded-2xl border shadow-xs flex flex-col justify-between transition duration-200 ${
-                    u.status === 'available' ? 'border-emerald-200/80 bg-white hover:-translate-y-1 hover:shadow-md' : u.status === 'reserved' ? 'border-amber-200/70 bg-amber-50/20' : 'border-slate-200 bg-slate-50/60 opacity-75'
-                  }`}
+                  className={`p-4 rounded-2xl border shadow-xs flex flex-col justify-between transition duration-200 ${u.status === 'available' ? 'border-emerald-200/80 bg-white hover:-translate-y-1 hover:shadow-md' : u.status === 'reserved' ? 'border-amber-200/70 bg-amber-50/20' : 'border-slate-200 bg-slate-50/60 opacity-75'
+                    }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
