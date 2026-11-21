@@ -10,6 +10,7 @@ import leadRoutes from './routes/leadRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import modelRoutes from './routes/modelRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api', unitRoutes);
 app.use('/api', leadRoutes);
 app.use('/api', settingsRoutes);
 app.use('/api', modelRoutes);
+app.use('/api', projectRoutes);
 app.use('/api/admin/users', userRoutes);
 
 app.use('/api', (req, res) => {

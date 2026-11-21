@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X, Image, Layers } from 'lucide-react';
+import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X, Image, Layers, FolderKanban } from 'lucide-react';
 import { brand } from '../../data/projectData.js';
 
 export default function AdminSidebar({
@@ -22,6 +22,7 @@ export default function AdminSidebar({
   ].filter(Boolean);
 
   const cmsItems = [
+    canAccessSettings && { id: 'projects', label: 'المشاريع', icon: FolderKanban },
     canAccessUnits && { id: 'units', label: 'الوحدات', icon: Building, count: unitsCount },
     canAccessSettings && { id: 'media', label: 'المعرض والوسائط', icon: Image },
     canAccessSettings && { id: 'models', label: 'النماذج والمخططات', icon: Layers },

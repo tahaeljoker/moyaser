@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 import { Lead } from '../models/Lead.js';
 import { Unit } from '../models/Unit.js';
 import { User } from '../models/User.js';
+import { Project } from '../models/Project.js';
 import { verifyToken, requireRole } from '../middleware/auth.js';
 import { leadSubmissionLimiter } from '../middleware/rateLimiter.js';
 import { sendLeadNotifications } from '../services/whatsappService.js';
+import { syncLeadToGoogleSheet, notifySalesViaWhatsApp } from '../services/leadIntegrations.js';
 
 const router = Router();
 const intlPhoneRegex = /^\+?[1-9]\d{7,14}$/;
@@ -18,28 +20,41 @@ const getNextSalesAgent = async () => {
   return null;
 };
 
-// POST /api/leads (Public Lead Capture with Duplicate Detection)
+// POST /api/leads (Public)
 router.post('/leads', leadSubmissionLimiter, async (req, res) => {
   try {
-    const { fullName, phone, unitCode, requestType, visitDate, visitTime, preferredTime, paymentMethod, notes, source } = req.body;
+    const { fullName, phone, unitCode, requestType, visitDate, visitTime, preferredTime, paymentMethod, notes, source, projectId, projectName } = req.body;
     if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 3) {
-      return res.status(400).json({ success: false, message: 'يرجى إدخال الاسم الثلاثي الكريم (3 أحرف على الأقل).' });
+      return res.status(400).json({ success: false, message: 'يرجى إدخال الاسم الثلاثي (3 أحرف على الأقل).' });
     }
     const cleanPhone = String(phone || '').trim().replace(/[\s\-()]/g, '');
     if (!intlPhoneRegex.test(cleanPhone)) {
-      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون رقماً دولياً صالحاً من 8 إلى 15 رقماً.' });
+      return res.status(400).json({ success: false, message: 'رقم الجوال يجب أن يكون رقماً صالحاً.' });
     }
 
     const cleanUnit = unitCode ? unitCode.toUpperCase().trim() : null;
+    let resolvedProjectId = projectId || null;
+    let resolvedProjectName = projectName || '';
+    let unit = cleanUnit ? await Unit.findOne({ unitCode: cleanUnit }) : null;
+    if (unit && !resolvedProjectId && unit.projectId) {
+      resolvedProjectId = unit.projectId;
+      resolvedProjectName = unit.projectName || '';
+    }
+    if (resolvedProjectId && !resolvedProjectName) {
+      const proj = await Project.findById(resolvedProjectId).select('name');
+      if (proj) resolvedProjectName = proj.name;
+    }
+
     const existingLead = await Lead.findOne({ phone: cleanPhone, stage: { $ne: 'cancelled' } }).sort({ createdAt: -1 });
     if (existingLead) {
-      const noteMsg = `طلب استفسار إضافي عبر الموقع${cleanUnit ? ` للوحدة ${cleanUnit}` : ''}${notes ? `: ${notes}` : ''}`;
-      existingLead.activityLog.push({ note: noteMsg, authorName: 'النظام الآلي', authorRole: 'system', createdAt: new Date() });
+      existingLead.activityLog.push({
+        note: `استفسار إضافي${cleanUnit ? ` للوحدة ${cleanUnit}` : ''}${notes ? `: ${notes}` : ''}`,
+        authorName: 'النظام الآلي', authorRole: 'system', createdAt: new Date(),
+      });
       await existingLead.save();
       return res.status(200).json({
-        success: true,
-        isDuplicate: true,
-        message: `لديك طلب سابق مسجل برقم (${existingLead.ticketNumber})${existingLead.assignedAgentName ? ` مع المستشار ${existingLead.assignedAgentName}` : ''}. تم تسجيل استفسارك الجديد بسجل المتابعة وسيتم التواصل معك قريباً.`,
+        success: true, isDuplicate: true,
+        message: `طلبك مسجل مسبقاً (${existingLead.ticketNumber}). تم تحديث ملفك وسنتواصل معك قريباً.`,
         data: existingLead,
       });
     }
@@ -47,6 +62,7 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
     const assignedUser = await getNextSalesAgent();
     const lead = new Lead({
       fullName: fullName.trim(), phone: cleanPhone, unitCode: cleanUnit,
+      projectId: resolvedProjectId, projectName: resolvedProjectName,
       requestType: ['booking', 'inspection', 'waitlist'].includes(requestType) ? requestType : 'inspection',
       source: ['website', 'walk_in', 'phone', 'whatsapp'].includes(source) ? source : 'website',
       visitDate: visitDate ? String(visitDate).trim() : null,
@@ -58,35 +74,31 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
     });
 
     await lead.save();
-    let unit = lead.unitCode ? await Unit.findOne({ unitCode: lead.unitCode }) : null;
+    const project = resolvedProjectId ? await Project.findById(resolvedProjectId) : null;
+    syncLeadToGoogleSheet(lead).catch(() => {});
+    notifySalesViaWhatsApp(lead, project).catch(() => {});
     sendLeadNotifications(lead, unit, assignedUser?.phone).catch(() => {});
+
     res.status(201).json({ success: true, message: 'تم تسجيل طلبك بنجاح.', data: lead });
   } catch (error) {
-    console.error('[Create Lead Error]', error);
     res.status(500).json({ success: false, message: 'فشل تسجيل الطلب.' });
   }
 });
 
-// POST /api/admin/leads (Staff Entry with Duplicate Check)
+// POST /api/admin/leads (Staff Entry)
 router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { fullName, phone, unitCode, stage, notes, source, nextFollowUpDate, preferredTime } = req.body;
+    const { fullName, phone, unitCode, stage, notes, source, nextFollowUpDate, preferredTime, projectId, projectName } = req.body;
     if (!fullName || !phone) return res.status(400).json({ success: false, message: 'الاسم ورقم الجوال مطلوبان.' });
     const cleanPhone = String(phone).trim().replace(/[\s\-()]/g, '');
     if (!intlPhoneRegex.test(cleanPhone)) return res.status(400).json({ success: false, message: 'رقم الجوال غير صحيح.' });
 
     const cleanUnit = unitCode ? unitCode.toUpperCase().trim() : null;
-    const existingLead = await Lead.findOne({ phone: cleanPhone, stage: { $ne: 'cancelled' } }).sort({ createdAt: -1 });
-    if (existingLead) {
-      const noteMsg = `تسجيل زيارة/اتصال إضافي بواسطة ${req.user.name || 'الموظف'}${cleanUnit ? ` للوحدة ${cleanUnit}` : ''}${notes ? `: ${notes}` : ''}`;
-      existingLead.activityLog.push({ note: noteMsg, authorName: req.user.name || 'موظف', authorRole: req.user.role || 'staff', createdAt: new Date() });
-      await existingLead.save();
-      return res.status(200).json({
-        success: true,
-        isDuplicate: true,
-        message: `العميل مسجل مسبقاً برقم تذكرة (${existingLead.ticketNumber}). تمت إضافة الملاحظة لملف العميل القائم.`,
-        data: existingLead,
-      });
+    let resolvedProjectId = projectId || null;
+    let resolvedProjectName = projectName || '';
+    if (resolvedProjectId && !resolvedProjectName) {
+      const proj = await Project.findById(resolvedProjectId).select('name');
+      if (proj) resolvedProjectName = proj.name;
     }
 
     const assignedUser = req.user.role === 'sales' ? { _id: req.user.id, name: req.user.name, phone: req.user.phone } : await getNextSalesAgent();
@@ -94,6 +106,7 @@ router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'r
 
     const lead = new Lead({
       fullName: fullName.trim(), phone: cleanPhone, unitCode: cleanUnit, requestType: 'inspection',
+      projectId: resolvedProjectId, projectName: resolvedProjectName,
       source: ['website', 'walk_in', 'phone', 'whatsapp'].includes(source) ? source : 'walk_in',
       stage: leadStage, notes: notes ? String(notes).trim().slice(0, 1000) : 'تسجيل زيارة مكتبية / اتصال مباشر',
       preferredTime: preferredTime ? String(preferredTime).trim() : null,
@@ -107,9 +120,12 @@ router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'r
       if (leadStage === 'reserved') await Unit.updateOne({ unitCode: cleanUnit }, { $set: { status: 'reserved' } });
       if (leadStage === 'closed') await Unit.updateOne({ unitCode: cleanUnit }, { $set: { status: 'sold' } });
     }
+    const project = resolvedProjectId ? await Project.findById(resolvedProjectId) : null;
+    syncLeadToGoogleSheet(lead).catch(() => {});
+    notifySalesViaWhatsApp(lead, project).catch(() => {});
+
     res.status(201).json({ success: true, message: 'تم تسجيل العميل بنجاح.', data: lead });
   } catch (error) {
-    console.error('[Staff Lead Error]', error);
     res.status(500).json({ success: false, message: 'فشل تسجيل العميل.' });
   }
 });
@@ -117,11 +133,16 @@ router.post('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'r
 // GET /api/admin/leads (Protected)
 router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { stage, unitCode, search } = req.query;
+    const { stage, unitCode, search, projectId, slug, projectSlug } = req.query;
     const filter = {};
     if (req.user.role === 'sales') filter.assignedAgent = req.user.id;
     if (stage && ['prospective', 'reserved', 'closed', 'cancelled'].includes(stage)) filter.stage = stage;
     if (unitCode) filter.unitCode = unitCode.toUpperCase().trim();
+    if (projectId) filter.projectId = projectId;
+    else if (slug || projectSlug) {
+      const proj = await Project.findOne({ slug: slug || projectSlug }).select('_id');
+      if (proj) filter.projectId = proj._id;
+    }
     if (search) {
       const q = String(search).trim();
       filter.$or = [{ fullName: { $regex: q, $options: 'i' } }, { phone: { $regex: q, $options: 'i' } }, { ticketNumber: { $regex: q, $options: 'i' } }];
@@ -137,7 +158,6 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
     counts.forEach((c) => { if (summary[c._id] !== undefined) summary[c._id] = c.count; summary.total += c.count; });
     res.json({ success: true, summary, count: leads.length, data: leads });
   } catch (error) {
-    console.error('[Admin Leads Error]', error);
     res.status(500).json({ success: false, message: 'فشل استرجاع سجل الطلبات.' });
   }
 });
@@ -145,10 +165,9 @@ router.get('/admin/leads', verifyToken, requireRole(['super_admin', 'admin', 're
 // PATCH /api/admin/leads/:id (Protected)
 router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
-    const { stage, cancellationReason, reservationExpiresAt, assignedAgent, notes, source, nextFollowUpDate, preferredTime, financing, handover } = req.body;
+    const { stage, cancellationReason, reservationExpiresAt, assignedAgent, notes, source, nextFollowUpDate, preferredTime, financing, handover, projectId, projectName } = req.body;
     const lead = await Lead.findById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, message: 'طلب العميل غير موجود.' });
-
     if (req.user.role === 'sales' && String(lead.assignedAgent) !== req.user.id) {
       return res.status(403).json({ success: false, message: 'غير مصرح بتعديل طلب غير مسند إليك.' });
     }
@@ -169,52 +188,35 @@ router.patch('/admin/leads/:id', verifyToken, requireRole(['super_admin', 'admin
       }
     }
 
-    if (cancellationReason !== undefined) {
-      lead.cancellationReason = ['السعر', 'رفض البنك', 'الموقع', 'لا يرد', 'أخرى'].includes(cancellationReason) ? cancellationReason : null;
-    }
-    if (reservationExpiresAt !== undefined) {
-      lead.reservationExpiresAt = reservationExpiresAt ? new Date(reservationExpiresAt) : null;
-    }
-    if (source && ['website', 'walk_in', 'phone', 'whatsapp'].includes(source)) lead.source = source;
-    if (preferredTime !== undefined) lead.preferredTime = preferredTime ? String(preferredTime).trim() : null;
+    if (cancellationReason !== undefined) lead.cancellationReason = cancellationReason;
+    if (reservationExpiresAt !== undefined) lead.reservationExpiresAt = reservationExpiresAt ? new Date(reservationExpiresAt) : null;
+    if (source) lead.source = source;
+    if (preferredTime !== undefined) lead.preferredTime = preferredTime;
     if (nextFollowUpDate !== undefined) lead.nextFollowUpDate = nextFollowUpDate ? new Date(nextFollowUpDate) : null;
-    if (financing && typeof financing === 'object') {
-      lead.financing = {
-        bankName: financing.bankName !== undefined ? String(financing.bankName).trim() : (lead.financing?.bankName || ''),
-        depositPaid: financing.depositPaid !== undefined ? Boolean(financing.depositPaid) : (lead.financing?.depositPaid || false),
-        depositAmount: financing.depositAmount !== undefined ? Number(financing.depositAmount) || 0 : (lead.financing?.depositAmount || 0),
-        expectedDeedDate: financing.expectedDeedDate ? new Date(financing.expectedDeedDate) : (financing.expectedDeedDate === null ? null : (lead.financing?.expectedDeedDate || null)),
-      };
-    }
-    if (handover && typeof handover === 'object') {
-      lead.handover = {
-        status: ['pending_deed', 'preparing_unit', 'delivered'].includes(handover.status) ? handover.status : (lead.handover?.status || 'pending_deed'),
-        finalPrice: handover.finalPrice !== undefined ? Number(handover.finalPrice) || 0 : (lead.handover?.finalPrice || 0),
-        deliveredAt: handover.deliveredAt ? new Date(handover.deliveredAt) : (handover.deliveredAt === null ? null : (lead.handover?.deliveredAt || null)),
-      };
-    }
+    if (projectId !== undefined) lead.projectId = projectId || null;
+    if (projectName !== undefined) lead.projectName = String(projectName).trim();
+    if (financing) lead.financing = { ...lead.financing?.toObject(), ...financing };
+    if (handover) lead.handover = { ...lead.handover?.toObject(), ...handover };
     if (assignedAgent !== undefined && ['super_admin', 'admin'].includes(req.user.role)) {
-      if (assignedAgent) {
-        const agent = await User.findById(assignedAgent);
-        if (agent) { lead.assignedAgent = agent._id; lead.assignedAgentName = agent.name; }
-      } else { lead.assignedAgent = null; lead.assignedAgentName = null; }
+      const agent = assignedAgent ? await User.findById(assignedAgent) : null;
+      lead.assignedAgent = agent ? agent._id : null;
+      lead.assignedAgentName = agent ? agent.name : null;
     }
     if (typeof notes === 'string') lead.notes = notes.trim().slice(0, 1000);
 
     await lead.save();
     res.json({ success: true, message: 'تم تحديث بيانات الطلب بنجاح.', data: lead });
   } catch (error) {
-    console.error('[Admin Lead Update Error]', error);
     res.status(500).json({ success: false, message: 'فشل تحديث بيانات الطلب.' });
   }
 });
 
-// POST /api/admin/leads/:id/activities (Append Timestamped Follow-up Note)
+// POST /api/admin/leads/:id/activities (Protected)
 router.post('/admin/leads/:id/activities', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
   try {
     const { note, nextFollowUpDate } = req.body;
     if (!note || typeof note !== 'string' || note.trim().length < 2) {
-      return res.status(400).json({ success: false, message: 'يرجى كتابة نص الملاحظة (حرفين على الأقل).' });
+      return res.status(400).json({ success: false, message: 'يرجى كتابة نص الملاحظة.' });
     }
     const lead = await Lead.findById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, message: 'طلب العميل غير موجود.' });
@@ -222,16 +224,11 @@ router.post('/admin/leads/:id/activities', verifyToken, requireRole(['super_admi
       return res.status(403).json({ success: false, message: 'غير مصرح بإضافة متابعة لطلب غير مسند إليك.' });
     }
 
-    lead.activityLog.push({
-      note: note.trim(), authorName: req.user.name || 'موظف مُيسّر',
-      authorRole: req.user.role || 'staff', createdAt: new Date(),
-    });
+    lead.activityLog.push({ note: note.trim(), authorName: req.user.name || 'موظف ميسر', authorRole: req.user.role || 'staff', createdAt: new Date() });
     if (nextFollowUpDate !== undefined) lead.nextFollowUpDate = nextFollowUpDate ? new Date(nextFollowUpDate) : null;
-
     await lead.save();
     res.status(201).json({ success: true, message: 'تمت إضافة سجل المتابعة بنجاح.', data: lead });
   } catch (error) {
-    console.error('[Lead Activity Error]', error);
     res.status(500).json({ success: false, message: 'فشل إضافة سجل المتابعة.' });
   }
 });

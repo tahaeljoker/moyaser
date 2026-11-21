@@ -4,6 +4,17 @@ const internationalPhoneRegex = /^\+?[1-9]\d{7,14}$/;
 
 const leadSchema = new mongoose.Schema(
   {
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      default: null,
+      index: true,
+    },
+    projectName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     ticketNumber: {
       type: String,
       unique: true,

@@ -1,5 +1,5 @@
 /**
- * Muyassar Real Estate — Frontend API Client
+ * Muyassar Real Estate - Frontend API Client
  * Clean fetch wrapper with JWT Bearer auth support from sessionStorage
  */
 
@@ -41,45 +41,96 @@ async function request(endpoint, options = {}) {
   return data;
 }
 
-// ── Public Endpoints ──
+// Public Projects Endpoints
+export async function fetchProjects(includeInactive = false) {
+  return request(`projects${includeInactive ? '?includeInactive=true' : ''}`, { method: 'GET' });
+}
+
+export async function fetchProject(slug) {
+  return request(`projects/${slug}`, { method: 'GET' });
+}
+
+export async function createProject(payload) {
+  return request('admin/projects', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function updateProject(id, updates) {
+  return request(`admin/projects/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+}
+
+export async function toggleProjectActive(id) {
+  return request(`admin/projects/${id}/toggle`, { method: 'PATCH' });
+}
+
+export async function deleteProject(id) {
+  return request(`admin/projects/${id}`, { method: 'DELETE' });
+}
+
+// Units Endpoints
 export async function fetchUnits(params = {}) {
   const query = new URLSearchParams();
   if (params.status && params.status !== 'all') query.append('status', params.status);
   if (params.model && params.model !== 'all') query.append('model', params.model);
   if (params.type && params.type !== 'all') query.append('type', params.type);
+  if (params.projectId) query.append('projectId', params.projectId);
+  if (params.slug) query.append('slug', params.slug);
   const qs = query.toString();
   return request(`units${qs ? `?${qs}` : ''}`, { method: 'GET' });
 }
 
+export async function updateUnit(unitCode, updates) {
+  return request(`admin/units/${unitCode}`, { method: 'PATCH', body: JSON.stringify(updates) });
+}
+
+export async function createUnit(payload) {
+  return request('admin/units', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function deleteUnit(unitCode) {
+  return request(`admin/units/${unitCode}`, { method: 'DELETE' });
+}
+
+// Architectural Models Endpoints
+export async function fetchModels(params = {}) {
+  const query = new URLSearchParams();
+  if (params.projectId) query.append('projectId', params.projectId);
+  if (params.slug) query.append('slug', params.slug);
+  const qs = query.toString();
+  return request(`models${qs ? `?${qs}` : ''}`, { method: 'GET' });
+}
+
+export async function fetchAdminModels(params = {}) {
+  const query = new URLSearchParams();
+  if (params.projectId) query.append('projectId', params.projectId);
+  if (params.slug) query.append('slug', params.slug);
+  const qs = query.toString();
+  return request(`admin/models${qs ? `?${qs}` : ''}`, { method: 'GET' });
+}
+
+export async function createModel(payload) {
+  return request('admin/models', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function updateModel(id, updates) {
+  return request(`admin/models/${id}`, { method: 'PATCH', body: JSON.stringify(updates) });
+}
+
+export async function deleteModel(id) {
+  return request(`admin/models/${id}`, { method: 'DELETE' });
+}
+
+// Leads Endpoints
 export async function createLead(payload) {
   return request('leads', { method: 'POST', body: JSON.stringify(payload) });
 }
 
-export async function fetchModels() {
-  return request('models', { method: 'GET' });
-}
-
-// ── Auth Endpoints ──
-export async function loginUser(email, password) {
-  const data = await request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-  if (data?.token) setToken(data.token);
-  return data;
-}
-
-export async function getMe() {
-  return request('auth/me', { method: 'GET' });
-}
-
-export function logoutUser() {
-  setToken(null);
-}
-
-// ── Admin Leads Endpoints ──
 export async function fetchAdminLeads(params = {}) {
   const query = new URLSearchParams();
   if (params.stage && params.stage !== 'all') query.append('stage', params.stage);
   if (params.unitCode) query.append('unitCode', params.unitCode);
   if (params.search) query.append('search', params.search);
+  if (params.projectId) query.append('projectId', params.projectId);
+  if (params.slug) query.append('slug', params.slug);
   const qs = query.toString();
   return request(`admin/leads${qs ? `?${qs}` : ''}`, { method: 'GET' });
 }
@@ -96,37 +147,22 @@ export async function addLeadActivity(leadId, note, nextFollowUpDate) {
   return request(`admin/leads/${leadId}/activities`, { method: 'POST', body: JSON.stringify({ note, nextFollowUpDate }) });
 }
 
-// ── Admin Units Endpoints ──
-export async function updateUnit(unitCode, updates) {
-  return request(`admin/units/${unitCode}`, { method: 'PATCH', body: JSON.stringify(updates) });
+// Auth Endpoints
+export async function loginUser(email, password) {
+  const data = await request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+  if (data?.token) setToken(data.token);
+  return data;
 }
 
-export async function createUnit(payload) {
-  return request('admin/units', { method: 'POST', body: JSON.stringify(payload) });
+export async function getMe() {
+  return request('auth/me', { method: 'GET' });
 }
 
-export async function deleteUnit(unitCode) {
-  return request(`admin/units/${unitCode}`, { method: 'DELETE' });
+export function logoutUser() {
+  setToken(null);
 }
 
-// ── Admin Architectural Models Endpoints ──
-export async function fetchAdminModels() {
-  return request('admin/models', { method: 'GET' });
-}
-
-export async function createModel(payload) {
-  return request('admin/models', { method: 'POST', body: JSON.stringify(payload) });
-}
-
-export async function updateModel(id, updates) {
-  return request(`admin/models/${id}`, { method: 'PATCH', body: JSON.stringify(updates) });
-}
-
-export async function deleteModel(id) {
-  return request(`admin/models/${id}`, { method: 'DELETE' });
-}
-
-// ── Site Settings Endpoints ──
+// Site Settings Endpoints
 export async function fetchSiteSettings() {
   return request('settings', { method: 'GET' });
 }
@@ -135,7 +171,7 @@ export async function updateSiteSettings(payload) {
   return request('admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
 }
 
-// ── Admin Team / User Management Endpoints ──
+// Admin Users Endpoints
 export async function fetchAdminUsers() {
   return request('admin/users', { method: 'GET' });
 }

@@ -2,6 +2,17 @@ import mongoose from 'mongoose';
 
 const unitSchema = new mongoose.Schema(
   {
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      default: null,
+      index: true,
+    },
+    projectName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     unitCode: {
       type: String,
       required: true,

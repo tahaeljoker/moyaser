@@ -12,6 +12,7 @@ import UsersManager from './UsersManager.jsx';
 import SiteSettingsManager from './SiteSettingsManager.jsx';
 import MediaGalleryManager from './MediaGalleryManager.jsx';
 import ModelsManager from './ModelsManager.jsx';
+import ProjectsManager from './ProjectsManager.jsx';
 
 export default function AdminDashboard() {
   const { user, loading, isAuthenticated, logout } = useAuth();
@@ -56,7 +57,7 @@ export default function AdminDashboard() {
     if (!canAccessCRM && activeTab === 'leads') setActiveTab('units');
     if (!canAccessUnits && activeTab === 'units') setActiveTab('leads');
     if (!canAccessUsers && activeTab === 'users') setActiveTab('leads');
-    if (!canAccessSettings && ['settings', 'media', 'models'].includes(activeTab)) setActiveTab('leads');
+    if (!canAccessSettings && ['settings', 'media', 'models', 'projects'].includes(activeTab)) setActiveTab('leads');
   }, [role, canAccessCRM, canAccessUnits, canAccessUsers, canAccessSettings, activeTab]);
 
   if (loading) {
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
 
   const tabTitles = {
     leads: 'طلبات العملاء',
+    projects: 'إدارة المشاريع العقارية',
     units: 'الوحدات السكنية',
     media: 'المعرض والوسائط الرقمية',
     models: 'النماذج والمخططات الهندسية',
@@ -118,6 +120,8 @@ export default function AdminDashboard() {
           {activeTab === 'leads' && canAccessCRM && (
             <LeadsPipeline leads={leads} onUpdateLead={handleUpdateLead} onRefresh={loadData} />
           )}
+
+          {activeTab === 'projects' && canAccessSettings && <ProjectsManager />}
 
           {activeTab === 'units' && canAccessUnits && (
             <UnitsManager units={units} onUpdateUnit={handleUpdateUnit} onRefresh={loadData} />

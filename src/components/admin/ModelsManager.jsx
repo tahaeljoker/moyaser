@@ -1,40 +1,52 @@
 import { useState, useEffect } from 'react';
-import { Layers, Plus, Trash2, Edit3, Save, X, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import { fetchAdminModels, createModel, updateModel, deleteModel } from '../../services/api.js';
+import { Plus, Trash2, Edit3, X, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { fetchAdminModels, createModel, updateModel, deleteModel, fetchProjects } from '../../services/api.js';
 
 export default function ModelsManager() {
   const [models, setModels] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectFilter, setProjectFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [status, setStatus] = useState({ type: null, msg: null });
   const [form, setForm] = useState({
-    code: '', name: '', type: 'townhouse', area: '250 م²', bedrooms: 4, bathrooms: 5,
+    code: '', name: '', projectId: '', projectName: '', type: 'townhouse', area: '250 م²', bedrooms: 4, bathrooms: 5,
     floors: 'دورين وملحق', startingPrice: 1350000, renderImageUrl: '', floorPlanImageUrl: '', isActive: true,
   });
 
-  const loadModels = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const res = await fetchAdminModels();
-      if (res?.data) setModels(res.data);
+      const [modelsRes, projectsRes] = await Promise.all([
+        fetchAdminModels(),
+        fetchProjects(true),
+      ]);
+      if (modelsRes?.data) setModels(modelsRes.data);
+      if (projectsRes?.data) setProjects(projectsRes.data);
     } catch {
-      setStatus({ type: 'error', msg: 'تعذر جلب النماذج المعمارية.' });
+      setStatus({ type: 'error', msg: 'تعذر جلب البيانات.' });
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { loadModels(); }, []);
+  useEffect(() => { loadData(); }, []);
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setForm({ code: '', name: '', type: 'townhouse', area: '250 م²', bedrooms: 4, bathrooms: 5, floors: 'دورين وملحق', startingPrice: 1350000, renderImageUrl: '', floorPlanImageUrl: '', isActive: true });
+    const defaultProj = projects[0];
+    setForm({
+      code: '', name: '', projectId: defaultProj?._id || '', projectName: defaultProj?.name || '',
+      type: 'townhouse', area: '250 م²', bedrooms: 4, bathrooms: 5, floors: 'دورين وملحق',
+      startingPrice: 0, renderImageUrl: '', floorPlanImageUrl: '', isActive: true,
+    });
     setShowModal(true);
   };
 
   const handleOpenEdit = (m) => {
     setEditingId(m._id);
     setForm({
-      code: m.code, name: m.name, type: m.type || 'townhouse', area: m.area || '250 م²',
+      code: m.code, name: m.name, projectId: m.projectId || '', projectName: m.projectName || '',
+      type: m.type || 'townhouse', area: m.area || '250 م²',
       bedrooms: m.bedrooms || 4, bathrooms: m.bathrooms || 5, floors: m.floors || 'دورين وملحق',
       startingPrice: m.startingPrice || 0, renderImageUrl: m.renderImageUrl || '', floorPlanImageUrl: m.floorPlanImageUrl || '', isActive: m.isActive !== false,
     });
@@ -44,15 +56,21 @@ export default function ModelsManager() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const selectedProj = projects.find((p) => p._id === form.projectId);
+      const payload = {
+        ...form,
+        projectName: selectedProj?.name || form.projectName,
+        startingPrice: Number(form.startingPrice) || 0,
+      };
       if (editingId) {
-        await updateModel(editingId, { ...form, startingPrice: Number(form.startingPrice) });
+        await updateModel(editingId, payload);
         setStatus({ type: 'success', msg: 'تم تحديث النموذج بنجاح.' });
       } else {
-        await createModel({ ...form, startingPrice: Number(form.startingPrice) });
+        await createModel(payload);
         setStatus({ type: 'success', msg: 'تمت إضافة النموذج بنجاح.' });
       }
       setShowModal(false);
-      loadModels();
+      loadData();
       setTimeout(() => setStatus({ type: null, msg: null }), 3000);
     } catch (err) {
       alert(err.message || 'فشل حفظ النموذج.');
@@ -63,21 +81,38 @@ export default function ModelsManager() {
     if (!window.confirm(`هل أنت متأكد من حذف النموذج (${code})؟`)) return;
     try {
       await deleteModel(id);
-      loadModels();
+      loadData();
     } catch (err) { alert(err.message || 'تعذر حذف النموذج.'); }
   };
+
+  const filteredModels = models.filter((m) => {
+    return projectFilter === 'all' || String(m.projectId) === projectFilter;
+  });
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 text-slate-900 shadow-xs space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
-          <h2 className="text-base sm:text-lg font-bold font-heading text-slate-900">النماذج والمخططات الهندسية ({models.length})</h2>
-          <p className="text-xs text-slate-500">إدارة نماذج الدوبلكس، المساحات، ومخططات الأدوار المعمارية.</p>
+          <h2 className="text-base sm:text-lg font-bold font-heading text-slate-900">النماذج والمخططات الهندسية ({filteredModels.length})</h2>
+          <p className="text-xs text-slate-500">إدارة نماذج الدوبلكس والمساحات والمخططات المعمارية حسب المشروع.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={loadModels} disabled={loading} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-900 transition"><RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /></button>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 focus:outline-hidden"
+          >
+            <option value="all">جميع المشاريع</option>
+            {projects.map((p) => (
+              <option key={p._id} value={p._id}>{p.name}</option>
+            ))}
+          </select>
+          <button onClick={loadData} disabled={loading} className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-900 transition">
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
           <button onClick={handleOpenAdd} className="py-2 px-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs">
-            <Plus className="w-3.5 h-3.5 text-amber-300" /><span>إضافة نموذج</span>
+            <Plus className="w-3.5 h-3.5 text-amber-300" />
+            <span>إضافة نموذج</span>
           </button>
         </div>
       </div>
@@ -89,26 +124,37 @@ export default function ModelsManager() {
         </div>
       )}
 
-      {models.length === 0 ? (
-        <div className="text-center py-10 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">لا توجد نماذج مضافة في قاعدة البيانات حالياً.</div>
+      {filteredModels.length === 0 ? (
+        <div className="text-center py-10 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          لا توجد نماذج مسجلة في هذا المشروع حالياً.
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {models.map((m) => (
+          {filteredModels.map((m) => (
             <div key={m._id} className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between space-y-2">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="font-mono font-bold text-xs bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">نموذج {m.code}</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${m.isActive ? 'text-emerald-700 bg-emerald-50' : 'text-slate-400 bg-slate-100'}`}>{m.isActive ? 'مفعل' : 'معطل'}</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${m.isActive ? 'text-emerald-700 bg-emerald-50' : 'text-slate-400 bg-slate-100'}`}>
+                    {m.isActive ? 'مفعل' : 'معطل'}
+                  </span>
                 </div>
                 <h3 className="font-bold text-slate-900 text-sm font-heading">{m.name}</h3>
+                {m.projectName && <span className="text-[10px] text-slate-500 block">{m.projectName}</span>}
                 <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
                   <span>المساحة: {m.area}</span>
-                  <span className="font-mono font-bold text-emerald-800">{Number(m.startingPrice).toLocaleString('en-US')} ر.س</span>
+                  <span className="font-mono font-bold text-emerald-800 tabular-nums">
+                    {Number(m.startingPrice) > 0 ? `${Number(m.startingPrice).toLocaleString('en-US')} ر.س` : 'تواصل لمعرفة السعر'}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100">
-                <button onClick={() => handleOpenEdit(m)} className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" title="تعديل"><Edit3 className="w-3.5 h-3.5" /></button>
-                <button onClick={() => handleDelete(m._id, m.code)} className="p-1.5 rounded-lg text-rose-600 hover:text-rose-800 hover:bg-rose-50 transition" title="حذف"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => handleOpenEdit(m)} className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" title="تعديل">
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => handleDelete(m._id, m.code)} className="p-1.5 rounded-lg text-rose-600 hover:text-rose-800 hover:bg-rose-50 transition" title="حذف">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           ))}
@@ -123,6 +169,19 @@ export default function ModelsManager() {
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-2.5 max-h-[75vh] overflow-y-auto pr-1">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">المشروع التابع له</label>
+                <select
+                  value={form.projectId}
+                  onChange={(e) => setForm({ ...form, projectId: e.target.value })}
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200"
+                >
+                  <option value="">غير محدد</option>
+                  {projects.map((p) => (
+                    <option key={p._id} value={p._id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">كود النموذج *</label>

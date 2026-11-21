@@ -2,10 +2,20 @@ import mongoose from 'mongoose';
 
 const propertyModelSchema = new mongoose.Schema(
   {
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      default: null,
+      index: true,
+    },
+    projectName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     code: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       uppercase: true,
       index: true,
