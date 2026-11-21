@@ -68,7 +68,7 @@ router.post('/leads', leadSubmissionLimiter, async (req, res) => {
       visitDate: visitDate ? String(visitDate).trim() : null,
       visitTime: visitTime ? String(visitTime).trim() : null,
       preferredTime: preferredTime ? String(preferredTime).trim() : null,
-      paymentMethod: paymentMethod ? String(paymentMethod).trim() : 'تمويل بنكي مدعوم / مرابحة عقارية',
+      paymentMethod: paymentMethod ? String(paymentMethod).trim() : 'تمويل بنكي مدعوم',
       notes: notes ? String(notes).trim().slice(0, 1000) : '', stage: 'prospective',
       assignedAgent: assignedUser ? assignedUser._id : null, assignedAgentName: assignedUser ? assignedUser.name : null,
     });

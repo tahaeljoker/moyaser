@@ -6,12 +6,12 @@ import PhoneInputWithCountry from '../ui/PhoneInputWithCountry.jsx';
 
 const fmt = (n) => new Intl.NumberFormat('en-US').format(n);
 
-export default function BookingForm({ onBookingSuccess, onShowToast }) {
+export default function BookingForm({ onBookingSuccess, onShowToast, projectId = null, projectName = '', selectedUnitCode = '' }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+966');
   const [propertyId, setPropertyId] = useState('');
   const [preferredTime, setPreferredTime] = useState('عصراً');
-  const [payment, setPayment] = useState('تمويل بنكي مدعوم / مرابحة عقارية');
+  const [payment, setPayment] = useState('تمويل بنكي مدعوم');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,6 +44,9 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
         requestType: 'booking',
         preferredTime,
         paymentMethod: payment,
+        projectId: projectId || undefined,
+        projectName: projectName || undefined,
+        unitCode: selectedUnitCode || undefined,
         notes: `${selectedProp ? `العقار: ${propLabel} | ` : ''}${notes.trim()}`,
       });
 
@@ -156,11 +159,10 @@ export default function BookingForm({ onBookingSuccess, onShowToast }) {
 
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-2">آلية الشراء المفضلة</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
-                'تمويل بنكي مدعوم / مرابحة عقارية',
+                'تمويل بنكي مدعوم',
                 'دفع نقدي كامل (كاش)',
-                'دفعات ميسرة مع المطور',
               ].map((opt) => (
                 <label
                   key={opt}
