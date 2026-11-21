@@ -4,36 +4,31 @@ import { brand } from '../../data/projectData.js';
 
 export default function Hero({ settings = null }) {
   const [mounted, setMounted] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
 
   const heroImg = settings?.heroImageUrl || '/images/shamkha/hero-exterior.webp';
   const tour3d = settings?.projectTour3dUrl || '';
 
   useEffect(() => {
     setMounted(true);
-    const onScroll = () => { setScrollY(window.scrollY); };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <section
       id="hero-section"
-      className="relative overflow-hidden bg-[#F8F7F4] border-b border-stone-200/90 pt-8 pb-14 md:py-20"
+      className="relative overflow-hidden bg-[#F8F7F4] border-b border-stone-200/90 py-12 md:py-16 lg:py-20"
       dir="rtl"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Typography Column (Right in RTL) */}
           <div
-            className={`lg:col-span-7 relative transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[18px] opacity-0'
+            className={`lg:col-span-7 relative transition-all duration-700 ease-out ${
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[16px] opacity-0'
             }`}
           >
-            {/* Subtle Brand Logo Watermark */}
+            {/* Subtle Brand Logo Watermark in Lower-Left Corner (Away From Reading Lines) */}
             <div
-              className="absolute -top-12 -right-8 w-72 h-72 sm:w-96 sm:h-96 pointer-events-none select-none opacity-[0.045] will-change-transform"
-              style={{ transform: `translate3d(0, ${scrollY * 0.06}px, 0)` }}
+              className="absolute -bottom-10 left-0 w-44 h-44 sm:w-56 sm:h-56 pointer-events-none select-none opacity-[0.035]"
               aria-hidden="true"
             >
               <img
@@ -43,26 +38,29 @@ export default function Hero({ settings = null }) {
               />
             </div>
 
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold tracking-wider text-emerald-900 bg-emerald-100/60 px-3 py-1 rounded-full border border-emerald-200/60">
+            <div className="relative z-10">
+              {/* Clean Plain-Text Architectural Label (No Rounded Green Pill) */}
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-emerald-950 uppercase mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-800" />
                 <span>الدمام — مشروع تاون هاوس الشامخة</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-900 font-heading leading-[1.25] tracking-tight">
+              {/* Headline with Relaxed Leading and Balanced Size */}
+              <h1 className="text-2xl sm:text-3xl lg:text-[38px] font-black text-slate-900 font-heading leading-[1.35] tracking-tight">
                 {settings?.heroTitle || 'مُيسر، اسم تثق به في عالم العقار'}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+              {/* Clean Spacing Before Description */}
+              <p className="mt-4 mb-6 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
                 {settings?.heroSubtitle ||
                   '15 تاون هاوس دوبلكس مستقل بحي حديقة الأثير، يجمع بين الخصوصية التامة للفيلا وجودة البناء المستدامة وضمانات معتمدة تصل إلى 25 سنة.'}
               </p>
 
               {/* Architectural Hairline Divider */}
-              <div className="h-px bg-stone-300 w-20 animate-draw-line my-5" />
+              <div className="h-px bg-stone-300 w-20 animate-draw-line my-6" />
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-3">
                 <a
                   href="#models-showcase-section"
                   className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-emerald-950 text-white text-xs font-bold transition shadow-xs flex items-center gap-2"
@@ -79,7 +77,7 @@ export default function Hero({ settings = null }) {
               </div>
 
               {/* Key Facts Strip */}
-              <div className="pt-8 border-t border-stone-200/80 grid grid-cols-3 gap-4 max-w-md">
+              <div className="mt-10 pt-6 border-t border-stone-200/80 grid grid-cols-3 gap-4 max-w-md">
                 <div>
                   <span className="block text-base sm:text-lg font-bold font-heading text-slate-900">
                     15 وحدة
@@ -104,11 +102,11 @@ export default function Hero({ settings = null }) {
 
           {/* Visual Column (Left in RTL) */}
           <div
-            className={`lg:col-span-5 relative transition-all duration-700 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[18px] opacity-0'
+            className={`lg:col-span-5 relative transition-all duration-700 delay-100 ease-out ${
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-[16px] opacity-0'
             }`}
           >
-            <div className="relative h-[360px] sm:h-[460px] lg:h-[520px] rounded-3xl overflow-hidden border border-stone-200/90 shadow-sm bg-stone-100">
+            <div className="relative h-[380px] sm:h-[460px] lg:h-[520px] rounded-3xl overflow-hidden border border-stone-200/90 shadow-sm bg-stone-100">
               <img
                 src={heroImg}
                 alt="الواجهة المعمارية لمشروع تاون هاوس الشامخة"
