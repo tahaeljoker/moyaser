@@ -21,6 +21,20 @@ const statusBadge = {
   upcoming: { label: 'قريباً', cls: 'bg-slate-100 text-slate-700 border-slate-200' },
 };
 
+const defaultShamkhaProject = {
+  _id: 'shamkha-default',
+  slug: 'shamkha',
+  name: 'تاون هاوس الشامخة',
+  tagline: '15 وحدة سكنية مستقلة بحي حديقة الأثير بالدمام',
+  description: 'مشروع تاون هاوس فاخر يضم 15 وحدة مستقلة بالدمام، بصكوك إلكترونية مستقلة وتصاميم هندسية عصرية تجمع بين الخصوصية وجودة البناء المستدامة.',
+  city: 'الدمام',
+  district: 'حي حديقة الأثير',
+  status: 'available',
+  heroImageUrl: '/images/shamkha/hero-exterior.webp',
+  regaLicense: '1100259837',
+  valLicense: '1200021234',
+};
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -28,8 +42,16 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     fetchProjects()
-      .then((res) => { if (res?.data) setProjects(res.data); })
-      .catch(() => {})
+      .then((res) => {
+        if (res?.data && res.data.length > 0) {
+          setProjects(res.data);
+        } else {
+          setProjects([defaultShamkhaProject]);
+        }
+      })
+      .catch(() => {
+        setProjects([defaultShamkhaProject]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

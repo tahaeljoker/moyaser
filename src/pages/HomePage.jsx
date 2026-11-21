@@ -21,6 +21,18 @@ const services = [
   { num: '04', title: 'أنظمة المنازل الذكية', desc: 'تأسيس بنية تحتية رقمية متطورة لأنظمة الأمان والتحكم الذكي بالإضاءة والتكييف.' },
 ];
 
+const defaultShamkhaProject = {
+  _id: 'shamkha-default',
+  slug: 'shamkha',
+  name: 'تاون هاوس الشامخة',
+  tagline: '15 وحدة سكنية مستقلة بحي حديقة الأثير بالدمام',
+  description: 'مشروع تاون هاوس فاخر يضم 15 وحدة مستقلة بالدمام، بصكوك إلكترونية مستقلة وتصاميم هندسية عصرية تجمع بين الخصوصية وجودة البناء المستدامة.',
+  city: 'الدمام',
+  district: 'حي حديقة الأثير',
+  status: 'available',
+  heroImageUrl: '/images/shamkha/hero-exterior.webp',
+};
+
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -29,10 +41,16 @@ export default function HomePage() {
   useEffect(() => {
     Promise.all([fetchProjects(), fetchSiteSettings()])
       .then(([projRes, setRes]) => {
-        if (projRes?.data) setProjects(projRes.data);
+        if (projRes?.data && projRes.data.length > 0) {
+          setProjects(projRes.data);
+        } else {
+          setProjects([defaultShamkhaProject]);
+        }
         if (setRes?.data) setSettings(setRes.data);
       })
-      .catch(() => {})
+      .catch(() => {
+        setProjects([defaultShamkhaProject]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

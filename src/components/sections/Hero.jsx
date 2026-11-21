@@ -18,13 +18,13 @@ export default function Hero() {
       {/* Hairline Architectural Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.45] bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,#000_60%,transparent_100%)]" />
 
-      {/* Embossed Brand Logo Watermark (Inverted Light-Ivory Monochrome) */}
+      {/* Refined Brand Logo Architectural Watermark */}
       <div className="absolute -left-12 lg:left-8 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0">
         <img
           src={brand.logo}
           alt=""
           aria-hidden="true"
-          className="w-[340px] sm:w-[480px] lg:w-[620px] h-auto object-contain brightness-0 invert opacity-[0.075] transition-transform duration-[20000ms] ease-out hover:scale-105"
+          className="w-[340px] sm:w-[480px] lg:w-[620px] h-auto object-contain opacity-[0.06] transition-transform duration-[20000ms] ease-out hover:scale-105"
         />
       </div>
 
@@ -34,7 +34,7 @@ export default function Hero() {
           src={brand.logo}
           alt=""
           aria-hidden="true"
-          className="w-[260px] lg:w-[380px] h-auto object-contain brightness-0 invert opacity-[0.04] rotate-12"
+          className="w-[260px] lg:w-[380px] h-auto object-contain opacity-[0.035] rotate-12"
         />
       </div>
 
@@ -42,7 +42,8 @@ export default function Hero() {
         <div className="max-w-3xl space-y-6">
           {/* Eyebrow */}
           <div
-            className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.06] border border-[#D6B87A]/25 backdrop-blur-xs text-xs font-bold text-[#D6B87A] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            translate="no"
+            className={`notranslate inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.06] border border-[#D6B87A]/25 backdrop-blur-xs text-xs font-bold text-[#D6B87A] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
@@ -52,7 +53,8 @@ export default function Hero() {
 
           {/* Headline */}
           <h1
-            className={`text-3xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-white leading-[1.18] transition-all duration-700 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            translate="no"
+            className={`notranslate text-3xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-white leading-[1.18] transition-all duration-700 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
