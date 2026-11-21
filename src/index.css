@@ -173,8 +173,24 @@ h1, h2, h3, h4, .font-heading {
   animation: drawLine 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 25s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .modal-enter, .reveal-enter, .animate-ken-burns-slow, .animate-draw-line {
+  .modal-enter, .reveal-enter, .animate-ken-burns-slow, .animate-draw-line, .animate-marquee {
     animation: none !important;
     transform: none !important;
   }

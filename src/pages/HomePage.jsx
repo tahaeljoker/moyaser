@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Building2, ShieldCheck, Sparkles, CheckCircle2, MapPin, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, RefreshCw } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import Hero from '../components/sections/Hero.jsx';
@@ -15,10 +15,10 @@ const partners = [
 ];
 
 const services = [
-  { title: 'التطوير العقاري السكني', desc: 'ابتكار مجتمعات تاون هاوس حديثة باستقلالية كاملة وصكوك ملكية إلكترونية فورية.' },
-  { title: 'التصميم المعماري الداخلي', desc: 'توزيع هندسي ذكي للمساحات يدمج بين الخصوصية العائلية والإنارة الطبيعية.' },
-  { title: 'المطابخ والتشطيبات الفاخرة', desc: 'تنفيذ خامات عالية الجودة تضمن الاستدامة وكفاءة التشغيل على المدى الطويل.' },
-  { title: 'أنظمة المنازل الذكية', desc: 'تأسيس بنية تحتية رقمية متطورة لأنظمة الأمان والتحكم الذكي بالإضاءة والتكييف.' },
+  { num: '01', title: 'التطوير العقاري السكني', desc: 'ابتكار مجتمعات تاون هاوس حديثة باستقلالية كاملة وصكوك ملكية إلكترونية فورية.' },
+  { num: '02', title: 'التصميم المعماري الداخلي', desc: 'توزيع هندسي ذكي للمساحات يدمج بين الخصوصية العائلية والإنارة الطبيعية.' },
+  { num: '03', title: 'المطابخ والتشطيبات الفاخرة', desc: 'تنفيذ خامات عالية الجودة تضمن الاستدامة وكفاءة التشغيل على المدى الطويل.' },
+  { num: '04', title: 'أنظمة المنازل الذكية', desc: 'تأسيس بنية تحتية رقمية متطورة لأنظمة الأمان والتحكم الذكي بالإضاءة والتكييف.' },
 ];
 
 export default function HomePage() {
@@ -44,7 +44,7 @@ export default function HomePage() {
       {/* Corporate Overview & Quality Pillars */}
       <section className="py-20 md:py-28 bg-white border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center space-y-3 mb-16">
+          <div className="max-w-2xl mx-auto text-center space-y-3 mb-14">
             <span className="text-xs font-bold text-emerald-800 tracking-wider uppercase">رؤيتنا المعمارية</span>
             <h2 className="text-2xl sm:text-4xl font-black font-heading text-slate-900 leading-tight">
               أصالة التطوير وجودة التنفيذ في مشاريع ميسر
@@ -54,14 +54,19 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {services.map((s, idx) => (
-              <div key={idx} className="p-6 rounded-2xl bg-stone-50/70 border border-slate-200/80 hover:border-emerald-700/40 transition duration-300 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-800 font-mono font-bold text-sm">
-                  0{idx + 1}
+              <div
+                key={idx}
+                className="p-6 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 hover:border-emerald-800/40 hover:bg-white hover:shadow-xs transition duration-300 flex flex-col justify-between min-h-[190px]"
+              >
+                <div className="space-y-3">
+                  <span className="w-8 h-8 rounded-lg bg-white border border-slate-200/90 text-emerald-900 font-mono font-bold text-xs flex items-center justify-center">
+                    {s.num}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">{s.title}</h3>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 font-heading">{s.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{s.desc}</p>
+                <p className="text-xs text-slate-600 leading-relaxed pt-2">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -83,7 +88,10 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="py-16 text-center text-xs text-slate-400">جاري تحميل المشاريع...</div>
+            <div className="py-16 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-emerald-800" />
+              <span>جاري تحميل المشاريع...</span>
+            </div>
           ) : projects.length === 0 ? (
             <div className="p-12 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200">
               لا توجد مشاريع منشورة حالياً.
@@ -100,7 +108,7 @@ export default function HomePage() {
                         className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                       />
                       <span className="absolute top-4 right-4 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
-                        {proj.city} {proj.district ? `— ${proj.district}` : ''}
+                        {proj.city} {proj.district ? `- ${proj.district}` : ''}
                       </span>
                     </div>
                     <div className="p-6 space-y-2">
@@ -125,16 +133,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Partners Banner */}
-      <section className="py-16 bg-white border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mb-8">
+      {/* Partners Strip with Infinite Marquee */}
+      <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
             شركاء النجاح والجودة
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {partners.map((p, i) => (
-              <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                <span className="text-xs font-bold text-slate-900 block font-heading">{p.name}</span>
+        </div>
+        <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <div className="animate-marquee flex gap-6 items-center">
+            {[...partners, ...partners, ...partners].map((p, i) => (
+              <div
+                key={i}
+                className="px-6 py-3.5 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[210px] transition hover:border-emerald-800/40"
+              >
+                <span className="text-xs font-bold text-slate-900 font-heading block">{p.name}</span>
                 <span className="text-[10px] text-slate-500 mt-0.5 block">{p.role}</span>
               </div>
             ))}

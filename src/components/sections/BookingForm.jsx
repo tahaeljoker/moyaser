@@ -144,11 +144,10 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
                     key={time}
                     type="button"
                     onClick={() => setPreferredTime(time.split(' ')[0])}
-                    className={`py-2 px-1 text-center rounded-xl text-xs font-medium border transition ${
-                      preferredTime === time.split(' ')[0]
+                    className={`py-2 px-1 text-center rounded-xl text-xs font-medium border transition ${preferredTime === time.split(' ')[0]
                         ? 'bg-amber-400/20 text-amber-300 border-amber-400/60 font-bold'
                         : 'bg-slate-900/50 text-slate-400 border-slate-700 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {time.split(' ')[0]}
                   </button>
@@ -166,11 +165,10 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
               ].map((opt) => (
                 <label
                   key={opt}
-                  className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs transition ${
-                    payment === opt
+                  className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs transition ${payment === opt
                       ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-300'
                       : 'bg-slate-900/40 border-slate-700 text-slate-400 hover:text-slate-300'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
