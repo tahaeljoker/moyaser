@@ -227,7 +227,7 @@ export default function ProjectDetailPage() {
             <h2 className="text-2xl font-black font-heading text-slate-900">حجز معاينة في {project.name}</h2>
             <p className="text-xs text-slate-600">سجل اهتمامك وسيتم التواصل معك من قبل مستشار المبيعات المسؤول.</p>
           </div>
-          <BookingForm projectId={project._id} projectName={project.name} selectedUnitCode={selectedUnit?.unitCode} onShowToast={() => {}} />
+          <BookingForm projectId={project._id} projectName={project.name} selectedUnitCode={selectedUnit?.unitCode} onShowToast={() => { }} />
         </div>
       </section>
 
