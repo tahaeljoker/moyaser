@@ -1,37 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowLeft, Building2, CheckCircle2, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { MapPin, ArrowLeft, Building2, CheckCircle2, ShieldCheck, ArrowUpRight, Maximize2 } from 'lucide-react';
+import CinematicLightbox from '../ui/CinematicLightbox.jsx';
 
 const projectThumbnails = [
-  { label: 'الواجهة الخارجية', url: '/images/shamkha/hero-exterior.webp' },
-  { label: 'التشطيبات الداخلية', url: '/images/shamkha/interior-1.webp' },
-  { label: 'المخطط العام', url: '/images/shamkha/masterplan.webp' },
+  { title: 'الواجهة الخارجية لمشروع تاون هاوس الشامخة', label: 'الواجهة الخارجية', url: '/images/shamkha/hero-exterior.webp' },
+  { title: 'التشطيبات وصالات الاستقبال الفاخرة', label: 'التشطيبات الداخلية', url: '/images/shamkha/interior-1.webp' },
+  { title: 'المخطط الهندسي العام لـ 15 وحدة', label: 'المخطط العام', url: '/images/shamkha/masterplan.webp' },
+];
+
+const SPECS = [
+  { label: 'إجمالي الوحدات', val: '15 تاون هاوس' },
+  { label: 'تنوع النماذج', val: '6 نماذج (A–F)' },
+  { label: 'مسطحات البناء', val: '302 – 428 م²' },
+  { label: 'الملكية', val: 'صك إلكتروني مستقل' },
 ];
 
 export default function ProjectsShowcase({ projects = [], loading = false }) {
   const [activeMedia, setActiveMedia] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '0px 0px -50px 0px', threshold: 0.1 }
-    );
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
+    }, { threshold: 0.1 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   const primaryProject = projects[0] || {
-    _id: 'shamkha',
     slug: 'shamkha',
     name: 'تاون هاوس الشامخة',
-    tagline: '15 وحدة دوبلكس مستقلة بحي حديقة الأثير بالدمام',
     description: 'مشروع تاون هاوس سكني فاخر يدمج بين الاستقلالية الإنشائية التامة وجودة البناء المستدامة بموقع مميز مطل على حديقة الأثير العامة.',
     city: 'الدمام',
     district: 'حي حديقة الأثير',
@@ -79,8 +80,11 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-            {/* Visual Media Showcase */}
-            <div className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] bg-slate-950 overflow-hidden group">
+            {/* Visual Media Showcase with Click to Expand */}
+            <div
+              onClick={() => setLightboxOpen(true)}
+              className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] bg-slate-950 overflow-hidden group cursor-pointer"
+            >
               <img
                 src={projectThumbnails[activeMedia]?.url || primaryProject.heroImageUrl}
                 alt={primaryProject.name}
@@ -88,7 +92,7 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none" />
 
-              {/* Status and Location Badges */}
+              {/* Status & Maximize Button */}
               <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center gap-2">
                 <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#0A2E23]/90 text-[#C8A96A] border border-[#C8A96A]/30 backdrop-blur-md shadow-sm">
                   متاح للحجز والإفراغ الفوري
@@ -99,8 +103,12 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
                 </span>
               </div>
 
+              <div className="absolute top-4 left-4 z-10 p-2 rounded-xl bg-slate-950/70 border border-white/20 text-white opacity-0 group-hover:opacity-100 transition duration-300">
+                <Maximize2 className="w-4 h-4" />
+              </div>
+
               {/* Interactive Thumbnail Gallery Peeks */}
-              <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-2">
+              <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-2 bg-slate-950/70 p-1.5 rounded-2xl backdrop-blur-md border border-white/15">
                   {projectThumbnails.map((thumb, idx) => (
                     <button
@@ -140,22 +148,12 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
 
                 {/* Key Architectural Specifications Grid */}
                 <div className="grid grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
-                    <span className="text-[10px] text-slate-400 block font-semibold">إجمالي الوحدات</span>
-                    <span className="text-sm font-bold text-slate-900 tabular-nums">15 تاون هاوس</span>
-                  </div>
-                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
-                    <span className="text-[10px] text-slate-400 block font-semibold">تنوع النماذج</span>
-                    <span className="text-sm font-bold text-slate-900">6 نماذج (A–F)</span>
-                  </div>
-                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
-                    <span className="text-[10px] text-slate-400 block font-semibold">مسطحات البناء</span>
-                    <span className="text-sm font-bold text-slate-900 tabular-nums">302 – 428 م²</span>
-                  </div>
-                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
-                    <span className="text-[10px] text-slate-400 block font-semibold">الملكية</span>
-                    <span className="text-sm font-bold text-slate-900">صك إلكتروني مستقل</span>
-                  </div>
+                  {SPECS.map((s, i) => (
+                    <div key={i} className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
+                      <span className="text-[10px] text-slate-400 block font-semibold">{s.label}</span>
+                      <span className="text-sm font-bold text-slate-900 tabular-nums">{s.val}</span>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Trust and Assurance Hallmarks */}
@@ -231,6 +229,15 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
           </div>
         )}
       </div>
+
+      {/* Cinematic Fullscreen Lightbox */}
+      <CinematicLightbox
+        isOpen={lightboxOpen}
+        images={projectThumbnails}
+        currentIndex={activeMedia}
+        onClose={() => setLightboxOpen(false)}
+        onNavigate={(idx) => setActiveMedia(idx)}
+      />
     </section>
   );
 }

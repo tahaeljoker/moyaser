@@ -4,8 +4,10 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import Hero from '../components/sections/Hero.jsx';
-import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
 import ProjectsShowcase from '../components/sections/ProjectsShowcase.jsx';
+import BlueprintRealitySlider from '../components/sections/BlueprintRealitySlider.jsx';
+import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
+import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects, fetchSiteSettings } from '../services/api.js';
 
@@ -44,11 +46,17 @@ export default function HomePage() {
       <Navbar />
       <Hero settings={settings} />
 
-      {/* World-Class Projects Showcase — Immediate fulfillment of Hero CTA */}
+      {/* Flagship Projects Showcase */}
       <ProjectsShowcase projects={projects} loading={loading} />
 
-      {/* Modern Interactive Architectural Vision & Quality Standards */}
+      {/* Interactive Blueprint-to-Reality Slider */}
+      <BlueprintRealitySlider />
+
+      {/* Modern Interactive Architectural Vision */}
       <ArchitecturalVision />
+
+      {/* Interactive Masterplan Hotspots */}
+      <InteractiveMasterplan />
 
       {/* Partners Strip */}
       <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
