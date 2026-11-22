@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import Hero from '../components/sections/Hero.jsx';
+import HeroQuickBar from '../components/sections/HeroQuickBar.jsx';
 import ProjectsShowcase from '../components/sections/ProjectsShowcase.jsx';
 import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
 import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
@@ -44,6 +45,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans" dir="rtl">
       <Navbar />
       <Hero settings={settings} />
+      <HeroQuickBar projects={projects} />
 
       {/* Flagship Projects Showcase */}
       <ProjectsShowcase projects={projects} loading={loading} />

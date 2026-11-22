@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, ArrowLeft, RefreshCw, CheckCircle2, ShieldCheck } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
@@ -33,6 +33,8 @@ const fallbackFormattedModels = staticModels.map((m) => ({
 
 export default function ProjectDetailPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const requestedModel = searchParams.get('model');
   const [project, setProject] = useState(null);
   const [models, setModels] = useState([]);
   const [units, setUnits] = useState([]);
@@ -49,48 +51,50 @@ export default function ProjectDetailPage() {
         const projData = projRes.status === 'fulfilled' ? projRes.value?.data : null;
         const modelsData = modelsRes.status === 'fulfilled' ? modelsRes.value?.data : null;
         const unitsData = unitsRes.status === 'fulfilled' ? unitsRes.value?.data : null;
-        if (projData) setProject(projData);
-        else if (isShamkha) setProject(fallbackShamkhaProject);
-        const effModels = (modelsData && modelsData.length > 0) ? modelsData : (isShamkha ? fallbackFormattedModels : []);
-        setModels(effModels);
-        if (effModels.length > 0) setActiveModel(effModels[0]);
-        const effUnits = (unitsData && unitsData.length > 0) ? unitsData : (isShamkha ? staticUnits : []);
-        setUnits(effUnits);
+        setProject(projData || (isShamkha ? fallbackShamkhaProject : null));
+        setModels((modelsData && modelsData.length > 0) ? modelsData : (isShamkha ? fallbackFormattedModels : []));
+        setUnits((unitsData && unitsData.length > 0) ? unitsData : (isShamkha ? staticUnits : []));
       })
       .catch(() => {
         if (isShamkha) {
           setProject(fallbackShamkhaProject);
           setModels(fallbackFormattedModels);
-          setActiveModel(fallbackFormattedModels[0]);
           setUnits(staticUnits);
         }
       })
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500 gap-2" dir="rtl">
-        <RefreshCw className="w-5 h-5 text-[#0A2E23] animate-spin" /><span>جاري تحميل بيانات المشروع...</span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (models.length > 0) {
+      const match = requestedModel ? models.find((m) => m.code?.toUpperCase() === requestedModel.toUpperCase()) : null;
+      setActiveModel(match || models[0]);
+      if (match) {
+        const el = document.getElementById('project-models-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [requestedModel, models]);
 
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-between" dir="rtl">
-        <Navbar />
-        <div className="max-w-md mx-auto text-center py-24 space-y-4 px-4">
-          <h1 className="text-xl font-bold text-slate-900 font-heading">المشروع غير موجود</h1>
-          <p className="text-xs text-slate-500">تأكد من صحة الرابط أو تصفح المشاريع المتاحة.</p>
-          <Link to="/projects" className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0A2E23] text-white text-xs font-bold rounded-xl">
-            <span>العودة للمشاريع</span><ArrowLeft className="w-4 h-4" />
-          </Link>
-        </div>
-        <Footer />
+  if (loading) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500 gap-2" dir="rtl">
+      <RefreshCw className="w-5 h-5 text-[#0A2E23] animate-spin" /><span>جاري تحميل بيانات المشروع...</span>
+    </div>
+  );
+
+  if (!project) return (
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between" dir="rtl">
+      <Navbar />
+      <div className="max-w-md mx-auto text-center py-24 space-y-4 px-4">
+        <h1 className="text-xl font-bold text-slate-900 font-heading">المشروع غير موجود</h1>
+        <p className="text-xs text-slate-500">تأكد من صحة الرابط أو تصفح المشاريع المتاحة.</p>
+        <Link to="/projects" className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0A2E23] text-white text-xs font-bold rounded-xl">
+          <span>العودة للمشاريع</span><ArrowLeft className="w-4 h-4" />
+        </Link>
       </div>
-    );
-  }
+      <Footer />
+    </div>
+  );
 
   const vs = project.visibleSections || {};
 
@@ -117,7 +121,7 @@ export default function ProjectDetailPage() {
       </section>
 
       {vs.models !== false && models.length > 0 && (
-        <section className="py-16 md:py-20 bg-white border-b border-slate-200/80">
+        <section id="project-models-section" className="py-16 md:py-20 bg-white border-b border-slate-200/80">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div>
               <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">التصاميم الهندسية</span>
