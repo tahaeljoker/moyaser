@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import Hero from '../components/sections/Hero.jsx';
+import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects, fetchSiteSettings } from '../services/api.js';
 
@@ -12,13 +13,6 @@ const partners = [
   { name: 'أطلال الخليجية', role: 'التوريدات الإنشائية' },
   { name: 'Elite Touch Design', role: 'التصاميم المعمارية الداخلية' },
   { name: 'حلول الدرع الآمن', role: 'العزل المائي والحراري' },
-];
-
-const services = [
-  { title: 'التطوير العقاري السكني', desc: 'تطوير مشاريع تاون هاوس متكاملة باستقلالية إنشائية كاملة وصكوك ملكية إلكترونية مفرزة لكل وحدة.' },
-  { title: 'التصميم المعماري الداخلي', desc: 'مخططات معمارية مدروسة تستغل مساحات البناء بكفاءة مع إضاءة طبيعية وافرة وأفنية خاصة.' },
-  { title: 'المطابخ والتشطيبات الفاخرة', desc: 'مواد وتشطيبات عالية الجودة تخضع لرقابة هندسية صارمة ومطابقة لكود البناء السعودي.' },
-  { title: 'أنظمة المنازل الذكية', desc: 'بنية تحتية كهربائية وتقنية متقدمة تشمل تأسيسات الإضاءة الذكية وشبكات الألياف البصرية.' },
 ];
 
 const defaultShamkhaProject = {
@@ -48,34 +42,11 @@ export default function HomePage() {
       <Navbar />
       <Hero settings={settings} />
 
-      {/* Services Section */}
-      <section className="py-20 md:py-28 bg-white border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center space-y-3 mb-14">
-            <span className="text-xs font-bold text-emerald-800 tracking-wider uppercase">رؤيتنا المعمارية</span>
-            <h2 className="text-2xl sm:text-4xl font-black font-heading text-slate-900 leading-tight">
-              أصالة التطوير وجودة التنفيذ في مشاريع ميسر
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              نلتزم بأعلى المعايير الهندسية والإنشائية المعتمدة في المملكة لنمنح عملاءنا منازل تجمع بين الاستقلالية والجمالية والقيمة العقارية المستدامة.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((s, idx) => (
-              <div key={idx} className="p-7 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 hover:border-emerald-800/40 hover:bg-white transition-all duration-300 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <div className="w-8 h-1 rounded-full bg-[#0A2E23]" />
-                  <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">{s.title}</h3>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed pt-3">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Modern Interactive Architectural Vision */}
+      <ArchitecturalVision />
 
       {/* Dynamic Projects Showcase */}
-      <section className="py-20 md:py-28 bg-[#F8F7F4] border-b border-slate-200/80">
+      <section className="py-20 md:py-28 bg-white border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
             <div>
@@ -96,7 +67,7 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {projects.map((proj) => (
-                <div key={proj._id} className="group rounded-3xl bg-white border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-md transition duration-300 flex flex-col justify-between">
+                <div key={proj._id} className="group rounded-3xl bg-[#F8F7F4] border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-md transition duration-300 flex flex-col justify-between">
                   <div>
                     <div className="relative h-60 overflow-hidden bg-slate-100">
                       <img src={proj.heroImageUrl || '/images/shamkha/hero-exterior.webp'} alt={proj.name} className="w-full h-full object-cover transition duration-500 group-hover:scale-105" />
@@ -109,7 +80,7 @@ export default function HomePage() {
                       <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{proj.description || proj.tagline}</p>
                     </div>
                   </div>
-                  <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
+                  <div className="p-6 pt-0 border-t border-slate-200/60 mt-4 flex items-center justify-between">
                     <span className="text-[11px] font-bold text-emerald-800 font-mono">صكوك مستقلة</span>
                     <Link to={`/projects/${proj.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-slate-900 group-hover:text-[#0A2E23] transition">
                       <span>تفاصيل المشروع</span><ArrowLeft className="w-3.5 h-3.5" />
@@ -123,14 +94,14 @@ export default function HomePage() {
       </section>
 
       {/* Partners Strip */}
-      <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
+      <section className="py-14 bg-[#F8F7F4] border-b border-slate-200/80 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
           <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">شركاء النجاح والجودة</div>
         </div>
         <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div className="animate-marquee flex gap-6 items-center">
             {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="px-6 py-4 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40 hover:bg-white">
+              <div key={i} className="px-6 py-4 rounded-2xl bg-white border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40">
                 <span className="text-xs font-bold text-slate-900 font-heading block">{p.name}</span>
                 <span className="text-[11px] text-slate-500 mt-1 block">{p.role}</span>
               </div>
