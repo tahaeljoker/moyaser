@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Building2, Layers, ShieldCheck, CheckCircle2, Award, ArrowLeft } from 'lucide-react';
+import { Search, Building2, Layers, ArrowLeft } from 'lucide-react';
 
 const MODEL_OPTIONS = [
   { val: '', label: 'جميع النماذج المعمارية' },
@@ -10,12 +10,6 @@ const MODEL_OPTIONS = [
   { val: 'D', label: 'نموذج D — دوبلكس زاوية مفتوح' },
   { val: 'E', label: 'نموذج E — دوبلكس علوي واسع' },
   { val: 'F', label: 'نموذج F — دوبلكس عائلي رحب' },
-];
-
-const TRUST_ITEMS = [
-  { icon: Award, title: 'مرخصة من الهيئة العامة للعقار', val: 'REGA / فال 1200028491#' },
-  { icon: ShieldCheck, title: 'صكوك إلكترونية مستقلة', val: 'إفراغ فوري ومطابق لكود البناء السعودي' },
-  { icon: CheckCircle2, title: 'وحدات ومشاريع سكنية نوعية', val: '15 تاون هاوس مكتمل' },
 ];
 
 export default function HeroQuickBar({ projects = [] }) {
@@ -123,21 +117,6 @@ export default function HeroQuickBar({ projects = [] }) {
             </button>
           </div>
         </form>
-      </div>
-
-      {/* Overlapping 3-Column Licensing & Trust Strip */}
-      <div className="mt-3 bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-right sm:text-center divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-slate-100">
-          {TRUST_ITEMS.map((item, idx) => (
-            <div key={idx} className="pt-2.5 sm:pt-0 sm:px-3 flex sm:flex-col items-center sm:items-center justify-between sm:justify-center gap-1.5">
-              <div className="flex items-center gap-2">
-                <item.icon className="w-4 h-4 text-[#0A2E23] shrink-0" />
-                <span className="text-xs font-bold text-slate-900">{item.title}</span>
-              </div>
-              <span className="text-[11px] font-mono text-[#0A2E23] font-bold tabular-nums">{item.val}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
