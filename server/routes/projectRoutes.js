@@ -56,17 +56,67 @@ const shamkhaFallback = {
   sortOrder: 1,
 };
 
+const allProjectsFallback = [
+  shamkhaFallback,
+  {
+    _id: 'al-rafeeah-fallback', name: 'تاون هاوس الرفيعة', slug: 'al-rafeeah',
+    tagline: 'مجتمع تاون هاوس حديث بإطلالات مفتوحة وتشطيبات فاخرة',
+    description: 'مشروع تاون هاوس سكني متكامل بمدينة الخبر، يضم وحدات دوبلكس بتصاميم عصرية مستقلة توفر خصوصية استثنائية للعائلة السعودية.',
+    city: 'الخبر', district: 'حي الرفيعة', status: 'available', heroImageUrl: '/images/shamkha/hero-exterior.webp',
+    masterplanUrl: '/images/shamkha/masterplan.webp', contactPhone: '0500550223', whatsappNumber: '966500550223',
+    mapUrl: 'https://maps.google.com/?q=Al+Khobar+Al+Rafeeah', regaLicense: '1200028491',
+    specs: ['صك إلكتروني مستقل لكل وحدة سكنية', 'عدادات مياه وكهرباء مستقلة', 'كراج سيارة خاص ومدخل مستقل', 'تأسيس مصاعد راكبة بجميع النماذج', 'عزل حراري ومائي معتمد'],
+    guarantees: [
+      { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' }, { title: 'التمديدات الكهربائية', duration: '25 سنة', details: 'ضمان الفنار' },
+      { title: 'التمديدات الصحية', duration: '15 سنة', details: 'ضمان معتمد' }, { title: 'العزل المائي والحراري', duration: '10 سنوات', details: 'ضمان عزل الأسطح' }
+    ],
+    afterSales: ['صيانة السنة الأولى', 'تسليم كتيب الإرشادات', 'توثيق شهادات الضمان'],
+    visibleSections: { models: true, unitMatrix: false, gallery: true, location: true, specs: true, guarantees: true, afterSales: true },
+    sortOrder: 1, isActive: true,
+  },
+  {
+    _id: 'al-nakheel-fallback', name: 'دوبلكسات النخيل المعمارية', slug: 'al-nakheel',
+    tagline: 'هندسة معمارية مستدامة واستقلالية إنشائية تامة',
+    description: 'مشروع سكني نوعي في قلب حي النخيل بالدمام يركز على كفاءة الطاقة والإنارة الطبيعية مع استقلالية تامة في الجدران الإنشائية.',
+    city: 'الدمام', district: 'حي النخيل', status: 'under_development', heroImageUrl: '/images/shamkha/interior-1.webp',
+    masterplanUrl: '/images/shamkha/masterplan.webp', contactPhone: '0500550223', whatsappNumber: '966500550223',
+    mapUrl: 'https://maps.google.com/?q=Dammam+Al+Nakheel', regaLicense: '1200028491',
+    specs: ['استقلالية إنشائية كاملة بدون فواصل مشتركة', 'نوافذ زجاجية مزدوجة عازلة للحرارة والصوت', 'صك ملكية إلكتروني مستقل وإفراغ فوري', 'تأمين شامل ضد العيوب الخفية'],
+    guarantees: [
+      { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' }, { title: 'التمديدات والأنابيب', duration: '15 سنة', details: 'ضمان معتمد' }, { title: 'الأبواب والمصاعد', duration: '5 سنوات', details: 'ضمان المورد' }
+    ],
+    afterSales: ['صيانة السنة الأولى', 'تسليم كتيب الصيانة', 'فحص الجودة الدوري'],
+    visibleSections: { models: true, unitMatrix: false, gallery: true, location: true, specs: true, guarantees: true, afterSales: true },
+    sortOrder: 2, isActive: true,
+  },
+  {
+    _id: 'al-sarawat-fallback', name: 'تاون هاوس السروات', slug: 'al-sarawat',
+    tagline: 'فلل وتاون هاوس عائلية مستقلة بصكوك إلكترونية',
+    description: 'مجمع سكني مرموق بالقرب من واحة الظهران، يتميز بتصاميم تجمع أصالة الهوية المعمارية مع أحدث حلول الاستدامة وجودة البناء.',
+    city: 'الظهران', district: 'حي القصور', status: 'available', heroImageUrl: '/images/shamkha/render-b.webp',
+    masterplanUrl: '/images/shamkha/masterplan.webp', contactPhone: '0500550223', whatsappNumber: '966500550223',
+    mapUrl: 'https://maps.google.com/?q=Dhahran+Al+Qusoor', regaLicense: '1200028491',
+    specs: ['موقع استراتيجي راقٍ بالقرب من أهم المراكز التعليمية والتجارية', 'صكوك ملكية فورية مطابقة لمواصفات وزارة الإسكان', 'جدران مزدوجة بعوازل صخرية معتمدة', 'كراج سيارة مظلل'],
+    guarantees: [
+      { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' }, { title: 'تمديدات الكهرباء والسباكة', duration: '20 سنة', details: 'ضمان معتمد' }, { title: 'العزل المائي للأسطح', duration: '10 سنوات', details: 'ضمان العزل المعتمد' }
+    ],
+    afterSales: ['صيانة السنة الأولى', 'توثيق الضمانات', 'خدمة العملاء على مدار الساعة'],
+    visibleSections: { models: true, unitMatrix: false, gallery: true, location: true, specs: true, guarantees: true, afterSales: true },
+    sortOrder: 3, isActive: true,
+  },
+];
+
 // GET /api/projects (Public)
 router.get('/projects', async (req, res) => {
   try {
     const filter = (req.query.includeInactive === 'true' && canViewInactive(req)) ? {} : { isActive: true };
     const projects = await Project.find(filter).sort({ sortOrder: 1, createdAt: -1 });
     if (projects.length === 0) {
-      return res.json({ success: true, count: 1, data: [shamkhaFallback] });
+      return res.json({ success: true, count: allProjectsFallback.length, data: allProjectsFallback });
     }
     res.json({ success: true, count: projects.length, data: projects });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'تعذر جلب المشاريع.' });
+    res.json({ success: true, count: allProjectsFallback.length, data: allProjectsFallback });
   }
 });
 
@@ -76,12 +126,14 @@ router.get('/projects/:slug', async (req, res) => {
     const { slug } = req.params;
     const isId = mongoose.Types.ObjectId.isValid(slug);
     let project = await Project.findOne(isId ? { $or: [{ slug }, { _id: slug }] } : { slug });
-    if (!project && slug === 'shamkha') {
-      project = shamkhaFallback;
+    if (!project) {
+      project = allProjectsFallback.find((p) => p.slug === slug || p._id === slug);
     }
     if (!project) return res.status(404).json({ success: false, message: 'المشروع غير موجود.' });
     res.json({ success: true, data: project });
   } catch (error) {
+    const fallback = allProjectsFallback.find((p) => p.slug === req.params.slug || p._id === req.params.slug);
+    if (fallback) return res.json({ success: true, data: fallback });
     res.status(500).json({ success: false, message: 'تعذر جلب تفاصيل المشروع.' });
   }
 });

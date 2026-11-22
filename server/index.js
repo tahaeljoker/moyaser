@@ -26,6 +26,15 @@ app.use(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Normalize URL prefix for Vercel Serverless Function & Local proxies
+app.use((req, res, next) => {
+  if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/assets') && !req.url.startsWith('/images') && !req.url.startsWith('/brand')) {
+    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  }
+  next();
+});
+
 app.use('/api', apiLimiter);
 
 app.use(async (req, res, next) => {
