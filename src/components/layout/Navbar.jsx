@@ -18,13 +18,13 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link to="/" className="flex items-center py-1 group" title={brand.developer}>
+        <div className="flex items-center justify-between h-20 sm:h-24">
+          <Link to="/" className="flex items-center py-2 group" title={brand.developer}>
             {!logoError ? (
               <img
                 src={brand.logo}
                 alt={brand.developer}
-                className="h-11 sm:h-12 md:h-13 w-auto object-contain transition group-hover:opacity-90"
+                className="h-13 sm:h-16 md:h-18 w-auto object-contain transition duration-300 group-hover:opacity-90"
                 onError={() => setLogoError(true)}
               />
             ) : (

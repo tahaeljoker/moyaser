@@ -5,7 +5,6 @@ import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import Hero from '../components/sections/Hero.jsx';
 import ProjectsShowcase from '../components/sections/ProjectsShowcase.jsx';
-import BlueprintRealitySlider from '../components/sections/BlueprintRealitySlider.jsx';
 import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
 import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
@@ -48,9 +47,6 @@ export default function HomePage() {
 
       {/* Flagship Projects Showcase */}
       <ProjectsShowcase projects={projects} loading={loading} />
-
-      {/* Interactive Blueprint-to-Reality Slider */}
-      <BlueprintRealitySlider />
 
       {/* Modern Interactive Architectural Vision */}
       <ArchitecturalVision />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { brand } from '../../data/projectData.js';
+import HeroSearchFilter from './HeroSearchFilter.jsx';
 
 export default function Hero() {
   const [mounted, setMounted] = useState(false);
@@ -128,6 +129,9 @@ export default function Hero() {
             </div>
           </div>
         </div>
+
+        {/* Elevated Real Estate Search & Discovery Filter Bar */}
+        <HeroSearchFilter />
       </div>
     </section>
   );
