@@ -5,6 +5,7 @@ import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects } from '../services/api.js';
+import { defaultProjects } from '../data/projectsData.js';
 
 const statusTabs = [
   { id: 'all', label: 'كافة المشاريع' },
@@ -19,21 +20,8 @@ const statusBadge = {
   completed: { label: 'مكتمل بالكامل', cls: 'bg-slate-900/90 text-slate-200 border-white/20' },
 };
 
-const defaultShamkhaProject = {
-  _id: 'shamkha-default',
-  slug: 'shamkha',
-  name: 'تاون هاوس الشامخة',
-  tagline: '15 وحدة تاون هاوس مستقلة بحي حديقة الأثير بالدمام',
-  description: 'مشروع تاون هاوس فاخر يضم 15 وحدة مستقلة بالدمام، بصكوك إلكترونية مستقلة وتصاميم هندسية عصرية تجمع بين الخصوصية وجودة البناء المستدامة.',
-  city: 'الدمام',
-  district: 'حي حديقة الأثير',
-  status: 'available',
-  heroImageUrl: '/images/shamkha/hero-exterior.webp',
-  regaLicense: '1200028491',
-};
-
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(defaultProjects);
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
@@ -43,10 +31,10 @@ export default function ProjectsPage() {
         if (res?.data && res.data.length > 0) {
           setProjects(res.data);
         } else {
-          setProjects([defaultShamkhaProject]);
+          setProjects(defaultProjects);
         }
       })
-      .catch(() => setProjects([defaultShamkhaProject]))
+      .catch(() => setProjects(defaultProjects))
       .finally(() => setLoading(false));
   }, []);
 

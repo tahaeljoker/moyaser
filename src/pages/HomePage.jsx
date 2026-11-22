@@ -10,6 +10,7 @@ import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx'
 import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects, fetchSiteSettings } from '../services/api.js';
+import { defaultProjects } from '../data/projectsData.js';
 
 const partners = [
   { name: 'JOTUN', role: 'الدهانات المعتمدة' },
@@ -18,26 +19,18 @@ const partners = [
   { name: 'حلول الدرع الآمن', role: 'العزل المائي والحراري' },
 ];
 
-const defaultShamkhaProject = {
-  _id: 'shamkha-default', slug: 'shamkha', name: 'تاون هاوس الشامخة',
-  tagline: '15 وحدة سكنية مستقلة بحي حديقة الأثير بالدمام',
-  description: 'مشروع تاون هاوس فاخر يضم 15 وحدة مستقلة بالدمام، بصكوك إلكترونية مستقلة وتصاميم هندسية عصرية تجمع بين الخصوصية وجودة البناء المستدامة.',
-  city: 'الدمام', district: 'حي حديقة الأثير', status: 'available', heroImageUrl: '/images/shamkha/hero-exterior.webp',
-  regaLicense: '1200028491',
-};
-
 export default function HomePage() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(defaultProjects);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([fetchProjects(), fetchSiteSettings()])
       .then(([projRes, setRes]) => {
-        setProjects(projRes?.data && projRes.data.length > 0 ? projRes.data : [defaultShamkhaProject]);
+        setProjects(projRes?.data && projRes.data.length > 0 ? projRes.data : defaultProjects);
         if (setRes?.data) setSettings(setRes.data);
       })
-      .catch(() => setProjects([defaultShamkhaProject]))
+      .catch(() => setProjects(defaultProjects))
       .finally(() => setLoading(false));
   }, []);
 

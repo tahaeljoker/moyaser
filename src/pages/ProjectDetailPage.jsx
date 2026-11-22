@@ -8,24 +8,9 @@ import BookingForm from '../components/sections/BookingForm.jsx';
 import { fetchProject, fetchModels, fetchUnits } from '../services/api.js';
 import { models as staticModels } from '../data/modelsData.js';
 import { units as staticUnits } from '../data/unitsData.js';
+import { defaultProjects, defaultModels } from '../data/projectsData.js';
 
-const fallbackShamkhaProject = {
-  _id: 'shamkha-authentic', slug: 'shamkha', name: 'تاون هاوس الشامخة',
-  tagline: 'مجتمع سكني فاخر بتصاميم عصرية وضمانات شاملة',
-  description: 'مشروع تاون هاوس الشامخة بالدمام يجمع بين الخصوصية التامة والاستقلالية المعمارية في موقع استراتيجي مطل على حديقة الأثير العامة.',
-  city: 'الدمام', district: 'حي حديقة الأثير', status: 'available',
-  heroImageUrl: '/images/shamkha/hero-exterior.webp', masterplanUrl: '/images/shamkha/masterplan.webp',
-  contactPhone: '0500550223', whatsappNumber: '966500550223', mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',
-  regaLicense: '1200028491',
-  specs: ['صك إلكتروني مستقل لكل وحدة سكنية', 'عدادات مياه وكهرباء مستقلة', 'كراج سيارة خاص ومدخل مستقل', 'تأسيس مصعد بجميع النماذج العلوية', 'عزل حراري ومائي معتمد'],
-  guarantees: [
-    { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' }, { title: 'التمديدات الكهربائية', duration: '25 سنة', details: 'ضمان الفنار' },
-    { title: 'التمديدات الصحية', duration: '15 سنة', details: 'ضمان معتمد' }, { title: 'العزل المائي والحراري', duration: '10 سنوات', details: 'ضمان عزل الأسطح' },
-  ],
-  afterSales: ['صيانة السنة الأولى', 'تسليم كتيب الإرشادات', 'توثيق شهادات الضمان'],
-  visibleSections: { models: true, unitMatrix: true, gallery: true, location: true, specs: true, guarantees: true, afterSales: true },
-  isActive: true,
-};
+const fallbackShamkhaProject = defaultProjects[0];
 
 const fallbackFormattedModels = staticModels.map((m) => ({
   _id: `model-${m.code}`, code: m.code, name: m.name, area: m.area, floors: m.floors, bedrooms: m.rooms || 3, bathrooms: m.baths || 4, startingPrice: 0, description: m.subtitle || m.description || '', floorPlanImageUrl: m.mediaViews?.floorplan?.local || m.image, renderImageUrl: m.image,
@@ -45,22 +30,23 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     setLoading(true);
-    const isShamkha = !slug || slug === 'shamkha';
+    const matchedFallback = defaultProjects.find((p) => p.slug === slug) || defaultProjects[0];
+    const projectFallbackModels = defaultModels.filter((m) => m.slug === slug || m.projectId === slug);
+    const effFallbackModels = projectFallbackModels.length > 0 ? projectFallbackModels : fallbackFormattedModels;
+
     Promise.allSettled([fetchProject(slug), fetchModels({ slug }), fetchUnits({ slug })])
       .then(([projRes, modelsRes, unitsRes]) => {
         const projData = projRes.status === 'fulfilled' ? projRes.value?.data : null;
         const modelsData = modelsRes.status === 'fulfilled' ? modelsRes.value?.data : null;
         const unitsData = unitsRes.status === 'fulfilled' ? unitsRes.value?.data : null;
-        setProject(projData || (isShamkha ? fallbackShamkhaProject : null));
-        setModels((modelsData && modelsData.length > 0) ? modelsData : (isShamkha ? fallbackFormattedModels : []));
-        setUnits((unitsData && unitsData.length > 0) ? unitsData : (isShamkha ? staticUnits : []));
+        setProject(projData || matchedFallback);
+        setModels((modelsData && modelsData.length > 0) ? modelsData : effFallbackModels);
+        setUnits((unitsData && unitsData.length > 0) ? unitsData : staticUnits);
       })
       .catch(() => {
-        if (isShamkha) {
-          setProject(fallbackShamkhaProject);
-          setModels(fallbackFormattedModels);
-          setUnits(staticUnits);
-        }
+        setProject(matchedFallback);
+        setModels(effFallbackModels);
+        setUnits(staticUnits);
       })
       .finally(() => setLoading(false));
   }, [slug]);
