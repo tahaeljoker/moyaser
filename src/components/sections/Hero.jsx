@@ -143,13 +143,13 @@ export default function Hero() {
                   تطوير عقاري نوعي • صكوك إلكترونية مستقلة
                 </span>
 
-                {/* Official Licenses Strip */}
+                {/* Official Accreditation Strip */}
                 <div className="mt-6 pt-4 border-t border-white/10 w-full flex items-center justify-between text-[11px] text-stone-300 font-mono tabular-nums">
-                  <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/15">
-                    فال #{brand.falLicense}
+                  <span className="bg-white/10 px-3 py-1 rounded-md border border-white/15">
+                    ترخيص الهيئة #{brand.regaLicense}
                   </span>
-                  <span className="bg-white/10 px-2.5 py-1 rounded-md border border-white/15">
-                    هيئة #{brand.regaLicense}
+                  <span className="bg-emerald-900/60 text-emerald-300 px-3 py-1 rounded-md border border-emerald-500/30 font-sans">
+                    كود البناء السعودي
                   </span>
                 </div>
               </div>

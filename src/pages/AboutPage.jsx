@@ -9,7 +9,7 @@ export default function AboutPage() {
   const values = [
     { title: 'الاستقلالية المعمارية', desc: 'كل وحدة سكنية مصممة بصك إلكتروني مستقل وعدادات منفصلة ومداخل وكراجات خاصة تضمن الخصوصية الكاملة.' },
     { title: 'الجودة الإنشائية المستدامة', desc: 'التزام صارم باشتراطات كود البناء السعودي وتأمين شامل ضد العيوب الخفية يمتد إلى 10 سنوات.' },
-    { title: 'الشفافية والموثوقية', desc: 'تسجيل رسمي وتراخيص معتمدة من الهيئة العامة للعقار (فال) وتوثيق لكافة مراحل التنفيذ وضمانات المواد.' },
+    { title: 'الشفافية والموثوقية', desc: 'تسجيل رسمي وتراخيص معتمدة من الهيئة العامة للعقار وتوثيق لكافة مراحل التنفيذ وضمانات المواد.' },
     { title: 'خدمات ما بعد البيع', desc: 'مرافقة مستمرة للعميل تشمل الصيانة المجانية في السنة الأولى وتأسيس وإدارة اتحاد الملاك لتيسير السكن.' },
   ];
 
@@ -56,10 +56,6 @@ export default function AboutPage() {
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">رقم ترخيص الهيئة (REGA):</span>
                 <span className="font-mono font-bold tabular-nums">{brand.regaLicense || '1200028945'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">رقم ترخيص فال (VAL):</span>
-                <span className="font-mono font-bold tabular-nums">{brand.falLicense || '1100012345'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">المقر الرئيسي:</span>

@@ -32,7 +32,7 @@ const shamkhaProjectData = {
   whatsappNumber: '966500550223',
   mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',
   regaLicense: '1200028491',
-  valLicense: '1100248950',
+  valLicense: '',
   landmarks: [
     { label: 'حديقة الأثير العامة', minutes: 2, nearby: 'مباشرة أمام المشروع' },
     { label: 'طريق الملك فهد', minutes: 5, nearby: 'محور رئيسي' },
@@ -186,7 +186,7 @@ async function seed() {
     heroTitle: 'تاون هاوس الشامخة',
     heroSubtitle: 'عنوان الاستقرار والرفاهية العائلية بالدمام',
     regaLicense: '1200028491',
-    falLicense: '1100248950',
+    falLicense: '',
     whatsappNumber: '966500550223',
     phoneNumber: '+966 50 055 0223',
     mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',

@@ -16,7 +16,7 @@ const fallbackShamkhaProject = {
   city: 'الدمام', district: 'حي حديقة الأثير', status: 'available',
   heroImageUrl: '/images/shamkha/hero-exterior.webp', masterplanUrl: '/images/shamkha/masterplan.webp',
   contactPhone: '0500550223', whatsappNumber: '966500550223', mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',
-  regaLicense: '1200028491', valLicense: '1100248950',
+  regaLicense: '1200028491',
   specs: ['صك إلكتروني مستقل لكل وحدة سكنية', 'عدادات مياه وكهرباء مستقلة', 'كراج سيارة خاص ومدخل مستقل', 'تأسيس مصعد بجميع النماذج العلوية', 'عزل حراري ومائي معتمد'],
   guarantees: [
     { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' }, { title: 'التمديدات الكهربائية', duration: '25 سنة', details: 'ضمان الفنار' },
@@ -109,8 +109,8 @@ export default function ProjectDetailPage() {
           <h1 className="text-3xl sm:text-5xl font-black font-heading text-white">{project.name}</h1>
           <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">{project.description || project.tagline}</p>
           <div className="flex flex-wrap items-center gap-4 pt-3 text-xs">
-            {project.regaLicense && <span className="font-mono bg-white/10 px-3 py-1 rounded-lg border border-white/15 tabular-nums">REGA #{project.regaLicense}</span>}
-            {project.valLicense && <span className="font-mono bg-white/10 px-3 py-1 rounded-lg border border-white/15 tabular-nums">VAL #{project.valLicense}</span>}
+            {project.regaLicense && <span className="font-mono bg-white/10 px-3 py-1 rounded-lg border border-white/15 tabular-nums">ترخيص الهيئة #{project.regaLicense}</span>}
+            <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/15">صك إلكتروني مستقل</span>
             <a href="#booking" className="px-5 py-2.5 bg-[#0A2E23] hover:bg-[#0E3F30] text-white rounded-xl font-bold transition">احجز استشارة المشروع</a>
           </div>
         </div>

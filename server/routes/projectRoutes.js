@@ -30,7 +30,6 @@ const shamkhaFallback = {
   whatsappNumber: '966500550223',
   mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',
   regaLicense: '1200028491',
-  valLicense: '1100248950',
   specs: [
     'صك إلكتروني مستقل لكل وحدة سكنية',
     'عدادات مياه وكهرباء مستقلة ومنفصلة',

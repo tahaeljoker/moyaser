@@ -21,7 +21,7 @@ export const brand = {
   tagline: 'مشاريع سكنية نوعية بتصاميم عصرية وإتقان هندسي',
   developerType: 'مطور عقاري',
   regaLicense: '1200028491',
-  falLicense: '1100248950',
+  falLicense: '',
 };
 
 export const hero = {

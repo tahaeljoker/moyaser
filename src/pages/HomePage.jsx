@@ -21,7 +21,7 @@ const defaultShamkhaProject = {
   tagline: '15 وحدة سكنية مستقلة بحي حديقة الأثير بالدمام',
   description: 'مشروع تاون هاوس فاخر يضم 15 وحدة مستقلة بالدمام، بصكوك إلكترونية مستقلة وتصاميم هندسية عصرية تجمع بين الخصوصية وجودة البناء المستدامة.',
   city: 'الدمام', district: 'حي حديقة الأثير', status: 'available', heroImageUrl: '/images/shamkha/hero-exterior.webp',
-  regaLicense: '1200028491', valLicense: '1100248950',
+  regaLicense: '1200028491',
 };
 
 export default function HomePage() {

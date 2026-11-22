@@ -30,7 +30,6 @@ const defaultShamkhaProject = {
   status: 'available',
   heroImageUrl: '/images/shamkha/hero-exterior.webp',
   regaLicense: '1200028491',
-  valLicense: '1100248950',
 };
 
 export default function ProjectsPage() {

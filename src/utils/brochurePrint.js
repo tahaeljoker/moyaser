@@ -28,7 +28,7 @@ export const triggerBrochurePrint = (model, brand) => {
 export const getBrochureWhatsAppUrl = (model, brand) => {
   const phone = brand?.whatsapp || '966500550223';
   const text = encodeURIComponent(
-    `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل نموذج ${model?.code || ''} (${model?.name || ''}) بمشروع تاون هاوس الشامخة بالدمام (رخصة فال: ${brand?.falLicense || '1100248950'}).`
+    `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل نموذج ${model?.code || ''} (${model?.name || ''}) بمشروع تاون هاوس الشامخة بالدمام.`
   );
   return `https://wa.me/${phone}?text=${text}`;
 };

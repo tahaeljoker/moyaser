@@ -4,7 +4,6 @@ import { brand } from '../../data/projectData.js';
 
 export default function Footer({ settings = null }) {
   const rega = settings?.regaLicense || brand.regaLicense || '1200028945';
-  const fal = settings?.falLicense || brand.falLicense || '1100012345';
   const phone = settings?.phoneNumber || brand.phoneDisplay;
   const waNumber = settings?.whatsappNumber || brand.whatsapp;
   const waUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('السلام عليكم، أود الاستفسار عن مشاريع شركة مُيسر للتطوير العقاري.')}`;
@@ -26,10 +25,6 @@ export default function Footer({ settings = null }) {
               <div className="flex items-center gap-2">
                 <span className="text-slate-500">رقم ترخيص الهيئة العامة للعقار:</span>
                 <span className="font-mono text-slate-300 font-bold tabular-nums">{rega}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">رقم الترخيص الفال:</span>
-                <span className="font-mono text-slate-300 font-bold tabular-nums">{fal}</span>
               </div>
             </div>
           </div>

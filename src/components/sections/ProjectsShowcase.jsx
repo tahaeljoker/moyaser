@@ -37,7 +37,6 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
     district: 'حي حديقة الأثير',
     heroImageUrl: '/images/shamkha/hero-exterior.webp',
     regaLicense: '1200028491',
-    valLicense: '1100248950',
   };
 
   const otherProjects = projects.slice(1);
