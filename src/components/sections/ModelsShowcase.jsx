@@ -4,7 +4,7 @@ import { models as fallbackModels } from '../../data/projectData.js';
 import { fetchModels } from '../../services/api.js';
 
 const VIEW_TABS = [
-  { key: 'exterior', label: 'الواجهة الخارجية (3D)', icon: Layers },
+  { key: 'exterior', label: 'الواجهة المعمارية', icon: Layers },
   { key: 'interior', label: 'التشطيبات الداخلية', icon: Sparkles },
   { key: 'floorplan', label: 'المخططات الهندسية', icon: Compass },
 ];
@@ -73,13 +73,13 @@ export default function ModelsShowcase({ onOpenVideo, onOpenFloorPlan, onOpenIns
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 mb-2">
-          معرض النماذج والوسائط ثلاثية الأبعاد
+          معرض النماذج والتفاصيل المعمارية
         </div>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading">
           النماذج المعمارية (A — F)
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-2">
-          6 نماذج دوبلكس بتوزيعات هندسية مدروسة وواجهات ثلاثية الأبعاد وتشطيبات متكاملة.
+          6 نماذج دوبلكس بتوزيعات هندسية مدروسة وواجهات معمارية وتشطيبات متكاملة.
         </p>
       </div>
 

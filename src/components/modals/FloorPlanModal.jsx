@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Download, Printer, MessageCircle, Check, FileText, Image, Video, Compass, ExternalLink, Share2 } from 'lucide-react';
+import { X, Printer, MessageCircle, Check, FileText, Image, Video, Share2 } from 'lucide-react';
 import { brand, models } from '../../data/projectData.js';
 import { triggerBrochurePrint, getBrochureWhatsAppUrl, formatBrochureDate } from '../../utils/brochurePrint.js';
 
@@ -35,13 +35,11 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
 
   const images = unit?.media?.images?.length ? unit.media.images : [];
   const videoUrl = unit?.media?.videoUrl || '';
-  const tour3dUrl = unit?.media?.tour3dUrl || '';
 
   const availableTabs = [
     { id: 'specs', label: 'المواصفات والمخطط', icon: FileText },
     images.length > 0 && { id: 'images', label: `الصور (${images.length})`, icon: Image },
     videoUrl && { id: 'video', label: 'الفيديو التعريفي', icon: Video },
-    tour3dUrl && { id: 'tour3d', label: 'جولة 3D تفاعلية', icon: Compass },
   ].filter(Boolean);
 
   const [activeTab, setActiveTab] = useState('specs');
@@ -174,19 +172,6 @@ export default function FloorPlanModal({ isOpen, onClose, modelCode, unit }) {
         {activeTab === 'video' && videoUrl && (
           <div className="rounded-2xl overflow-hidden border border-slate-200 aspect-video mb-5 bg-slate-900">
             <iframe src={getEmbedUrl(videoUrl)} title="فيديو تعريفي" className="w-full h-full" allowFullScreen allow="autoplay; encrypted-media" />
-          </div>
-        )}
-
-        {/* TAB 4: 3D Tour */}
-        {activeTab === 'tour3dUrl' && tour3dUrl && (
-          <div className="space-y-3 mb-5">
-            <div className="rounded-2xl overflow-hidden border border-slate-200 aspect-video bg-slate-900">
-              <iframe src={tour3dUrl} title="جولة 3D تفاعلية" className="w-full h-full" allowFullScreen />
-            </div>
-            <a href={tour3dUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-bold hover:underline">
-              <span>فتح الجولة في نافذة كاملة</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
           </div>
         )}
 

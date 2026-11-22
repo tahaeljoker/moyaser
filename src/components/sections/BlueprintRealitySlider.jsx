@@ -117,7 +117,7 @@ export default function BlueprintRealitySlider() {
               </div>
             </div>
 
-            {/* Clipped Top Layer: 3D Reality Render */}
+            {/* Clipped Top Layer: Reality Render */}
             <div
               className="absolute inset-0 overflow-hidden"
               style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
@@ -130,7 +130,7 @@ export default function BlueprintRealitySlider() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-5 left-6 z-10 px-3.5 py-1.5 rounded-full bg-[#0A2E23]/90 border border-[#C8A96A]/30 text-[11px] font-bold text-[#C8A96A] backdrop-blur-md">
-                  الواقع المعماري (3D Reality)
+                  الواقع المعماري المنفّذ
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@ const makeMediaViews = (renderImg, interiorImg, planImg) => ({
   exterior: {
     local: renderImg,
     fallback: renderImg,
-    title: 'الواجهة الخارجية (3D)',
+    title: 'الواجهة المعمارية الخارجية',
   },
   interior: {
     local: interiorImg,
