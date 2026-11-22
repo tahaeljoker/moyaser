@@ -18,16 +18,6 @@ export default function Hero() {
       {/* Hairline Architectural Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.35] bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,#000_60%,transparent_100%)]" />
 
-      {/* Ambient Large Architectural Background Emblem */}
-      <div className="absolute -left-16 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0">
-        <img
-          src={brand.logo}
-          alt=""
-          aria-hidden="true"
-          className="w-[420px] lg:w-[580px] h-auto object-contain opacity-[0.035] brightness-0 invert"
-        />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Main Editorial Content Column */}

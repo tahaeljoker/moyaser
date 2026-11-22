@@ -44,21 +44,21 @@ export default function HomePage() {
       <Navbar />
       <Hero settings={settings} />
 
-      {/* Modern Interactive Architectural Vision */}
-      <ArchitecturalVision />
-
-      {/* World-Class Projects Showcase */}
+      {/* World-Class Projects Showcase — Immediate fulfillment of Hero CTA */}
       <ProjectsShowcase projects={projects} loading={loading} />
 
+      {/* Modern Interactive Architectural Vision & Quality Standards */}
+      <ArchitecturalVision />
+
       {/* Partners Strip */}
-      <section className="py-14 bg-[#F8F7F4] border-b border-slate-200/80 overflow-hidden">
+      <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
           <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">شركاء النجاح والجودة</div>
         </div>
         <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div className="animate-marquee flex gap-6 items-center">
             {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="px-6 py-4 rounded-2xl bg-white border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40">
+              <div key={i} className="px-6 py-4 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40 hover:bg-white">
                 <span className="text-xs font-bold text-slate-900 font-heading block">{p.name}</span>
                 <span className="text-[11px] text-slate-500 mt-1 block">{p.role}</span>
               </div>
