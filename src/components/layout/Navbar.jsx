@@ -16,7 +16,7 @@ export default function Navbar() {
   const [logoError, setLogoError] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs transition" dir="rtl">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center py-1 group" title={brand.developer}>
@@ -24,7 +24,7 @@ export default function Navbar() {
               <img
                 src={brand.logo}
                 alt={brand.developer}
-                className="h-11 sm:h-12 md:h-14 w-auto object-contain transition group-hover:opacity-90"
+                className="h-11 sm:h-12 md:h-13 w-auto object-contain transition group-hover:opacity-90"
                 onError={() => setLogoError(true)}
               />
             ) : (
@@ -40,20 +40,25 @@ export default function Navbar() {
             )}
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-7 xl:gap-8">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `text-xs font-bold transition py-1 border-b-2 ${
-                    isActive
-                      ? 'border-emerald-800 text-emerald-900'
-                      : 'border-transparent text-slate-600 hover:text-slate-900'
+                  `relative py-2 text-[15px] font-semibold tracking-normal transition-colors duration-200 ${
+                    isActive ? 'text-[#0A2E23]' : 'text-slate-800 hover:text-[#0A2E23]'
                   }`
                 }
               >
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <span>{item.label}</span>
+                    {isActive && (
+                      <span className="absolute bottom-0 right-0 left-0 h-[2.5px] rounded-full bg-[#0A2E23]" />
+                    )}
+                  </>
+                )}
               </NavLink>
             ))}
           </nav>
@@ -61,7 +66,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Link
               to="/contact"
-              className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition inline-flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-xl bg-[#0A2E23] hover:bg-[#0E3F30] text-white text-[13px] font-bold shadow-xs transition-colors duration-200 inline-flex items-center gap-1.5"
             >
               <span>احجز معاينة</span>
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -78,15 +83,15 @@ export default function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-2">
+        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-1.5">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `block text-xs font-bold py-2 px-3 rounded-lg ${
-                  isActive ? 'bg-emerald-50 text-emerald-900' : 'text-slate-700 hover:bg-slate-50'
+                `block text-[15px] font-semibold py-2.5 px-3 rounded-lg transition-colors duration-150 ${
+                  isActive ? 'bg-emerald-50 text-[#0A2E23] font-bold' : 'text-slate-800 hover:bg-slate-50'
                 }`
               }
             >
@@ -96,7 +101,7 @@ export default function Navbar() {
           <Link
             to="/contact"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-xs font-bold text-center py-2.5 rounded-xl bg-emerald-800 text-white mt-2"
+            className="block text-[13px] font-bold text-center py-2.5 rounded-xl bg-[#0A2E23] text-white mt-2"
           >
             احجز معاينة
           </Link>

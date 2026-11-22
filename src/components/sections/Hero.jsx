@@ -18,14 +18,18 @@ export default function Hero() {
       {/* Hairline Architectural Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.45] bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,#000_60%,transparent_100%)]" />
 
-      {/* Refined Brand Logo Architectural Watermark */}
-      <div className="absolute -left-12 lg:left-8 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0">
-        <img
-          src={brand.logo}
-          alt=""
-          aria-hidden="true"
-          className="w-[340px] sm:w-[480px] lg:w-[620px] h-auto object-contain opacity-[0.06] transition-transform duration-[20000ms] ease-out hover:scale-105"
-        />
+      {/* Raised Brand Logo Architectural Watermark */}
+      <div className="absolute -left-10 lg:left-8 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0">
+        <div className="relative">
+          {/* Subtle Soft Radial Light Behind Watermark */}
+          <div className="absolute inset-0 -m-8 bg-[radial-gradient(circle_at_center,rgba(200,169,106,0.14)_0%,rgba(10,46,35,0.45)_50%,transparent_75%)] blur-2xl pointer-events-none" />
+          <img
+            src={brand.logo}
+            alt=""
+            aria-hidden="true"
+            className="relative w-[340px] sm:w-[490px] lg:w-[630px] h-auto object-contain opacity-[0.16] filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)]"
+          />
+        </div>
       </div>
 
       {/* Secondary Staggered Watermark Seal */}
@@ -34,7 +38,7 @@ export default function Hero() {
           src={brand.logo}
           alt=""
           aria-hidden="true"
-          className="w-[260px] lg:w-[380px] h-auto object-contain opacity-[0.035] rotate-12"
+          className="w-[260px] lg:w-[380px] h-auto object-contain opacity-[0.05] rotate-12"
         />
       </div>
 

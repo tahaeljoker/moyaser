@@ -15,11 +15,56 @@ const canViewInactive = (req) => {
   } catch { return false; }
 };
 
+const shamkhaFallback = {
+  _id: 'shamkha-fallback',
+  name: 'تاون هاوس الشامخة',
+  slug: 'shamkha',
+  tagline: 'مجتمع سكني فاخر بتصاميم عصرية وضمانات شاملة',
+  description: 'مشروع تاون هاوس الشامخة بالدمام يجمع بين الخصوصية التامة والاستقلالية المعمارية في موقع استراتيجي مطل على حديقة الأثير العامة.',
+  city: 'الدمام',
+  district: 'حي حديقة الأثير',
+  status: 'available',
+  heroImageUrl: '/images/shamkha/hero-exterior.webp',
+  masterplanUrl: '/images/shamkha/masterplan.webp',
+  contactPhone: '0500550223',
+  whatsappNumber: '966500550223',
+  mapUrl: 'https://maps.google.com/?q=Dammam+Al+Atheer+Park',
+  regaLicense: '1200028491',
+  valLicense: '1100248950',
+  specs: [
+    'صك إلكتروني مستقل لكل وحدة سكنية',
+    'عدادات مياه وكهرباء مستقلة ومنفصلة',
+    'كراج سيارة خاص ومدخل مستقل',
+    'تأسيس مصعد بجميع النماذج العلوية',
+    'عزل حراري ومائي معتمد من شركة الكهرباء',
+  ],
+  guarantees: [
+    { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'شهادة تأمين معتمدة ضد العيوب الخفية' },
+    { title: 'القواطع والتمديدات الكهربائية', duration: '25 سنة', details: 'ضمان شركة الفنار المعتمد' },
+    { title: 'الأنابيب والتمديدات الصحية', duration: '15 سنة', details: 'ضمان معتمد ضد التسريبات' },
+    { title: 'العزل المائي والحراري', duration: '10 سنوات', details: 'ضمان عزل الأسطح ودورات المياه' },
+  ],
+  afterSales: [
+    'خدمة صيانة ومتابعة مخصصة خلال السنة الأولى',
+    'إدارة اتحاد الملاك وتسليم كتيب الإرشادات التشغيلية',
+    'توثيق رسمي لكافة شهادات الضمان المعتمدة',
+  ],
+  visibleSections: {
+    models: true, unitMatrix: true, gallery: true, location: true,
+    specs: true, guarantees: true, afterSales: true,
+  },
+  isActive: true,
+  sortOrder: 1,
+};
+
 // GET /api/projects (Public)
 router.get('/projects', async (req, res) => {
   try {
     const filter = (req.query.includeInactive === 'true' && canViewInactive(req)) ? {} : { isActive: true };
     const projects = await Project.find(filter).sort({ sortOrder: 1, createdAt: -1 });
+    if (projects.length === 0) {
+      return res.json({ success: true, count: 1, data: [shamkhaFallback] });
+    }
     res.json({ success: true, count: projects.length, data: projects });
   } catch (error) {
     res.status(500).json({ success: false, message: 'تعذر جلب المشاريع.' });
@@ -31,7 +76,10 @@ router.get('/projects/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
     const isId = mongoose.Types.ObjectId.isValid(slug);
-    const project = await Project.findOne(isId ? { $or: [{ slug }, { _id: slug }] } : { slug });
+    let project = await Project.findOne(isId ? { $or: [{ slug }, { _id: slug }] } : { slug });
+    if (!project && slug === 'shamkha') {
+      project = shamkhaFallback;
+    }
     if (!project) return res.status(404).json({ success: false, message: 'المشروع غير موجود.' });
     res.json({ success: true, data: project });
   } catch (error) {
