@@ -1,27 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, ArrowLeft, ShieldCheck, Compass, Sparkles } from 'lucide-react';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
+import ProjectsHeader from '../components/projects/ProjectsHeader.jsx';
+import ProjectsFilterBar from '../components/projects/ProjectsFilterBar.jsx';
+import ProjectCard from '../components/projects/ProjectCard.jsx';
 import { fetchProjects } from '../services/api.js';
-
-const statusTabs = [
-  { id: 'all', label: 'كافة المشاريع' },
-  { id: 'available', label: 'متاح للحجز' },
-  { id: 'under_development', label: 'قيد التطوير' },
-  { id: 'completed', label: 'مكتمل' },
-];
-
-const statusBadge = {
-  available: { label: 'متاح للحجز والإفراغ', cls: 'bg-[#0A2E23] text-[#C8A96A] border-[#C8A96A]/30' },
-  under_development: { label: 'قيد الإنشاء', cls: 'bg-amber-900/90 text-amber-200 border-amber-500/30' },
-  completed: { label: 'مكتمل بالكامل', cls: 'bg-slate-900/90 text-slate-200 border-white/20' },
-};
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeStatus, setActiveStatus] = useState('all');
+  const [activeCity, setActiveCity] = useState('all');
+  const [viewMode, setViewMode] = useState('editorial');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,122 +32,104 @@ export default function ProjectsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const cities = useMemo(() => {
+    const list = projects.map((p) => p.city?.trim()).filter(Boolean);
+    return Array.from(new Set(list));
+  }, [projects]);
+
   const filtered = useMemo(() => {
-    if (activeFilter === 'all') return projects;
-    return projects.filter((p) => p.status === activeFilter);
-  }, [projects, activeFilter]);
+    return projects.filter((p) => {
+      const matchStatus = activeStatus === 'all' || p.status === activeStatus;
+      const matchCity = activeCity === 'all' || p.city?.trim() === activeCity;
+      return matchStatus && matchCity;
+    });
+  }, [projects, activeStatus, activeCity]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans" dir="rtl">
       <Navbar />
 
-      {/* Page Header */}
-      <section className="bg-gradient-to-br from-[#061F17] via-[#0A2E23] to-[#0E3F30] text-white py-16 md:py-24 border-b border-white/10 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-bold text-[#D6B87A]">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>سجل الإنجاز والتطوير</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-black font-heading text-white">
-            المشاريع السكنية
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
-            استكشف مجتمعات تاون هاوس مُيسر للتطوير العقاري بالمنطقة الشرقية، المنفذة وفق أرقى مواصفات كود البناء السعودي مع صكوك ملكية إلكترونية مستقلة.
-          </p>
-        </div>
-      </section>
+      {/* Modern Editorial Architectural Header */}
+      <ProjectsHeader projectCount={projects.length || 4} />
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-8">
-        {/* Status Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200">
-          {statusTabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActiveFilter(t.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
-                activeFilter === t.id
-                  ? 'bg-[#0A2E23] text-white shadow-xs'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 w-full space-y-8">
+        {/* Dynamic Architectural Filter Bar */}
+        <ProjectsFilterBar
+          activeStatus={activeStatus}
+          onStatusChange={setActiveStatus}
+          activeCity={activeCity}
+          onCityChange={setActiveCity}
+          cities={cities}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          resultCount={filtered.length}
+        />
 
-        {/* Content Section */}
+        {/* Content Presentation */}
         {loading ? (
-          <div className="py-20 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-            <RefreshCw className="w-4 h-4 animate-spin text-[#0A2E23]" />
-            <span>جاري تحميل دليل المشاريع...</span>
+          <div className="py-24 text-center text-xs text-slate-400 flex flex-col items-center justify-center gap-3">
+            <RefreshCw className="w-6 h-6 animate-spin text-[#0A2E23]" />
+            <span className="font-medium">جاري تحميل سجل المشاريع العقارية...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-16 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200">
-            لا توجد مشاريع مسجلة تحت هذا التصنيف حالياً.
+          <div className="p-16 text-center space-y-3 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+            <Compass className="w-8 h-8 text-slate-400 mx-auto" />
+            <h3 className="text-base font-bold font-heading text-slate-900">لا توجد مشاريع مسجلة وفق هذا الفرز</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+              يمكنك إعادة ضبط خيارات التصفية أو التواصل المباشر مع مستشارنا العقاري للاستفسار عن المشاريع المستقبلية.
+            </p>
+            <button
+              onClick={() => {
+                setActiveStatus('all');
+                setActiveCity('all');
+              }}
+              className="mt-2 px-4 py-2 rounded-xl bg-[#F8F7F4] border border-slate-200 text-xs font-bold text-[#0A2E23] hover:bg-[#0A2E23] hover:text-white transition"
+            >
+              إعادة تعيين الفرز
+            </button>
+          </div>
+        ) : viewMode === 'editorial' ? (
+          <div className="space-y-8">
+            {filtered.map((project) => (
+              <ProjectCard key={project._id || project.slug} project={project} viewMode="editorial" />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {filtered.map((proj) => {
-              const badge = statusBadge[proj.status] || statusBadge.available;
-              return (
-                <div
-                  key={proj._id || proj.slug}
-                  className="group bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col"
-                >
-                  <div className="relative aspect-16/10 overflow-hidden bg-slate-950">
-                    <img
-                      src={proj.heroImageUrl || '/images/shamkha/hero-exterior.webp'}
-                      alt={proj.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold border backdrop-blur-md ${badge.cls}`}>
-                        {badge.label}
-                      </span>
-                    </div>
-                    {proj.regaLicense && (
-                      <div className="absolute bottom-3 right-4 text-[10px] text-slate-300 font-mono">
-                        ترخيص: {proj.regaLicense}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <MapPin className="w-3.5 h-3.5 text-[#0A2E23]" />
-                        <span>{proj.city} {proj.district ? `- ${proj.district}` : ''}</span>
-                      </div>
-                      <h3 className="text-lg font-bold font-heading text-slate-900 group-hover:text-[#0A2E23] transition-colors">
-                        {proj.name}
-                      </h3>
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {proj.tagline || proj.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div className="text-[11px] font-medium text-emerald-800 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>إفراغ وصك مستقل</span>
-                      </div>
-                      <Link
-                        to={`/projects/${proj.slug}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0A2E23] group-hover:text-emerald-700 transition"
-                      >
-                        <span>التفاصيل</span>
-                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filtered.map((project) => (
+              <ProjectCard key={project._id || project.slug} project={project} viewMode="grid" />
+            ))}
           </div>
         )}
+
+        {/* Tailored Real Estate Consultation Banner */}
+        <section className="mt-16 rounded-3xl bg-gradient-to-br from-[#061F17] to-[#0A2E23] text-white p-8 sm:p-12 border border-[#0A2E23]/60 shadow-lg relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="max-w-xl space-y-2">
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-[#D6B87A]">
+                <ShieldCheck className="w-4 h-4 text-[#D6B87A]" />
+                <span>استشارات التملك والاستثمار العقاري</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black font-heading leading-tight">
+                هل تبحث عن وحدة بمواصفات معمارية خاصة؟
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                مستشارونا الهندسيون متواجدون لمساعدتك في اختيار النموذج الملائم لأسرتك وتوضيح تفاصيل الصكوك المستقلة وتسهيلات التمويل البنكي.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link
+                to="/contact"
+                className="px-6 py-3 rounded-xl bg-white text-[#061F17] text-xs font-bold hover:bg-stone-100 transition shadow-xs flex items-center gap-2"
+              >
+                <span>طلب استشارة عقارية</span>
+                <ArrowLeft className="w-4 h-4 text-[#0A2E23]" />
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
