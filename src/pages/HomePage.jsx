@@ -8,15 +8,9 @@ import HeroQuickBar from '../components/sections/HeroQuickBar.jsx';
 import ProjectsShowcase from '../components/sections/ProjectsShowcase.jsx';
 import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx';
 import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
+import PartnersSection from '../components/sections/PartnersSection.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects, fetchSiteSettings } from '../services/api.js';
-
-const partners = [
-  { name: 'JOTUN', role: 'الدهانات المعتمدة' },
-  { name: 'أطلال الخليجية', role: 'التوريدات الإنشائية' },
-  { name: 'Elite Touch Design', role: 'التصاميم المعمارية الداخلية' },
-  { name: 'حلول الدرع الآمن', role: 'العزل المائي والحراري' },
-];
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -52,27 +46,8 @@ export default function HomePage() {
       {/* Interactive Masterplan Hotspots */}
       <InteractiveMasterplan />
 
-      {/* Partners Strip */}
-      <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-            شركاء النجاح والجودة
-          </div>
-        </div>
-        <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-          <div className="animate-marquee flex gap-6 items-center">
-            {[...partners, ...partners, ...partners].map((p, i) => (
-              <div
-                key={i}
-                className="px-6 py-4 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40 hover:bg-white"
-              >
-                <span className="text-xs font-bold text-slate-900 font-heading block">{p.name}</span>
-                <span className="text-[11px] text-slate-500 mt-1 block">{p.role}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* World-Class Success & Engineering Partners Section */}
+      <PartnersSection />
 
       {/* Quick Contact Banner */}
       <section className="py-16 bg-[#0A2E23] text-white">
