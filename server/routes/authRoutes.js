@@ -83,8 +83,23 @@ router.post('/login', authLimiter, async (req, res) => {
 // GET /api/auth/me
 router.get('/me', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-passwordHash');
+    let user = null;
+    try {
+      user = await User.findById(req.user.id).select('-passwordHash');
+    } catch {}
+
     if (!user) {
+      if (req.user && (req.user.role === 'admin' || req.user.id === 'admin-super-id')) {
+        return res.json({
+          success: true,
+          user: {
+            id: req.user.id,
+            name: req.user.name || 'المدير العام',
+            email: req.user.email,
+            role: req.user.role || 'admin',
+          },
+        });
+      }
       return res.status(404).json({
         success: false,
         message: 'المستخدم غير موجود.',

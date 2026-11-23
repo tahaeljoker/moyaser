@@ -10,7 +10,6 @@ import ArchitecturalVision from '../components/sections/ArchitecturalVision.jsx'
 import InteractiveMasterplan from '../components/sections/InteractiveMasterplan.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects, fetchSiteSettings } from '../services/api.js';
-import { defaultProjects } from '../data/projectsData.js';
 
 const partners = [
   { name: 'JOTUN', role: 'الدهانات المعتمدة' },
@@ -20,17 +19,21 @@ const partners = [
 ];
 
 export default function HomePage() {
-  const [projects, setProjects] = useState(defaultProjects);
+  const [projects, setProjects] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([fetchProjects(), fetchSiteSettings()])
       .then(([projRes, setRes]) => {
-        setProjects(projRes?.data && projRes.data.length > 0 ? projRes.data : defaultProjects);
+        if (projRes?.data && projRes.data.length > 0) {
+          setProjects(projRes.data);
+        }
         if (setRes?.data) setSettings(setRes.data);
       })
-      .catch(() => setProjects(defaultProjects))
+      .catch((err) => {
+        console.warn('[HomePage] Data fetch notice:', err.message);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -52,12 +55,17 @@ export default function HomePage() {
       {/* Partners Strip */}
       <section className="py-14 bg-white border-b border-slate-200/80 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">شركاء النجاح والجودة</div>
+          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+            شركاء النجاح والجودة
+          </div>
         </div>
         <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div className="animate-marquee flex gap-6 items-center">
             {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="px-6 py-4 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40 hover:bg-white">
+              <div
+                key={i}
+                className="px-6 py-4 rounded-2xl bg-[#F8F7F4] border border-slate-200/80 text-center shrink-0 min-w-[220px] transition-colors duration-200 hover:border-emerald-800/40 hover:bg-white"
+              >
                 <span className="text-xs font-bold text-slate-900 font-heading block">{p.name}</span>
                 <span className="text-[11px] text-slate-500 mt-1 block">{p.role}</span>
               </div>
@@ -74,8 +82,12 @@ export default function HomePage() {
             فريقنا الهندسي والتسويقي على أتم الاستعداد لتقديم الاستشارات السكنية لكافة مشاريعنا.
           </p>
           <div className="pt-2">
-            <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#061F17] font-bold text-xs hover:bg-stone-100 transition shadow-md">
-              <span>احجز جلسة استشارية</span><ArrowLeft className="w-4 h-4 text-[#0A2E23]" />
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#061F17] font-bold text-xs hover:bg-stone-100 transition shadow-md"
+            >
+              <span>احجز جلسة استشارية</span>
+              <ArrowLeft className="w-4 h-4 text-[#0A2E23]" />
             </Link>
           </div>
         </div>

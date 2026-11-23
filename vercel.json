@@ -40,7 +40,7 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/((?!api/|assets/|images/|brand/|.*\\..*).*)",
+      "source": "/((?!api|assets|images|brand|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

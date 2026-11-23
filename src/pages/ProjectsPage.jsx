@@ -5,7 +5,6 @@ import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.jsx';
 import { fetchProjects } from '../services/api.js';
-import { defaultProjects } from '../data/projectsData.js';
 
 const statusTabs = [
   { id: 'all', label: 'كافة المشاريع' },
@@ -21,7 +20,7 @@ const statusBadge = {
 };
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState(defaultProjects);
+  const [projects, setProjects] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
@@ -31,10 +30,13 @@ export default function ProjectsPage() {
         if (res?.data && res.data.length > 0) {
           setProjects(res.data);
         } else {
-          setProjects(defaultProjects);
+          setProjects([]);
         }
       })
-      .catch(() => setProjects(defaultProjects))
+      .catch((err) => {
+        console.warn('[ProjectsPage] Fetch warning:', err.message);
+        setProjects([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -98,52 +100,56 @@ export default function ProjectsPage() {
               const badge = statusBadge[proj.status] || statusBadge.available;
               return (
                 <div
-                  key={proj._id}
-                  className="group rounded-3xl bg-white border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:border-emerald-900/30"
+                  key={proj._id || proj.slug}
+                  className="group bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col"
                 >
-                  <div>
-                    <div className="relative h-64 overflow-hidden bg-slate-950">
-                      <img
-                        src={proj.heroImageUrl || '/images/shamkha/hero-exterior.webp'}
-                        alt={proj.name}
-                        className="w-full h-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-                      <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[11px] font-bold border backdrop-blur-md ${badge.cls}`}>
+                  <div className="relative aspect-16/10 overflow-hidden bg-slate-950">
+                    <img
+                      src={proj.heroImageUrl || '/images/shamkha/hero-exterior.webp'}
+                      alt={proj.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold border backdrop-blur-md ${badge.cls}`}>
                         {badge.label}
                       </span>
                     </div>
-
-                    <div className="p-6 sm:p-7 space-y-3">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <MapPin className="w-3.5 h-3.5 text-emerald-800 shrink-0" />
-                        <span>{proj.city} {proj.district ? `— ${proj.district}` : ''}</span>
+                    {proj.regaLicense && (
+                      <div className="absolute bottom-3 right-4 text-[10px] text-slate-300 font-mono">
+                        ترخيص: {proj.regaLicense}
                       </div>
-                      <h2 className="text-xl font-bold text-slate-900 font-heading group-hover:text-[#0A2E23] transition">
-                        {proj.name}
-                      </h2>
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {proj.description || proj.tagline}
-                      </p>
-
-                      <div className="pt-2 flex items-center gap-2 text-xs text-slate-700">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-800 shrink-0" />
-                        <span>صك إلكتروني مستقل وإفراغ فوري</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
 
-                  <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-500 font-mono tabular-nums">
-                      {proj.regaLicense ? `REGA #${proj.regaLicense}` : 'صكوك إلكترونية'}
-                    </span>
-                    <Link
-                      to={`/projects/${proj.slug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0A2E23] hover:text-[#0E3F30] transition group-hover:-translate-x-1 duration-200"
-                    >
-                      <span>عرض المشروع</span>
-                      <ArrowLeft className="w-4 h-4" />
-                    </Link>
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                        <MapPin className="w-3.5 h-3.5 text-[#0A2E23]" />
+                        <span>{proj.city} {proj.district ? `- ${proj.district}` : ''}</span>
+                      </div>
+                      <h3 className="text-lg font-bold font-heading text-slate-900 group-hover:text-[#0A2E23] transition-colors">
+                        {proj.name}
+                      </h3>
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {proj.tagline || proj.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="text-[11px] font-medium text-emerald-800 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>إفراغ وصك مستقل</span>
+                      </div>
+                      <Link
+                        to={`/projects/${proj.slug}`}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0A2E23] group-hover:text-emerald-700 transition"
+                      >
+                        <span>التفاصيل</span>
+                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );
