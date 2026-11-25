@@ -46,11 +46,11 @@ async function request(endpoint, options = {}) {
 }
 
 // Projects Endpoints
-export async function fetchProjects(includeInactive = false) {
+async function fetchProjectsRaw(includeInactive = false) {
   return request(`projects${includeInactive ? '?includeInactive=true' : ''}`, { method: 'GET' });
 }
 
-export async function fetchProject(slug) {
+async function fetchProjectRaw(slug) {
   return request(`projects/${slug}`, { method: 'GET' });
 }
 
@@ -174,4 +174,24 @@ export async function createAdminUser(payload) {
 
 export async function updateAdminUser(id, updates) {
   return request(`admin/users/${id}`, { method: 'PATCH', body: JSON.stringify(updates) });
+}
+
+// Public-site content guard: hide electronic title-deed claims (owner instruction) from API-fed public project text. Display-only, admin/DB data untouched.
+const DEED_CLAIM = /\u0635\u0643|\u0625\u0641\u0631\u0627\u063a/;
+function cleanPublicProject(p) {
+  if (!p || typeof p !== 'object') return p;
+  const q = { ...p };
+  if (Array.isArray(q.specs)) q.specs = q.specs.filter((s) => !DEED_CLAIM.test(String(s)));
+  if (DEED_CLAIM.test(String(q.tagline || ''))) q.tagline = '';
+  return q;
+}
+export async function fetchProjects(includeInactive = false) {
+  const res = await fetchProjectsRaw(includeInactive);
+  if (includeInactive || !res || !Array.isArray(res.data)) return res;
+  return { ...res, data: res.data.map(cleanPublicProject) };
+}
+export async function fetchProject(slug) {
+  const res = await fetchProjectRaw(slug);
+  if (!res || !res.data) return res;
+  return { ...res, data: cleanPublicProject(res.data) };
 }
