@@ -96,7 +96,7 @@ export default function PropertiesCatalog({ onOpenInspection }) {
 
                     <div className="absolute top-3.5 left-3.5 bg-emerald-900/90 backdrop-blur-md text-emerald-100 text-[11px] px-2.5 py-1 rounded-xl font-bold border border-emerald-500/20 shadow-xs flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>{p.badge || 'جاهز للإفراغ الفوري'}</span>
+                      <span>{p.badge || 'متاح للحجز'}</span>
                     </div>
 
                     <div className="absolute bottom-3 right-3 left-3 text-white flex items-center gap-1.5 text-xs">

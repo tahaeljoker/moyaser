@@ -20,7 +20,7 @@ export const brand = {
   mapQuery: MAPS_QUERY,
   tagline: 'مشاريع سكنية نوعية بتصاميم عصرية وإتقان هندسي',
   developerType: 'مطور عقاري',
-  regaLicense: '1200028491',
+  regaLicense: '',
   falLicense: '',
 };
 
@@ -87,11 +87,11 @@ export const properties = [
     beds: 4,
     baths: 4,
     parking: 'مدخل سيارة خاص',
-    badge: 'جاهز للإفراغ الفوري',
+    badge: 'متاح للحجز',
     status: 'available',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
     description: 'تاون هاوس دوبلكس مستقل بالكامل بمدخل سيارة وخزان أرضي وعلوي خاص، تصميم عصري وتشطيبات راقية.',
-    features: ['مدخل سيارة خاص', 'خزان مستقل وعداد منفصل', 'تأسيس مصعد إيطالي', 'صك إلكتروني مستقل'],
+    features: ['مدخل سيارة خاص', 'خزان مستقل وعداد منفصل', 'تأسيس مصعد إيطالي', 'وحدات مستقلة'],
   },
   {
     id: 'prop-2',
@@ -125,7 +125,7 @@ export const properties = [
     beds: 3,
     baths: 3,
     parking: 'موقف خاص مظلل',
-    badge: 'صك إلكتروني مستقل',
+    badge: 'وحدات مستقلة',
     status: 'available',
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=85',
     description: 'شقة تمليك بموقف خاص مظلل، نظام دخول ذكي، تكييف مخفي مركزي.',

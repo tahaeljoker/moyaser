@@ -1,59 +1,71 @@
-import { Building2, ShieldCheck, Award, FileCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-export default function ProjectsHeader({ projectCount = 4 }) {
+export default function ProjectsHeader({ projectCount = 4, settings = null }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
-    <section className="relative bg-[#061F17] text-white py-16 md:py-24 border-b border-[#0A2E23]/60 overflow-hidden" dir="rtl">
-      {/* Subtle Architectural Grid Lines */}
-      <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#C8A96A_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#0A2E23]/40 rounded-full blur-3xl pointer-events-none" />
+    <div dir="rtl">
+      <section
+        className="relative text-white pt-16 pb-28 sm:pt-20 sm:pb-32 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0b3a2c 0%, #06261c 100%)' }}
+      >
+        <div
+          className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${
+            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+        >
+          <div className="max-w-3xl space-y-4 sm:space-y-5">
+            <h1
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black font-heading pb-1.5"
+              style={{ lineHeight: 1.7 }}
+            >
+              مشاريع سكنية صُممت لتدوم أجيالاً
+            </h1>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-bold text-[#D6B87A] backdrop-blur-md shadow-xs">
-            <Building2 className="w-3.5 h-3.5 text-[#D6B87A]" />
-            <span>سجل التطوير السكني المعتمد</span>
+            <p className="text-xs sm:text-sm text-stone-200/90 max-w-2xl leading-relaxed">
+              {settings?.siteCopy?.projectsHeaderDesc?.trim() ||
+                'استكشف مجتمعات تاون هاوس ودوبلكسات مُيسر للتطوير العقاري بالمنطقة الشرقية. وحدات مستقلة إنشائياً تُنفذ وفق متطلبات كود البناء السعودي.'}
+            </p>
           </div>
-
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight leading-tight">
-            مشاريع سكنية صُممت لتدوم أجيالاً
-          </h1>
-
-          <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
-            استكشف مجتمعات تاون هاوس ودوبلكسات مُيسر للتطوير العقاري بالمنطقة الشرقية. وحدات مستقلة إنشائياً تُنفذ وفق متطلبات كود البناء السعودي مع صكوك ملكية إلكترونية مستقلة وإفراغ فوري.
-          </p>
         </div>
+      </section>
 
-        {/* Live Architectural Metrics Pillows */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-white/10">
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className="text-[11px] text-stone-400 block font-medium">المشاريع المطروحة</span>
-            <span className="text-xl sm:text-2xl font-black font-heading text-white tabular-nums mt-1 block">
-              {projectCount}+ مشاريع
-            </span>
-          </div>
+      {/* Floating 4-Cell Stat Bar overlapping bottom of green band by ~60px */}
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-[60px]">
+        <div
+          className={`bg-[#fbf9f3] rounded-[14px] border-t-[4px] border-t-[#c9ab68] shadow-[0_20px_50px_-15px_rgba(6,38,28,0.18)] overflow-hidden transition-all duration-700 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${
+            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3">
+            <div className="min-w-0 p-4 sm:p-6 border-b sm:border-b-0 sm:border-l border-[#e3dbc6]">
+              <span className="text-[11px] sm:text-xs text-slate-500 block font-medium">المشاريع المطروحة</span>
+              <span className="text-base sm:text-xl font-black font-heading text-[#0a2e23] leading-snug tabular-nums mt-1.5 block">
+                {projectCount}+ مشاريع
+              </span>
+            </div>
 
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className="text-[11px] text-stone-400 block font-medium">الملكية العقارية</span>
-            <span className="text-xl sm:text-2xl font-black font-heading text-white tabular-nums mt-1 block">
-              100% صك مستقل
-            </span>
-          </div>
+            <div className="min-w-0 p-4 sm:p-6 border-b sm:border-b-0 sm:border-l border-[#e3dbc6]">
+              <span className="text-[11px] sm:text-xs text-slate-500 block font-medium">الملكية العقارية</span>
+              <span className="text-base sm:text-xl font-black font-heading text-[#0a2e23] leading-snug tabular-nums mt-1.5 block">
+                {settings?.siteCopy?.projectsHeaderStat?.trim() || 'وحدات مستقلة'}
+              </span>
+            </div>
 
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className="text-[11px] text-stone-400 block font-medium">الضمانات المعتمدة</span>
-            <span className="text-xl sm:text-2xl font-black font-heading text-white tabular-nums mt-1 block">
-              حتى 25 سنة
-            </span>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className="text-[11px] text-stone-400 block font-medium">التراخيص والحوكمة</span>
-            <span className="text-xl sm:text-2xl font-black font-heading text-[#D6B87A] tabular-nums mt-1 block text-ellipsis overflow-hidden whitespace-nowrap">
-              رخصة فال معتمدة
-            </span>
+            <div className="min-w-0 p-4 sm:p-6">
+              <span className="text-[11px] sm:text-xs text-slate-500 block font-medium">الضمانات المعتمدة</span>
+              <span className="text-base sm:text-xl font-black font-heading text-[#0a2e23] leading-snug tabular-nums mt-1.5 block">
+                حتى 25 سنة
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

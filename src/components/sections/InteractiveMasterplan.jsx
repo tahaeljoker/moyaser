@@ -71,7 +71,7 @@ const hotspots = [
   },
 ];
 
-export default function InteractiveMasterplan() {
+export default function InteractiveMasterplan({ settings = null }) {
   const [activePin, setActivePin] = useState(hotspots[0]);
 
   return (
@@ -115,23 +115,20 @@ export default function InteractiveMasterplan() {
                     aria-label={`الوحدة ${pin.unitCode}`}
                   >
                     <span
-                      className={`relative flex items-center justify-center transition-all duration-300 ${
-                        isSelected ? 'scale-125 z-30' : 'hover:scale-110'
-                      }`}
+                      className={`relative flex items-center justify-center transition-all duration-300 ${isSelected ? 'scale-125 z-30' : 'hover:scale-110'
+                        }`}
                     >
                       {/* Pulsing Wave Ring */}
                       <span
-                        className={`absolute inline-flex h-8 w-8 rounded-full opacity-75 animate-ping ${
-                          isSelected ? 'bg-[#C8A96A]' : 'bg-emerald-400'
-                        }`}
+                        className={`absolute inline-flex h-8 w-8 rounded-full opacity-75 animate-ping ${isSelected ? 'bg-[#C8A96A]' : 'bg-emerald-400'
+                          }`}
                       />
                       {/* Core Pin Badge */}
                       <span
-                        className={`relative inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full text-[10px] font-mono font-bold shadow-xl border-2 transition-colors ${
-                          isSelected
+                        className={`relative inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full text-[10px] font-mono font-bold shadow-xl border-2 transition-colors ${isSelected
                             ? 'bg-[#0A2E23] text-[#C8A96A] border-[#C8A96A]'
                             : 'bg-white text-slate-900 border-[#0A2E23]'
-                        }`}
+                          }`}
                       >
                         {pin.model}
                       </span>
@@ -189,7 +186,7 @@ export default function InteractiveMasterplan() {
 
                 <div className="pt-2 flex items-center gap-2 text-xs text-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-[#0A2E23] shrink-0" />
-                  <span>صك إلكتروني مستقل وإفراغ فوري</span>
+                  <span>{settings?.siteCopy?.masterplanBadge?.trim() || 'وحدات مستقلة'}</span>
                 </div>
 
                 <Link

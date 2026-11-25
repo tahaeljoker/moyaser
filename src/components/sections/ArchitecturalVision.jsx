@@ -8,10 +8,10 @@ const pillars = [
     tag: 'STR-01',
     title: 'الهيكل والاستقلالية الإنشائية',
     subtitle: 'استقلالية الفيلا بمرونة التاون هاوس الحديث',
-    desc: 'تصميم إنشائي يوفر عزلاً تاماً لكل وحدة مع صك إلكتروني مستقل، ومدخل وكراج خاص، وخزان مياه أرضي وعلوي منفصل، وعدادات خدمات مستقلة بالكامل.',
+    desc: 'تصميم إنشائي يوفر عزلاً تاماً لكل وحدة مع مدخل وكراج خاص، وخزان مياه أرضي وعلوي منفصل، وعدادات خدمات مستقلة بالكامل.',
     image: '/images/shamkha/render-a.webp',
     icon: Building2,
-    specs: ['صك إلكتروني مستقل', 'كراج ومدخل خاص', 'خزان وعدادات مستقلة'],
+    specs: ['وحدات مستقلة', 'كراج ومدخل خاص', 'خزان وعدادات مستقلة'],
     metric: '100%',
     metricLabel: 'استقلالية تامة للمرافق',
   },
@@ -53,7 +53,7 @@ const pillars = [
   },
 ];
 
-export default function ArchitecturalVision() {
+export default function ArchitecturalVision({ settings = null }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef(null);
@@ -191,7 +191,7 @@ export default function ArchitecturalVision() {
             {/* Detailed Architectural Specs Bar */}
             <div className="p-6 sm:p-7 bg-white space-y-4">
               <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                {activePillar.desc}
+                {activeIdx === 0 ? (settings?.siteCopy?.archVisionDesc?.trim() || activePillar.desc) : activePillar.desc}
               </p>
 
               {/* Verified Badges */}
@@ -203,7 +203,7 @@ export default function ArchitecturalVision() {
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#F8F7F4] border border-slate-200 text-[11px] font-bold text-slate-800"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#0A2E23]" />
-                      <span>{spec}</span>
+                      <span>{activeIdx === 0 && i === 0 ? (settings?.siteCopy?.archVisionSpec?.trim() || spec) : spec}</span>
                     </div>
                   ))}
                 </div>

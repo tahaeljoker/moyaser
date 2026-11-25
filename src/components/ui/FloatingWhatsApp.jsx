@@ -15,15 +15,15 @@ export default function FloatingWhatsApp({ whatsappNumber = null, projectName = 
   const waUrl = `https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(greeting)}`;
 
   return (
-    <aside aria-label="محادثة واتساب المباشرة" className="fixed bottom-6 left-6 z-40">
+    <aside aria-label="محادثة واتساب المباشرة" className="fixed bottom-3 left-3 sm:bottom-5 sm:left-5 z-40">
       <a
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="تواصل معنا عبر واتساب"
-        className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-emerald-700 hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+        className="group flex items-center gap-2.5 p-2.5 sm:px-4 sm:py-3 rounded-full bg-emerald-700 hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
       >
-        <MessageCircle className="w-5 h-5 shrink-0" />
+        <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
         <span className="text-xs font-bold font-heading hidden sm:inline whitespace-nowrap">
           محادثة واتساب
         </span>

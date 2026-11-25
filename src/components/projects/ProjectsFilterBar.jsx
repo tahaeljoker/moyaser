@@ -1,8 +1,8 @@
-import { LayoutGrid, Rows3, SlidersHorizontal, MapPin } from 'lucide-react';
+import { LayoutGrid, Rows3, MapPin } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { id: 'all', label: 'كافة الحالات' },
-  { id: 'available', label: 'متاح للحجز والإفراغ' },
+  { id: 'available', label: 'متاح للحجز' },
   { id: 'under_development', label: 'قيد التطوير' },
   { id: 'completed', label: 'مكتمل' },
 ];
@@ -18,19 +18,18 @@ export default function ProjectsFilterBar({
   resultCount = 0,
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs space-y-4" dir="rtl">
-      {/* Top Filter Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+    <div className="py-2 space-y-3 border-b border-[#e3dbc6]" dir="rtl">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3">
+        {/* Status Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
           {STATUS_OPTIONS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onStatusChange(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-xs font-bold border transition-colors duration-200 whitespace-nowrap ${
                 activeStatus === tab.id
-                  ? 'bg-[#0A2E23] text-white shadow-xs'
-                  : 'bg-[#F8F7F4] border border-slate-200/80 text-slate-700 hover:text-slate-900 hover:border-slate-300'
+                  ? 'bg-[#0a2e23] border-[#0a2e23] text-white shadow-xs'
+                  : 'bg-[#fbf9f3]/70 border-[#c9bd9c] text-[#0a2e23] hover:bg-[#fbf9f3]'
               }`}
             >
               {tab.label}
@@ -39,18 +38,18 @@ export default function ProjectsFilterBar({
         </div>
 
         {/* View Switcher and Live Count */}
-        <div className="flex items-center justify-between lg:justify-end gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-          <span className="text-xs font-medium text-slate-500 tabular-nums">
+        <div className="flex items-center justify-between lg:justify-end gap-3">
+          <span className="text-xs font-bold text-[#0a2e23] tabular-nums">
             عرض {resultCount} {resultCount === 1 ? 'مشروع' : 'مشاريع'}
           </span>
 
-          <div className="flex items-center bg-[#F8F7F4] p-1 rounded-xl border border-slate-200/80">
+          <div className="flex items-center bg-[#fbf9f3] p-1 rounded-full border border-[#c9bd9c]">
             <button
               onClick={() => onViewModeChange('editorial')}
-              className={`p-1.5 rounded-lg transition ${
+              className={`p-1.5 rounded-full transition-colors duration-200 ${
                 viewMode === 'editorial'
-                  ? 'bg-white text-[#0A2E23] shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-[#0a2e23] text-white'
+                  : 'text-[#0a2e23]/70 hover:text-[#0a2e23]'
               }`}
               title="عرض المخطط التحريري"
             >
@@ -58,10 +57,10 @@ export default function ProjectsFilterBar({
             </button>
             <button
               onClick={() => onViewModeChange('grid')}
-              className={`p-1.5 rounded-lg transition ${
+              className={`p-1.5 rounded-full transition-colors duration-200 ${
                 viewMode === 'grid'
-                  ? 'bg-white text-[#0A2E23] shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-[#0a2e23] text-white'
+                  : 'text-[#0a2e23]/70 hover:text-[#0a2e23]'
               }`}
               title="عرض الشبكة المعمارية"
             >
@@ -73,17 +72,17 @@ export default function ProjectsFilterBar({
 
       {/* City Chips Row */}
       {cities.length > 0 && (
-        <div className="flex items-center gap-2 pt-3 border-t border-slate-100 overflow-x-auto pb-1">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 shrink-0 ml-1">
-            <MapPin className="w-3.5 h-3.5 text-[#0A2E23]" />
+        <div className="flex items-center gap-2 pt-2 pb-2 border-t border-[#e3dbc6]/70 overflow-x-auto">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0a2e23] shrink-0 ml-1">
+            <MapPin className="w-3.5 h-3.5 text-[#0a2e23]" />
             <span>المدينة:</span>
           </div>
           <button
             onClick={() => onCityChange('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors duration-200 whitespace-nowrap ${
               activeCity === 'all'
-                ? 'bg-[#0A2E23]/10 text-[#0A2E23] font-bold border border-[#0A2E23]/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                ? 'bg-[#0a2e23] border-[#0a2e23] text-white'
+                : 'bg-[#fbf9f3]/70 border-[#c9bd9c] text-[#0a2e23] hover:bg-[#fbf9f3]'
             }`}
           >
             كافة المدن
@@ -92,10 +91,10 @@ export default function ProjectsFilterBar({
             <button
               key={city}
               onClick={() => onCityChange(city)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors duration-200 whitespace-nowrap ${
                 activeCity === city
-                  ? 'bg-[#0A2E23]/10 text-[#0A2E23] font-bold border border-[#0A2E23]/20'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#0a2e23] border-[#0a2e23] text-white'
+                  : 'bg-[#fbf9f3]/70 border-[#c9bd9c] text-[#0a2e23] hover:bg-[#fbf9f3]'
               }`}
             >
               {city}

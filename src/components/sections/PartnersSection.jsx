@@ -65,17 +65,6 @@ const PARTNERS = [
     icon: Layers,
     accent: 'border-purple-500/30 bg-purple-500/5 text-purple-800',
   },
-  {
-    id: 'rega',
-    name: 'الهيئة العامة للعقار (REGA)',
-    latin: 'Real Estate General Authority',
-    category: 'governance',
-    role: 'التنظيم والاعتماد والترخيص الرسمي',
-    spec: 'إفراغ فوري وصكوك إلكترونية مستقلة ورخص تسويق معتمدة (فال)',
-    guarantee: 'ترخيص فال #1200028491',
-    icon: FileCheck,
-    accent: 'border-[#0A2E23]/30 bg-[#0A2E23]/5 text-[#0A2E23]',
-  },
 ];
 
 const TRUST_PILLARS = [
@@ -85,7 +74,7 @@ const TRUST_PILLARS = [
   },
   {
     title: 'ضمانات موثقة وممتدة',
-    desc: 'تسليم شهادات الضمان الرسمية المباشرة من الشركات المصنعة للعميل فور اكتمال الإفراغ.',
+    desc: 'تسليم شهادات الضمان الرسمية المباشرة من الشركات المصنعة للعميل.',
   },
   {
     title: 'فحص وضبط الجودة',
@@ -93,7 +82,7 @@ const TRUST_PILLARS = [
   },
 ];
 
-export default function PartnersSection() {
+export default function PartnersSection({ settings = null }) {
   const [activeTab, setActiveTab] = useState('all');
 
   const filtered = useMemo(() => {
@@ -125,11 +114,10 @@ export default function PartnersSection() {
               <button
                 key={cat.id}
                 onClick={() => setActiveTab(cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
-                  activeTab === cat.id
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${activeTab === cat.id
                     ? 'bg-[#0A2E23] text-white shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-                }`}
+                  }`}
               >
                 {cat.label}
               </button>
@@ -170,7 +158,7 @@ export default function PartnersSection() {
                   </p>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    {item.spec}
+                    {item.id === 'rega' ? (settings?.siteCopy?.partnersMarketingSpec?.trim() || item.spec) : item.spec}
                   </p>
                 </div>
 
@@ -198,7 +186,7 @@ export default function PartnersSection() {
                   <h4>{pillar.title}</h4>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {pillar.desc}
+                  {i === 1 ? (settings?.siteCopy?.partnersWarrantyDesc?.trim() || pillar.desc) : pillar.desc}
                 </p>
               </div>
             ))}

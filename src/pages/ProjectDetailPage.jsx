@@ -20,10 +20,9 @@ const fallbackShamkhaProject = {
   status: 'available',
   heroImageUrl: '/images/shamkha/hero-exterior.webp',
   masterplanUrl: '/images/shamkha/masterplan.webp',
-  regaLicense: '1200028491',
   contactPhone: '0500550223',
   whatsappNumber: '966500550223',
-  specs: ['صك إلكتروني مستقل', 'عدادات مستقلة', 'كراج خاص', 'تأسيس مصعد'],
+  specs: ['وحدات مستقلة', 'عدادات مستقلة', 'كراج خاص', 'تأسيس مصعد'],
   guarantees: [
     { title: 'الهيكل الإنشائي', duration: '10 سنوات', details: 'تأمين العيوب الخفية' },
     { title: 'التمديدات الكهربائية', duration: '25 سنة', details: 'ضمان الفنار' },
@@ -105,10 +104,10 @@ export default function ProjectDetailPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans" dir="rtl">
       <Navbar />
-      <section className="relative bg-slate-950 text-white py-16 md:py-24 overflow-hidden border-b border-slate-800">
+      <section className="relative bg-[#06261c] text-white py-16 md:py-24 overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 z-0 opacity-40">
           <img src={project.heroImageUrl || '/images/shamkha/hero-exterior.webp'} alt={project.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#06261c] via-[#06261c]/80 to-transparent" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs text-emerald-300 border border-white/15">
@@ -117,9 +116,8 @@ export default function ProjectDetailPage() {
           <h1 className="text-3xl sm:text-5xl font-black font-heading text-white">{project.name}</h1>
           <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">{project.description || project.tagline}</p>
           <div className="flex flex-wrap items-center gap-4 pt-3 text-xs">
-            {project.regaLicense && <span className="font-mono bg-white/10 px-3 py-1 rounded-lg border border-white/15 tabular-nums">ترخيص الهيئة #{project.regaLicense}</span>}
-            <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/15">صك إلكتروني مستقل</span>
-            <a href="#booking" className="px-5 py-2.5 bg-[#0A2E23] hover:bg-[#0E3F30] text-white rounded-xl font-bold transition">احجز استشارة المشروع</a>
+            <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/15">وحدات مستقلة</span>
+            <a href="#booking" className="px-5 py-2.5 bg-[#c9ab68] hover:bg-[#d5b978] text-[#06261c] rounded-xl font-bold transition">احجز استشارة المشروع</a>
           </div>
         </div>
       </section>
@@ -205,7 +203,7 @@ export default function ProjectDetailPage() {
           </div>
           {activeTab === 'specs' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-              {(project.specs?.length ? project.specs : ['صك إلكتروني مستقل', 'عوازل معتمدة', 'كراج خاص']).map((s, i) => (
+              {(project.specs?.length ? project.specs : ['وحدات مستقلة', 'عوازل معتمدة', 'كراج خاص']).map((s, i) => (
                 <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#0A2E23] shrink-0" /><span>{s}</span></div>
               ))}
             </div>

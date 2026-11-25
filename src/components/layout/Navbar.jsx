@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, ArrowLeft, Building2 } from 'lucide-react';
 import { brand } from '../../data/projectData.js';
 
@@ -14,99 +14,151 @@ const navItems = [
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [pill, setPill] = useState({ left: 0, width: 0, visible: false });
+  const linkRefs = useRef([]);
+  const { pathname } = useLocation();
+
+  const activeIdx = navItems.findIndex((item) =>
+    item.to === '/' ? pathname === '/' : pathname === item.to || pathname.startsWith(`${item.to}/`)
+  );
+
+  const updatePillTo = useCallback((idx) => {
+    const el = idx >= 0 ? linkRefs.current[idx] : null;
+    if (!el) {
+      setPill((p) => (p.visible ? { ...p, visible: false } : p));
+      return;
+    }
+    setPill({ left: el.offsetLeft, width: el.offsetWidth, visible: true });
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const target = hoveredIdx !== null ? hoveredIdx : activeIdx;
+    const raf = requestAnimationFrame(() => updatePillTo(target));
+    const onResize = () => updatePillTo(hoveredIdx !== null ? hoveredIdx : activeIdx);
+    window.addEventListener('resize', onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [hoveredIdx, activeIdx, updatePillTo]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition" dir="rtl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 lg:h-22">
-          <Link to="/" className="flex items-center py-1 sm:py-2 group shrink-0" title={brand.developer}>
+    <>
+      <div aria-hidden="true" className="h-[90px] sm:h-[114px] w-full shrink-0 bg-[#0a2e23]" />
+      <header className="fixed top-0 left-0 right-0 z-40 bg-[#0a2e23]" dir="rtl">
+        <div
+          className={`pointer-events-auto mt-[10px] mx-[10px] sm:mt-[18px] sm:mx-[60px] h-20 sm:h-24 px-4 sm:px-[36px] rounded-[24px] bg-[rgba(255,255,255,0.97)] backdrop-blur-md text-[#0a2e23] flex items-center justify-between transition-shadow duration-500 motion-reduce:transition-none ${
+            scrolled ? 'shadow-[0_10px_30px_rgba(0,0,0,0.25)]' : 'shadow-none'
+          }`}
+        >
+          <Link to="/" className="flex items-center py-1 group shrink-0" title={brand.developer}>
             {!logoError ? (
               <img
                 src={brand.logo}
                 alt={brand.developer}
-                className="h-9 sm:h-13 md:h-15 lg:h-16 w-auto max-w-[125px] sm:max-w-[160px] md:max-w-none object-contain transition duration-300 group-hover:opacity-90"
+                className="h-16 sm:h-20 w-auto max-w-none object-contain transition duration-300 group-hover:opacity-90"
                 onError={() => setLogoError(true)}
               />
             ) : (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-slate-900 flex items-center justify-center text-emerald-400 shadow-xs">
-                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-emerald-400 shadow-xs">
+                  <Building2 className="w-5 h-5" />
                 </div>
                 <div className="text-right">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 font-heading block">{brand.developer}</span>
-                  <span className="text-[9px] sm:text-[10px] text-slate-500 block">تطوير عقاري نوعي</span>
+                  <span className="text-sm font-bold text-slate-900 font-heading block">{brand.developer}</span>
+                  <span className="text-[10px] text-slate-500 block">تطوير عقاري نوعي</span>
                 </div>
               </div>
             )}
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7 xl:gap-8">
-            {navItems.map((item) => (
+          <nav
+            className="relative hidden lg:flex items-center gap-1"
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            <span
+              aria-hidden="true"
+              className="absolute top-1/2 -translate-y-1/2 h-[42px] rounded-full bg-[#e5eee9] pointer-events-none motion-reduce:transition-none"
+              style={{
+                left: 0,
+                width: `${pill.width}px`,
+                transform: `translate3d(${pill.left}px, -50%, 0)`,
+                opacity: pill.visible ? 1 : 0,
+                transition: 'transform 0.35s ease-in-out, width 0.35s ease-in-out, opacity 0.2s ease',
+              }}
+            />
+            {navItems.map((item, idx) => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={({ isActive }) =>
-                  `relative py-2 text-[15px] font-semibold tracking-normal transition-colors duration-200 ${
-                    isActive ? 'text-[#0A2E23]' : 'text-slate-800 hover:text-[#0A2E23]'
-                  }`
-                }
+                ref={(el) => { linkRefs.current[idx] = el; }}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                className="relative z-10 px-[18px] py-[10px] text-[15px] font-bold text-[#0a2e23] whitespace-nowrap transition-colors duration-200"
               >
-                {({ isActive }) => (
-                  <>
-                    <span>{item.label}</span>
-                    {isActive && (
-                      <span className="absolute bottom-0 right-0 left-0 h-[2.5px] rounded-full bg-[#0A2E23]" />
-                    )}
-                  </>
-                )}
+                {item.label}
               </NavLink>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               to="/contact"
-              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#0A2E23] hover:bg-[#0E3F30] text-white text-xs sm:text-[13px] font-bold shadow-xs transition-colors duration-200 inline-flex items-center gap-1.5"
+              className="group relative overflow-hidden px-4 sm:px-5 py-2.5 rounded-xl bg-[#0a2e23] text-white hover:text-[#06261c] text-xs sm:text-[13px] font-bold shadow-xs transition-all duration-300 hover:-translate-y-[2px] motion-reduce:transition-none motion-reduce:transform-none inline-flex items-center gap-1.5 whitespace-nowrap"
             >
-              <span>احجز معاينة</span>
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 bg-[#c9ab68] translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out motion-reduce:transition-none"
+              />
+              <span className="relative z-10 inline-flex items-center gap-1.5">
+                <span>احجز معاينة</span>
+                <ArrowLeft className="w-3.5 h-3.5" />
+              </span>
             </Link>
             <button
               onClick={() => setMobileMenuOpen((o) => !o)}
-              className="lg:hidden p-1.5 sm:p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition"
+              className="lg:hidden p-2 rounded-xl text-[#0a2e23] hover:bg-[#e5eee9]/60 transition"
               aria-label="القائمة الرئيسية"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-800" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
-      </div>
 
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-1.5">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
+        {mobileMenuOpen && (
+          <div className="pointer-events-auto lg:hidden mt-2 mb-2.5 mx-[10px] sm:mx-[60px] max-h-[calc(100dvh-108px)] sm:max-h-[calc(100dvh-134px)] overflow-y-auto overscroll-contain rounded-2xl bg-[rgba(255,255,255,0.97)] backdrop-blur-md border border-slate-200/80 shadow-lg px-4 pt-3 pb-5 space-y-1.5">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `block text-[15px] font-bold py-2.5 px-4 rounded-full transition-colors duration-150 ${
+                    isActive ? 'bg-[#e5eee9] text-[#0a2e23]' : 'text-[#0a2e23] hover:bg-[#e5eee9]/60'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <Link
+              to="/contact"
               onClick={() => setMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `block text-[15px] font-semibold py-2.5 px-3 rounded-lg transition-colors duration-150 ${
-                  isActive ? 'bg-emerald-50 text-[#0A2E23] font-bold' : 'text-slate-800 hover:bg-slate-50'
-                }`
-              }
+              className="block text-[13px] font-bold text-center py-2.5 rounded-xl bg-[#0a2e23] text-white mt-2"
             >
-              {item.label}
-            </NavLink>
-          ))}
-          <Link
-            to="/contact"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-[13px] font-bold text-center py-2.5 rounded-xl bg-[#0A2E23] text-white mt-2"
-          >
-            احجز معاينة
-          </Link>
-        </div>
-      )}
-    </header>
+              احجز معاينة
+            </Link>
+          </div>
+        )}
+      </header>
+    </>
   );
 }

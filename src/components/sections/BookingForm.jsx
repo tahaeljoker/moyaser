@@ -13,7 +13,8 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
   const [preferredTime, setPreferredTime] = useState('عصراً');
   const [payment, setPayment] = useState('تمويل بنكي مدعوم');
   const [notes, setNotes] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setnotice] = useState('');
+const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +36,9 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
       : 'لم يتم تحديد عقار محدد';
 
     setIsSubmitting(true);
-    let ticket = `#MS-${Math.floor(1000 + Math.random() * 9000)}`;
+  setnotice('');
+
+        let ticket = null;
 
     try {
       const res = await createLead({
@@ -56,8 +59,11 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
       if (res?.isDuplicate) {
         onShowToast(res.message, 'info');
       }
+      if (ticket == null) return setnotice('\u062a\u0639\u0630\u0631 \u062a\u0623\u0643\u064a\u062f \u062d\u0641\u0638 \u0627\u0644\u0637\u0644\u0628. \u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0648\u0627\u062a\u0633\u0627\u0628 \u0644\u0644\u062a\u0623\u0643\u062f.');
     } catch (err) {
       console.warn('[BookingForm] API sync fallback:', err.message);
+      setnotice('\u062a\u0639\u0630\u0631 \u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0637\u0644\u0628. \u062d\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649 \u0623\u0648 \u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0648\u0627\u062a\u0633\u0627\u0628.');
+      return;
     } finally {
       setIsSubmitting(false);
     }
@@ -81,52 +87,57 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
   };
 
   return (
-    <section id="booking-section" className="py-20 bg-slate-900 relative overflow-hidden" dir="rtl">
-      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-30" />
+    <section
+      id="booking-section"
+      className="py-20 relative overflow-hidden rounded-[14px]"
+      style={{ background: 'linear-gradient(135deg, #0b3a2c 0%, #06261c 100%)' }}
+      dir="rtl"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(#c9ab68_1px,transparent_1px)] [background-size:18px_18px] opacity-15 pointer-events-none" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-amber-400 font-bold tracking-wider text-xs uppercase bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+          <span className="text-[#c9ab68] font-bold tracking-wider text-xs uppercase bg-[#c9ab68]/10 px-3 py-1 rounded-full border border-[#c9ab68]/30">
             خطوة نحو الاستقرار
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3 font-heading">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#f4efe2] mt-3 font-heading">
             احجز استشارتك أو وحدتك في تاون هاوس الشامخة
           </h2>
-          <p className="text-slate-400 mt-2 text-xs sm:text-sm">
+          <p className="text-stone-300 mt-2 text-xs sm:text-sm">
             فريق مُيسّر للتطوير العقاري مستعد لتسهيل إجراءات التملك والتمويل البنكي المتوافق مع الشريعة.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-md space-y-6">
+        <form onSubmit={handleSubmit} className="bg-[#06261c]/75 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-md space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-2">الاسم الثلاثي الكريم *</label>
+              <label className="block text-xs font-bold text-stone-200 mb-2">الاسم الثلاثي الكريم *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="مثال: محمد بن سعد القحطاني"
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400"
+                className="w-full px-4 py-2.5 rounded-xl bg-[#06261c]/80 border border-white/15 text-white placeholder-stone-400 text-xs focus:outline-none focus:border-[#c9ab68]"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-2">رقم الجوال (واتساب) *</label>
+              <label className="block text-xs font-bold text-stone-200 mb-2">رقم الجوال (واتساب) *</label>
               <PhoneInputWithCountry
                 value={phone}
                 onChange={setPhone}
                 required
-                className="bg-slate-900/80 border-slate-700 text-slate-100"
+                className="bg-[#06261c]/80 border-white/15 text-stone-100"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-2">الوحدة أو النموذج المرغوب</label>
+              <label className="block text-xs font-bold text-stone-200 mb-2">الوحدة أو النموذج المرغوب</label>
               <select
                 value={propertyId}
                 onChange={(e) => setPropertyId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-400"
+                className="w-full px-4 py-2.5 rounded-xl bg-[#06261c]/80 border border-white/15 text-stone-200 text-xs focus:outline-none focus:border-[#c9ab68]"
               >
                 <option value="">استشارة عامة لكافة النماذج المتاحة</option>
                 {properties.map((p) => (
@@ -137,7 +148,7 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-2">الوقت المفضل للتواصل</label>
+              <label className="block text-xs font-bold text-stone-200 mb-2">الوقت المفضل للتواصل</label>
               <div className="grid grid-cols-3 gap-2">
                 {['صباحاً (9 - 12)', 'ظهراً (1 - 4)', 'عصراً (4 - 9)'].map((time) => (
                   <button
@@ -145,8 +156,8 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
                     type="button"
                     onClick={() => setPreferredTime(time.split(' ')[0])}
                     className={`py-2 px-1 text-center rounded-xl text-xs font-medium border transition ${preferredTime === time.split(' ')[0]
-                        ? 'bg-amber-400/20 text-amber-300 border-amber-400/60 font-bold'
-                        : 'bg-slate-900/50 text-slate-400 border-slate-700 hover:text-white'
+                        ? 'bg-[#c9ab68] text-[#06261c] border-[#c9ab68] font-bold'
+                        : 'bg-[#06261c]/50 text-stone-300 border-white/15 hover:text-white'
                       }`}
                   >
                     {time.split(' ')[0]}
@@ -157,7 +168,7 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-2">آلية الشراء المفضلة</label>
+            <label className="block text-xs font-bold text-stone-200 mb-2">آلية الشراء المفضلة</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 'تمويل بنكي مدعوم',
@@ -166,8 +177,8 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
                 <label
                   key={opt}
                   className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs transition ${payment === opt
-                      ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-300'
-                      : 'bg-slate-900/40 border-slate-700 text-slate-400 hover:text-slate-300'
+                      ? 'bg-[#c9ab68]/20 border-[#c9ab68] text-[#f4efe2] font-bold'
+                      : 'bg-[#06261c]/50 border-white/15 text-stone-300 hover:text-white'
                     }`}
                 >
                   <input
@@ -176,7 +187,7 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
                     value={opt}
                     checked={payment === opt}
                     onChange={(e) => setPayment(e.target.value)}
-                    className="text-emerald-500 focus:ring-0"
+                    className="text-[#c9ab68] focus:ring-0"
                   />
                   <span>{opt}</span>
                 </label>
@@ -185,25 +196,29 @@ export default function BookingForm({ onBookingSuccess, onShowToast, projectId =
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-2">ملاحظات أو استفسارات إضافية</label>
+            <label className="block text-xs font-bold text-stone-200 mb-2">ملاحظات أو استفسارات إضافية</label>
             <textarea
               rows="3"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="هل لديك بنك مفضل، أو تفاصيل خاصة بتمويل سكني؟"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400 resize-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-[#06261c]/80 border border-white/15 text-white placeholder-stone-400 text-xs focus:outline-none focus:border-[#c9ab68] resize-none"
             />
           </div>
 
-          <div className="pt-2">
+                            <p role='alert' className="text-amber-300 text-xs">
+                              {notice}
+                            </p>
+
+<div className="pt-2">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition disabled:opacity-60"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#c9ab68] hover:bg-[#d5b978] text-[#06261c] font-bold text-sm shadow-lg transition disabled:opacity-60"
             >
               {isSubmitting ? 'جاري إرسال الطلب...' : 'تأكيد إرسال الطلب وحجز موعد استشارة'}
             </button>
-            <p className="text-center text-[11px] text-slate-400 mt-3">
+            <p className="text-center text-[11px] text-stone-300 mt-3">
               معلوماتك محمية ومشفرة وفق أعلى معايير الخصوصية السعودية.
             </p>
           </div>

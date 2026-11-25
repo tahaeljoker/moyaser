@@ -13,10 +13,10 @@ const SPECS = [
   { label: 'إجمالي الوحدات', val: '15 تاون هاوس' },
   { label: 'تنوع النماذج', val: '6 نماذج (A–F)' },
   { label: 'مسطحات البناء', val: '302 – 428 م²' },
-  { label: 'الملكية', val: 'صك إلكتروني مستقل' },
+  { label: 'الاستقلالية', val: 'وحدات مستقلة' },
 ];
 
-export default function ProjectsShowcase({ projects = [], loading = false }) {
+export default function ProjectsShowcase({ projects = [], loading = false, settings = null }) {
   const [activeMedia, setActiveMedia] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [inView, setInView] = useState(false);
@@ -37,7 +37,6 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
     city: 'الدمام',
     district: 'حي حديقة الأثير',
     heroImageUrl: '/images/shamkha/hero-exterior.webp',
-    regaLicense: '1200028491',
   };
 
   const otherProjects = projects.slice(1);
@@ -47,9 +46,8 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div
-          className={`flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
         >
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-bold text-[#0A2E23]">
@@ -60,7 +58,7 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
               مشاريع سكنية مستقلة تُصاغ بأعلى دقة هندسية
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              نطور مجتمعات تاون هاوس حديثة بالمنطقة الشرقية تلبي تطلعات السكن الراقي وتمنح كل عائلة خصوصية الفيلا المنفصلة بصك إلكتروني مستقل.
+              {settings?.siteCopy?.showcaseDesc?.trim() || 'نطور مجتمعات تاون هاوس حديثة بالمنطقة الشرقية تلبي تطلعات السكن الراقي وتمنح كل عائلة خصوصية الفيلا المنفصلة.'}
             </p>
           </div>
 
@@ -75,9 +73,8 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
 
         {/* Flagship Architectural Master Card */}
         <div
-          className={`relative rounded-3xl bg-[#F8F7F4] border border-slate-200/80 overflow-hidden shadow-xs transition-all duration-700 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}
+          className={`relative rounded-3xl bg-[#F8F7F4] border border-slate-200/80 overflow-hidden shadow-xs transition-all duration-700 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
             {/* Visual Media Showcase with Click to Expand */}
@@ -95,7 +92,7 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
               {/* Status & Maximize Button */}
               <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center gap-2">
                 <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#0A2E23]/90 text-[#C8A96A] border border-[#C8A96A]/30 backdrop-blur-md shadow-sm">
-                  متاح للحجز والإفراغ الفوري
+                  {settings?.siteCopy?.showcaseStatusBadge?.trim() || 'متاح للحجز'}
                 </span>
                 <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/90 text-slate-900 backdrop-blur-md inline-flex items-center gap-1.5 shadow-sm">
                   <MapPin className="w-3.5 h-3.5 text-emerald-800" />
@@ -114,20 +111,15 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
                     <button
                       key={idx}
                       onClick={() => setActiveMedia(idx)}
-                      className={`relative px-3 py-1 rounded-xl text-[11px] font-bold transition duration-300 ${
-                        activeMedia === idx
+                      className={`relative px-3 py-1 rounded-xl text-[11px] font-bold transition duration-300 ${activeMedia === idx
                           ? 'bg-[#0A2E23] text-white shadow-xs'
                           : 'text-stone-300 hover:text-white hover:bg-white/10'
-                      }`}
+                        }`}
                     >
                       {thumb.label}
                     </button>
                   ))}
                 </div>
-
-                <span className="hidden sm:inline-flex text-[11px] text-stone-300 font-mono bg-slate-950/70 px-3 py-1 rounded-xl backdrop-blur-md border border-white/15 tabular-nums">
-                  REGA #{primaryProject.regaLicense || '1200028491'}
-                </span>
               </div>
             </div>
 
@@ -150,8 +142,12 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   {SPECS.map((s, i) => (
                     <div key={i} className="p-3.5 rounded-2xl bg-white border border-slate-200/80">
-                      <span className="text-[10px] text-slate-400 block font-semibold">{s.label}</span>
-                      <span className="text-sm font-bold text-slate-900 tabular-nums">{s.val}</span>
+                      <span className="text-[10px] text-slate-400 block font-semibold">
+                        {i === 3 ? (settings?.siteCopy?.showcaseIndependenceLabel?.trim() || s.label) : s.label}
+                      </span>
+                      <span className="text-sm font-bold text-slate-900 tabular-nums">
+                        {i === 3 ? (settings?.siteCopy?.showcaseIndependenceVal?.trim() || s.val) : s.val}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -215,7 +211,9 @@ export default function ProjectsShowcase({ projects = [], loading = false }) {
                   </div>
                 </div>
                 <div className="p-6 pt-0 border-t border-slate-200/60 mt-4 flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-emerald-800 font-mono">صكوك إلكترونية</span>
+                  <span className="text-[11px] font-bold text-emerald-800 font-mono">
+                    {settings?.siteCopy?.showcaseFooterTag?.trim() || 'وحدات مستقلة'}
+                  </span>
                   <Link
                     to={`/projects/${proj.slug}`}
                     className="inline-flex items-center gap-1 text-xs font-bold text-[#0A2E23] hover:underline"
