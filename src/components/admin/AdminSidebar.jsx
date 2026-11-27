@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X, Image, Layers, FolderKanban } from 'lucide-react';
+import { Users, Building, UserCheck, Settings, ExternalLink, LogOut, X, Image, Layers, FolderKanban, Wrench } from 'lucide-react';
 import { brand } from '../../data/projectData.js';
 
 export default function AdminSidebar({
@@ -13,12 +13,14 @@ export default function AdminSidebar({
   onLogout,
 }) {
   const canAccessCRM = ['super_admin', 'admin', 'receptionist', 'sales'].includes(role);
+  const canAccessMaintenance = ['super_admin', 'admin', 'receptionist'].includes(role);
   const canAccessUnits = ['super_admin', 'admin', 'editor'].includes(role);
   const canAccessUsers = ['super_admin', 'admin'].includes(role);
   const canAccessSettings = ['super_admin', 'admin', 'editor'].includes(role);
 
   const crmItems = [
     canAccessCRM && { id: 'leads', label: 'طلبات العملاء', icon: Users, count: leadsCount },
+    canAccessMaintenance && { id: 'maintenance', label: 'طلبات الصيانة', icon: Wrench },
   ].filter(Boolean);
 
   const cmsItems = [

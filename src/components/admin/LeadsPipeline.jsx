@@ -27,6 +27,71 @@ const getFollowUpStatus = (dateStr) => {
 
 const sourceMap = { website: 'الموقع الإلكتروني', walk_in: 'زيارة للمكتب', phone: 'اتصال هاتفي', whatsapp: 'محادثة واتساب' };
 const stageMap = { prospective: 'استفسار', reserved: 'حجز (بانتظار البنك)', closed: 'تم الشراء', cancelled: 'ملغي' };
+const paymentPlanBadges = {
+  full: { label: 'دفع كامل', cls: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+  depositbank: { label: 'عربون + تمويل بنكي', cls: 'bg-amber-50 text-amber-800 border-amber-200' },
+  depositclient: { label: 'عربون + تمويل عميل', cls: 'bg-sky-50 text-sky-800 border-sky-200' },
+  bankonly: { label: 'تمويل بنكي فقط', cls: 'bg-slate-100 text-slate-700 border-slate-300' },
+};
+const stageProgress = {
+  prospective: { step: 1, barColor: 'bg-sky-500' },
+  reserved: { step: 2, barColor: 'bg-amber-500' },
+  closed: { step: 3, barColor: 'bg-emerald-600' },
+  cancelled: { step: 0, barColor: 'bg-slate-300' },
+};
+
+const getStatusPresentation = (lead) => {
+  const sold = isSoldDisplay(lead);
+  if (lead.stage === 'cancelled') {
+    return {
+      stageLine: 'ملغي',
+      statusName: stageMap.cancelled,
+      badgeCls: stageBadges.cancelled,
+      waitingLine: lead.cancellationReason ? `سبب الإلغاء: ${lead.cancellationReason}` : 'تم إلغاء الطلب',
+      sold: false,
+    };
+  }
+  if (lead.stage === 'prospective') {
+    return {
+      stageLine: `المرحلة 1 من 3 · ${stageMap.prospective}`,
+      statusName: stageMap.prospective,
+      badgeCls: stageBadges.prospective,
+      waitingLine: 'بانتظار التواصل الأول',
+      sold: false,
+    };
+  }
+  if (lead.stage === 'reserved') {
+    const plan = lead.paymentPlan && paymentPlanBadges[lead.paymentPlan];
+    const waitingMap = {
+      full: 'بانتظار التسليم',
+      depositbank: lead.financingStatus === 'approved' ? 'بانتظار استكمال الأوراق' : 'بانتظار موافقة التمويل',
+      depositclient: 'بانتظار سداد الباقي',
+      bankonly: lead.financingStatus === 'approved' ? 'بانتظار استكمال الأوراق' : 'بانتظار موافقة التمويل',
+    };
+    return {
+      stageLine: `المرحلة 2 من 3 · ${stageMap.reserved}`,
+      statusName: plan ? plan.label : stageMap.reserved,
+      badgeCls: plan ? plan.cls : stageBadges.reserved,
+      waitingLine: waitingMap[lead.paymentPlan] || 'بانتظار تحديد خطة الدفع',
+      sold: false,
+    };
+  }
+  return {
+    stageLine: `المرحلة 3 من 3 · ${stageMap.closed}`,
+    statusName: stageMap.closed,
+    badgeCls: stageBadges.closed,
+    waitingLine: sold
+      ? (lead.handover?.status === 'delivered' ? 'تم التسليم للعميل' : 'تجهيز الوحدة')
+      : 'بانتظار الإفراغ',
+    sold,
+  };
+};
+
+const isSoldDisplay = (lead) => {
+  const docs = lead?.documents || {};
+  const allDocs = docs.nationalId && docs.depositReceipt && docs.financingProof && docs.allocationForm;
+  return lead?.stage === 'closed' && Boolean(allDocs) && ['preparing_unit', 'delivered'].includes(lead?.handover?.status);
+};
 
 export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
   const { user } = useAuth();
@@ -42,8 +107,8 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
   const [selectedLead, setSelectedLead] = useState(null);
 
   useEffect(() => {
-    fetchProjects(true).then((res) => { if (res?.data) setProjects(res.data); }).catch(() => {});
-    if (isAdmin) fetchAdminUsers().then((res) => { if (res?.users) setStaffList(res.users); }).catch(() => {});
+    fetchProjects(true).then((res) => { if (res?.data) setProjects(res.data); }).catch(() => { });
+    if (isAdmin) fetchAdminUsers().then((res) => { if (res?.users) setStaffList(res.users); }).catch(() => { });
   }, [isAdmin]);
 
   const activeLeadInList = useMemo(() => {
@@ -181,14 +246,43 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
                       </span>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="flex items-center gap-1 flex-wrap">
-                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border inline-block ${stageBadges[lead.stage]}`}>{stageMap[lead.stage] || lead.stage}</span>
-                        {isExpired && (
-                          <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300 text-[10px] font-bold inline-flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3 text-rose-700" /><span>انتهت مدة الحجز</span>
-                          </span>
-                        )}
-                      </div>
+                      {(() => {
+                        const progress = stageProgress[lead.stage] || stageProgress.prospective;
+                        const statusInfo = getStatusPresentation(lead);
+                        return (
+                          <div className="space-y-1 min-w-[155px]">
+                            <div className="flex items-center gap-1 w-28">
+                              {[1, 2, 3].map((seg) => (
+                                <span
+                                  key={seg}
+                                  className={`h-1 flex-1 rounded-full ${seg <= progress.step ? progress.barColor : 'bg-slate-200'}`}
+                                />
+                              ))}
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-medium">
+                              {statusInfo.stageLine}
+                            </div>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className={`px-2 py-0.5 rounded-lg text-[11px] font-bold border inline-block ${statusInfo.badgeCls}`}>
+                                {statusInfo.statusName}
+                              </span>
+                              {statusInfo.sold && (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-800 text-white text-[10px] font-bold">
+                                  مباع (للعرض)
+                                </span>
+                              )}
+                              {isExpired && (
+                                <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300 text-[10px] font-bold inline-flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3 text-rose-700" /><span>انتهت مدة الحجز</span>
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-slate-500">
+                              {statusInfo.waitingLine}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       {followUp ? (
@@ -217,7 +311,7 @@ export default function LeadsPipeline({ leads = [], onUpdateLead, onRefresh }) {
         </div>
       )}
 
-      <LeadDetailsDrawer lead={activeLeadInList} isOpen={Boolean(selectedLead)} onClose={() => setSelectedLead(null)} onUpdateLead={onUpdateLead} staffList={staffList} isAdmin={isAdmin} />
+      <LeadDetailsDrawer lead={activeLeadInList} isOpen={Boolean(selectedLead)} onClose={() => setSelectedLead(null)} onUpdateLead={onUpdateLead} onRefresh={onRefresh} staffList={staffList} isAdmin={isAdmin} />
       <AddWalkInLeadModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onLeadCreated={onRefresh} />
     </div>
   );

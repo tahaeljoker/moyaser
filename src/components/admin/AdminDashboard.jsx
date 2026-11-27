@@ -13,12 +13,14 @@ import SiteSettingsManager from './SiteSettingsManager.jsx';
 import MediaGalleryManager from './MediaGalleryManager.jsx';
 import ModelsManager from './ModelsManager.jsx';
 import ProjectsManager from './ProjectsManager.jsx';
+import MaintenanceManager from './MaintenanceManager.jsx';
 
 export default function AdminDashboard() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const role = user?.role || 'sales';
 
   const canAccessCRM = ['super_admin', 'admin', 'receptionist', 'sales'].includes(role);
+  const canAccessMaintenance = ['super_admin', 'admin', 'receptionist'].includes(role);
   const canAccessUnits = ['super_admin', 'admin', 'editor'].includes(role);
   const canAccessUsers = ['super_admin', 'admin'].includes(role);
   const canAccessSettings = ['super_admin', 'admin', 'editor'].includes(role);
@@ -55,10 +57,11 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!canAccessCRM && activeTab === 'leads') setActiveTab('units');
+    if (!canAccessMaintenance && activeTab === 'maintenance') setActiveTab('leads');
     if (!canAccessUnits && activeTab === 'units') setActiveTab('leads');
     if (!canAccessUsers && activeTab === 'users') setActiveTab('leads');
     if (!canAccessSettings && ['settings', 'media', 'models', 'projects'].includes(activeTab)) setActiveTab('leads');
-  }, [role, canAccessCRM, canAccessUnits, canAccessUsers, canAccessSettings, activeTab]);
+  }, [role, canAccessCRM, canAccessMaintenance, canAccessUnits, canAccessUsers, canAccessSettings, activeTab]);
 
   if (loading) {
     return (
@@ -85,6 +88,7 @@ export default function AdminDashboard() {
 
   const tabTitles = {
     leads: 'طلبات العملاء',
+    maintenance: 'طلبات الصيانة',
     projects: 'إدارة المشاريع العقارية',
     units: 'الوحدات السكنية',
     media: 'المعرض والوسائط الرقمية',
@@ -120,6 +124,8 @@ export default function AdminDashboard() {
           {activeTab === 'leads' && canAccessCRM && (
             <LeadsPipeline leads={leads} onUpdateLead={handleUpdateLead} onRefresh={loadData} />
           )}
+
+          {activeTab === 'maintenance' && canAccessMaintenance && <MaintenanceManager />}
 
           {activeTab === 'projects' && canAccessSettings && <ProjectsManager />}
 

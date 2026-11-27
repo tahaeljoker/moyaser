@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Phone, MessageCircle, Save, CheckCircle2, AlertCircle, Building2, Calendar, DollarSign, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { X, Phone, MessageCircle, Save, CheckCircle2, AlertCircle, Building2, Calendar, DollarSign, ShieldCheck, AlertTriangle, ClipboardCheck } from 'lucide-react';
 import LeadActivityLog from './LeadActivityLog.jsx';
 import WhatsAppTemplatesBar from './WhatsAppTemplatesBar.jsx';
-import { addLeadActivity } from '../../services/api.js';
+import { addLeadActivity, getToken } from '../../services/api.js';
 
 const banks = ['الراجحي', 'الأهلي', 'الإنماء', 'الرياض', 'البلاد', 'ساب', 'نقدي / كاش', 'أخرى'];
 const cancelReasons = ['السعر', 'رفض البنك', 'الموقع', 'لا يرد', 'أخرى'];
@@ -21,13 +21,30 @@ const initialForm = (lead) => ({
   handoverStatus: lead?.handover?.status || 'pending_deed',
   finalPrice: lead?.handover?.finalPrice || '',
   deliveredAt: lead?.handover?.deliveredAt ? lead.handover.deliveredAt.split('T')[0] : '',
+  paymentPlan: lead?.paymentPlan || '',
+  amountPaid: lead?.amountPaid ?? '',
+  financingStatus: lead?.financingStatus || 'not_started',
+  documents: {
+    nationalId: Boolean(lead?.documents?.nationalId),
+    depositReceipt: Boolean(lead?.documents?.depositReceipt),
+    financingProof: Boolean(lead?.documents?.financingProof),
+    allocationForm: Boolean(lead?.documents?.allocationForm),
+  },
 });
 
-export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead, staffList = [], isAdmin = false }) {
+const DOC_LABELS = [
+  ['nationalId', 'الهوية الوطنية'],
+  ['depositReceipt', 'إيصال العربون'],
+  ['financingProof', 'إثبات التمويل'],
+  ['allocationForm', 'نموذج التخصيص'],
+];
+
+export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead, onRefresh, staffList = [], isAdmin = false }) {
   if (!isOpen || !lead) return null;
 
   const [form, setForm] = useState(() => initialForm(lead));
   const [savingDetails, setSavingDetails] = useState(false);
+  const [savingLifecycle, setSavingLifecycle] = useState(false);
   const [savingActivity, setSavingActivity] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ type: null, text: null });
 
@@ -60,6 +77,30 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
       setTimeout(() => setStatusMsg({ type: null, text: null }), 3000);
     } catch (err) { setStatusMsg({ type: 'error', text: err.message || 'فشل حفظ التعديلات.' }); }
     finally { setSavingDetails(false); }
+  };
+
+  const handleSaveLifecycle = async () => {
+    setSavingLifecycle(true);
+    setStatusMsg({ type: null, text: null });
+    try {
+      const token = getToken();
+      const res = await fetch(`/api/admin/leads/${lead._id}/lifecycle`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          paymentPlan: form.paymentPlan || null,
+          amountPaid: Number(form.amountPaid) || 0,
+          financingStatus: form.financingStatus,
+          documents: form.documents,
+          handoverStatus: form.handoverStatus,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.message || 'فشل حفظ بيانات دورة الطلب.');
+      if (onRefresh) await onRefresh();
+      setStatusMsg({ type: 'success', text: json.message || 'تم تحديث بيانات الدفع والأوراق.' });
+    } catch (err) { setStatusMsg({ type: 'error', text: err.message || 'فشل تحديث بيانات الدفع والأوراق.' }); }
+    finally { setSavingLifecycle(false); }
   };
 
   const handleAddActivity = async (note, nextDate) => {
@@ -223,6 +264,46 @@ export default function LeadDetailsDrawer({ lead, isOpen, onClose, onUpdateLead,
               </div>
             </div>
           )}
+
+          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <h3 className="font-bold text-slate-800 flex items-center gap-1.5"><ClipboardCheck className="w-3.5 h-3.5 text-emerald-800" /><span>خطة الدفع والتمويل والأوراق (داخلي)</span></h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label className="block text-slate-600 mb-1">خطة الدفع</label>
+                <select value={form.paymentPlan} onChange={(e) => setForm({ ...form, paymentPlan: e.target.value })} className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800">
+                  <option value="">غير محدد</option>
+                  <option value="full">دفع كامل</option>
+                  <option value="depositbank">عربون + تمويل بنكي</option>
+                  <option value="depositclient">عربون + تمويل عميل</option>
+                  <option value="bankonly">تمويل بنكي فقط</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-slate-600 mb-1">المبلغ المدفوع (ر.س)</label>
+                <input type="number" min="0" value={form.amountPaid} onChange={(e) => setForm({ ...form, amountPaid: e.target.value })} className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 font-mono" />
+              </div>
+              <div>
+                <label className="block text-slate-600 mb-1">حالة التمويل</label>
+                <select value={form.financingStatus} onChange={(e) => setForm({ ...form, financingStatus: e.target.value })} className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800">
+                  <option value="not_started">لم يبدأ</option>
+                  <option value="pending">قيد الدراسة</option>
+                  <option value="approved">معتمد</option>
+                  <option value="rejected">مرفوض</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {DOC_LABELS.map(([key, label]) => (
+                <label key={key} className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700">
+                  <input type="checkbox" checked={Boolean(form.documents?.[key])} onChange={(e) => setForm({ ...form, documents: { ...form.documents, [key]: e.target.checked } })} className="rounded text-emerald-800" />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+            <button type="button" onClick={handleSaveLifecycle} disabled={savingLifecycle} className="w-full py-2 px-3 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white font-bold transition disabled:opacity-60">
+              {savingLifecycle ? 'جاري التحديث...' : 'حفظ بيانات الدفع والأوراق'}
+            </button>
+          </div>
 
           <button onClick={handleSaveDetails} disabled={savingDetails} className="w-full py-2.5 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-60">
             <Save className="w-3.5 h-3.5" /><span>{savingDetails ? 'جاري الحفظ...' : 'حفظ التعديلات'}</span>

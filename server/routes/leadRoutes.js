@@ -233,4 +233,87 @@ router.post('/admin/leads/:id/activities', verifyToken, requireRole(['super_admi
   }
 });
 
+export const PAYMENT_PLANS = ['full', 'depositbank', 'depositclient', 'bankonly'];
+export const FINANCING_STATUSES = ['not_started', 'pending', 'approved', 'rejected'];
+export const DOCUMENT_KEYS = ['nationalId', 'depositReceipt', 'financingProof', 'allocationForm'];
+
+export function computeLeadStageFromLifecycle(lead) {
+  const docs = lead?.documents || {};
+  const allDocs = DOCUMENT_KEYS.every((k) => Boolean(docs[k]));
+  const plan = lead?.paymentPlan || null;
+  const paid = Number(lead?.amountPaid) || 0;
+  const fin = lead?.financingStatus || 'not_started';
+
+  const paymentReady =
+    (plan === 'full' && paid > 0) ||
+    (['depositbank', 'depositclient', 'bankonly'].includes(plan) && fin === 'approved');
+
+  if (allDocs && paymentReady) return 'closed';
+  if (PAYMENT_PLANS.includes(plan) || paid > 0 || ['pending', 'approved'].includes(fin)) {
+    return 'reserved';
+  }
+  return 'prospective';
+}
+
+export function isLeadUnitSoldDisplay(lead) {
+  if (lead?.stage !== 'closed') return false;
+  const docs = lead?.documents || {};
+  if (!DOCUMENT_KEYS.every((k) => Boolean(docs[k]))) return false;
+  return ['preparing_unit', 'delivered'].includes(lead?.handover?.status);
+}
+
+// PATCH /api/admin/leads/:id/lifecycle (Protected: server-computed stage, no client stage accepted)
+router.patch('/admin/leads/:id/lifecycle', verifyToken, requireRole(['super_admin', 'admin', 'receptionist', 'sales']), async (req, res) => {
+  try {
+    const { paymentPlan, amountPaid, financingStatus, documents, handoverStatus } = req.body;
+    const lead = await Lead.findById(req.params.id);
+    if (!lead) return res.status(404).json({ success: false, message: 'طلب العميل غير موجود.' });
+    if (req.user.role === 'sales' && String(lead.assignedAgent) !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'غير مصرح بتعديل طلب غير مسند إليك.' });
+    }
+
+    if (paymentPlan !== undefined) {
+      if (paymentPlan !== null && !PAYMENT_PLANS.includes(paymentPlan)) {
+        return res.status(400).json({ success: false, message: 'خطة الدفع غير صالحة.' });
+      }
+      lead.paymentPlan = paymentPlan;
+    }
+    if (amountPaid !== undefined) {
+      const n = Number(amountPaid);
+      if (Number.isNaN(n) || n < 0) {
+        return res.status(400).json({ success: false, message: 'المبلغ المدفوع غير صالح.' });
+      }
+      lead.amountPaid = n;
+    }
+    if (financingStatus !== undefined) {
+      if (!FINANCING_STATUSES.includes(financingStatus)) {
+        return res.status(400).json({ success: false, message: 'حالة التمويل غير صالحة.' });
+      }
+      lead.financingStatus = financingStatus;
+    }
+    if (documents && typeof documents === 'object') {
+      const currentDocs = lead.documents?.toObject ? lead.documents.toObject() : (lead.documents || {});
+      for (const key of DOCUMENT_KEYS) {
+        if (documents[key] !== undefined) currentDocs[key] = Boolean(documents[key]);
+      }
+      lead.documents = currentDocs;
+    }
+    if (handoverStatus && ['pending_deed', 'preparing_unit', 'delivered'].includes(handoverStatus)) {
+      lead.handover = { ...(lead.handover?.toObject ? lead.handover.toObject() : (lead.handover || {})), status: handoverStatus };
+    }
+
+    lead.stage = computeLeadStageFromLifecycle(lead);
+    await lead.save();
+
+    res.json({
+      success: true,
+      message: 'تم تحديث بيانات دورة الطلب وحساب المرحلة تلقائياً.',
+      data: lead,
+      soldDisplay: isLeadUnitSoldDisplay(lead),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'فشل تحديث دورة الطلب.' });
+  }
+});
+
 export default router;

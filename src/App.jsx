@@ -8,6 +8,7 @@ import ProjectDetailPage from './pages/ProjectDetailPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import ServicesPage from './pages/ServicesPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import MaintenancePage from './pages/MaintenancePage.jsx';
 import AdminLogin from './components/admin/AdminLogin.jsx';
 import AdminDashboard from './components/admin/AdminDashboard.jsx';
 import ProtectedRoute from './components/admin/ProtectedRoute.jsx';
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
 
             {/* Admin & Sales Portal */}
             <Route path="/login" element={<Navigate to="/admin/login" replace />} />

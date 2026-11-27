@@ -99,6 +99,23 @@ const leadSchema = new mongoose.Schema(
       finalPrice: { type: Number, default: 0 },
       deliveredAt: { type: Date, default: null },
     },
+    paymentPlan: {
+      type: String,
+      enum: ['full', 'depositbank', 'depositclient', 'bankonly', null],
+      default: null,
+    },
+    amountPaid: { type: Number, default: 0, min: 0 },
+    financingStatus: {
+      type: String,
+      enum: ['not_started', 'pending', 'approved', 'rejected'],
+      default: 'not_started',
+    },
+    documents: {
+      nationalId: { type: Boolean, default: false },
+      depositReceipt: { type: Boolean, default: false },
+      financingProof: { type: Boolean, default: false },
+      allocationForm: { type: Boolean, default: false },
+    },
     activityLog: [
       {
         note: { type: String, required: true, trim: true },
