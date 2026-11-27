@@ -15,7 +15,7 @@ export const brand = {
   phone: `+${WHATSAPP}`,
   phoneDisplay: '+966 50 055 0223',
   whatsapp: WHATSAPP,
-  logo: '/brand/logo.png',
+  logo: '/brand/brand-logo.png',
   workingHours: 'طوال أيام الأسبوع — 9:00 صباحاً حتى 9:00 مساءً',
   mapQuery: MAPS_QUERY,
   tagline: 'مشاريع سكنية نوعية بتصاميم عصرية وإتقان هندسي',
