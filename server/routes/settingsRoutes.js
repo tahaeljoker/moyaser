@@ -4,6 +4,28 @@ import { verifyToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
+const SITE_COPY_LIMITS = {
+  footerBadge1: 40,
+  footerBadge2: 40,
+  footerBadge3: 40,
+  homeServicesConsultationDesc: 150,
+  partnersMarketingSpec: 40,
+  partnersWarrantyDesc: 100,
+  whyUsIndependenceTitle: 40,
+  whyUsIndependenceDesc: 90,
+  servicesPageDevDesc: 160,
+  projectsHeaderDesc: 210,
+  projectsHeaderStat: 40,
+  archVisionDesc: 180,
+  archVisionSpec: 40,
+  masterplanBadge: 40,
+  showcaseIndependenceLabel: 40,
+  showcaseIndependenceVal: 40,
+  showcaseDesc: 170,
+  showcaseStatusBadge: 40,
+  showcaseFooterTag: 40,
+};
+
 // GET /api/settings (Public — Get Current Site Settings)
 router.get('/settings', async (req, res) => {
   try {
@@ -22,7 +44,7 @@ router.put('/admin/settings', verifyToken, requireRole(['admin', 'editor']), asy
     const {
       projectName, city, heroTitle, heroSubtitle, regaLicense, falLicense,
       whatsappNumber, phoneNumber, mapUrl, aboutText, heroImageUrl, heroVideoUrl,
-      projectTour3dUrl, galleryImages, announcementBar, socialLinks, officeInfo, visibleSections,
+      projectTour3dUrl, galleryImages, announcementBar, socialLinks, officeInfo, visibleSections, siteCopy,
     } = req.body;
 
     const updates = {};
@@ -44,6 +66,31 @@ router.put('/admin/settings', verifyToken, requireRole(['admin', 'editor']), asy
     if (socialLinks && typeof socialLinks === 'object') updates.socialLinks = socialLinks;
     if (officeInfo && typeof officeInfo === 'object') updates.officeInfo = officeInfo;
     if (visibleSections && typeof visibleSections === 'object') updates.visibleSections = visibleSections;
+    if (siteCopy !== undefined) {
+      if (!siteCopy || typeof siteCopy !== 'object' || Array.isArray(siteCopy)) {
+        return res.status(400).json({ success: false, message: 'الحقل siteCopy يجب أن يكون كائناً صالحاً.' });
+      }
+      const existing = await SiteSettings.findOne().lean();
+      for (const [k, v] of Object.entries(siteCopy)) {
+        if (!Object.prototype.hasOwnProperty.call(SITE_COPY_LIMITS, k)) {
+          return res.status(400).json({ success: false, message: `الحقل siteCopy.${k} غير مسموح به.` });
+        }
+        if (typeof v !== 'string') {
+          return res.status(400).json({ success: false, message: `قيمة الحقل siteCopy.${k} يجب أن تكون نصاً.` });
+        }
+        const trimmed = v.trim();
+        const maxLen = SITE_COPY_LIMITS[k];
+        const existingVal = typeof existing?.siteCopy?.[k] === 'string' ? existing.siteCopy[k] : '';
+        if (trimmed.length > maxLen) {
+          if (trimmed === existingVal) continue;
+          return res.status(400).json({
+            success: false,
+            message: `الحقل siteCopy.${k} يتجاوز الحد الأقصى (${maxLen} حرفاً).`,
+          });
+        }
+        updates[`siteCopy.${k}`] = trimmed;
+      }
+    }
 
     const settings = await SiteSettings.findOneAndUpdate(
       {},
